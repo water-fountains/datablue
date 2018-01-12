@@ -1,6 +1,6 @@
 # Components
 
-![data flow](/images/data-flow.png)
+![data flow](/docs/images/data-flow.png)
 
 ## Data collection
 Data is collected from a selection of repositories (see figure below), either on a schedule or triggered by webhooks, if possible. In the case of media files hosted on Wikimedia, only the metadata and a link to the media file is collected.
