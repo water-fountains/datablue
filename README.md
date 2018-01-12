@@ -6,6 +6,7 @@ for more information on the overall project.
 The project is open source under the GNU Affero General Public License, with a profit contribution agreement applying under restricted conditions. See [COPYING](/COPYING) for information.
 
 ## Vision
+Datablue will consist in a collection of scripts and data structures for collecting and manipulating data, which can be executed on a schedule to generate an always up-to-date consolidated dataset.
 ![data flow](/docs/images/data-flow.png)
 
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/59c350e2-310e-4279-8169-7044839b7307). See the [docs](/docs/components.md) for planned components.
