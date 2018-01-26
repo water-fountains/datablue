@@ -5,6 +5,8 @@ for more information on the overall project.
 
 The project is open source under the GNU Affero General Public License, with a profit contribution agreement applying under restricted conditions. See [COPYING](/COPYING) for information.
 
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/aWaterMap/proximap-Web-App)
+
 ## Vision
 ![data flow](/docs/images/data-flow.png)
 
