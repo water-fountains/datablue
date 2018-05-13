@@ -1,0 +1,161 @@
+{
+  "OSM": {
+    "sub_sources":[
+      {
+        "tag": {
+          "name": "man_made",
+          "value": "drinking_fountain"
+        },
+        "implies":
+        {
+          "potable": true
+        }
+      },{
+        "tag": {
+          "name": "amenity",
+          "value": "drinking_water"
+        },
+        "implies":
+        {
+          "potable": true
+        }
+      },{
+        "tag": {
+          "name": "amenity",
+          "value": "water_point"
+        },
+        "implies":
+        {
+          "potable": true,
+          "access_bottle": true
+        }
+      },{
+        "tag": {
+          "name": "man_made",
+          "value": "water_tap"
+        },
+        "implies":
+        {
+          "access_bottle": true
+        }
+      },{
+        "tag": {
+          "name": "natural",
+          "value": "spring"
+        },
+        "implies":
+        {}
+      },{
+        "tag": {
+          "name": "amenity",
+          "value": "watering_place"
+        },
+        "implies":
+        {}
+      },{
+        "tag": {
+          "name": "amenity",
+          "value": "fountain"
+        },
+        "implies":
+        {}
+      },{
+        "tag": {
+          "name": "man_made",
+          "value": "water_well"
+        },
+        "implies":
+        {}
+      }
+    ],
+  "keys": [
+    {
+      "key": "name",
+      "property": "name"
+    },
+    {
+      "key": "description",
+      "property": "short_description"
+    },{
+      "key": "drinking_water",
+      "property": "potable",
+      "value_translation": {
+        "yes": true,
+        "no": false
+      }
+    },{
+      "key": "drinking_water:legal",
+      "property": "potable_controlled",
+      "value_translation": {
+        "yes": true,
+        "no": false
+      }
+    },{
+      "key": "drinking_water:description",
+      "property": "water_type",
+      "value_translation": {
+        "Quellwasser": "springwater",
+        "Leitungswasser": "tapwater"
+      }
+    },{
+      "key": "operator",
+      "property": "operator_name"
+    },{
+      "key": "bottle",
+      "property": "access_bottle",
+      "value_translation": {
+        "yes": true,
+        "no": false
+      }
+    },{
+      "key": "dog",
+      "property": "access_pet",
+      "value_translation": {
+        "yes": true,
+        "no": false
+      }
+    },{
+      "key": "wheelchair",
+      "property": "access_wheelchair",
+      "value_translation": {
+        "yes": true,
+        "no": false
+      }
+    },{
+      "key": "ref",
+      "property": "id_operator"
+    },{
+      "key": "wikidata",
+      "property": "id_wikidata"
+    },{
+      "key": "artist_name",
+      "property": "artists",
+      "separable": {
+        "separator": ";",
+        "map_to_subproperty": "name"
+      }
+    },{
+      "key": "id",
+      "property": "id_osm"
+    },{
+      "key": "lat",
+      "property": "latitude"
+    },{
+      "key": "lon",
+      "property": "longitude"
+    },{
+      "key": "start_date",
+      "property": "construction_date"
+    },{
+      "key": "opening_hours",
+      "property": "availability"
+    },{
+      "key": "level",
+      "property": "floor_level"
+    },{
+      "key": "fixme",
+      "property": "fixme"
+    },
+  ]
+  }
+}
