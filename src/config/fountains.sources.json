@@ -51,14 +51,19 @@
           "value": "watering_place"
         },
         "implies":
-        {}
+        {
+        	"access_horse": true,
+          "access_bottle": true
+        }
       },{
         "tag": {
           "name": "amenity",
           "value": "fountain"
         },
         "implies":
-        {}
+        {
+        	"decorative": true
+        }
       },{
         "tag": {
           "name": "man_made",
@@ -71,90 +76,108 @@
   "keys": [
     {
       "key": "name",
-      "property": "name"
-    },
-    {
+      "property": "name",
+      "rank": 2
+    },{
       "key": "description",
-      "property": "short_description"
+      "property": "short_description",
+      "rank": 2
     },{
       "key": "drinking_water",
       "property": "potable",
       "value_translation": {
         "yes": true,
         "no": false
-      }
+      },
+      "rank": 1
     },{
       "key": "drinking_water:legal",
       "property": "potable_controlled",
       "value_translation": {
         "yes": true,
         "no": false
-      }
+      },
+      "rank": 1
     },{
       "key": "drinking_water:description",
       "property": "water_type",
       "value_translation": {
         "Quellwasser": "springwater",
         "Leitungswasser": "tapwater"
-      }
+      },
+      "rank": 2
     },{
       "key": "operator",
-      "property": "operator_name"
+      "property": "operator_name",
+      "rank": 2
     },{
       "key": "bottle",
       "property": "access_bottle",
       "value_translation": {
         "yes": true,
         "no": false
-      }
+      },
+      "rank": 1
     },{
       "key": "dog",
       "property": "access_pet",
       "value_translation": {
         "yes": true,
         "no": false
-      }
+      },
+      "rank": 1
     },{
       "key": "wheelchair",
       "property": "access_wheelchair",
       "value_translation": {
         "yes": true,
         "no": false
-      }
+      },
+      "rank": 1
     },{
       "key": "ref",
-      "property": "id_operator"
+      "property": "id_operator",
+      "rank": 1
     },{
       "key": "wikidata",
-      "property": "id_wikidata"
+      "property": "id_wikidata",
+      "rank": 2
     },{
       "key": "artist_name",
       "property": "artists",
       "separable": {
         "separator": ";",
         "map_to_subproperty": "name"
-      }
+      },
+      "rank": 2
     },{
       "key": "id",
-      "property": "id_osm"
+      "property": "id_osm",
+      "rank": 1
     },{
       "key": "lat",
-      "property": "latitude"
+      "property": "latitude",
+      "rank": 1
     },{
       "key": "lon",
-      "property": "longitude"
+      "property": "longitude",
+      "rank": 1
     },{
       "key": "start_date",
-      "property": "construction_date"
+      "property": "construction_date",
+      "rank": 2
     },{
       "key": "opening_hours",
-      "property": "availability"
+      "property": "availability",
+      "rank": 1
     },{
       "key": "level",
-      "property": "floor_level"
+      "property": "floor_level",
+      "rank": 1
     },{
       "key": "fixme",
-      "property": "fixme"
+      "property": "fixme",
+      "rank": 1
     },
   ]
   }
