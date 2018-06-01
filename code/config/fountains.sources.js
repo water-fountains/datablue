@@ -1,5 +1,4 @@
-{
-  "OSM": {
+const osm_fountain_config = {
     "sub_sources":[
       {
         "tag": {
@@ -180,5 +179,6 @@
       "rank": 1
     },
   ]
-  }
-}
+  };
+
+export default osm_fountain_config;

@@ -1,0 +1,99 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: datablue
+  description: datablue
+basePath: /api/v1
+tags:
+  - name: Examples
+    description: Simple example endpoint
+  - name: Basics
+    description: Endpoints for getting fountain data
+  - name: Specification
+    description: The swagger API specification
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+
+definitions:
+  ExampleBody:
+    type: object
+    title: example
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: no_stress
+
+paths:
+  /fountain:
+    get:
+      tags:
+        - Basics
+      description: Fetch fountain information based on coordinates
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: float
+          default: 47.3650
+          description: approximate latitude of requested fountain
+        - name: lng
+          in: query
+          schema:
+            type: float
+          default: 8.5540
+          description: approximate longitude of requested fountain
+      responses:
+        200:
+          description: Returns a fountain with metadata collected from OSM
+  /examples:
+    get:
+      tags:
+        - Examples
+      description: Fetch all examples
+      responses:
+        200:
+          description: Returns all examples
+    post:
+      tags:
+        - Examples
+      description: Create a new example
+      parameters:
+        - name: example
+          in: body
+          description: an example
+          required: true
+          schema: 
+            $ref: "#/definitions/ExampleBody"
+      responses:
+        200:
+          description: Returns all examples
+
+  /examples/{id}:
+    get:
+      tags:
+        - Examples
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the example to retrieve
+          type: integer
+      responses:
+        200:
+          description: Return the example with the specified id
+        404:
+          description: Example not found
+
+  /spec:
+    get:
+      tags:
+        - Specification
+      responses:
+        200:
+          description: Return the API specification
