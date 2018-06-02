@@ -1,4 +1,5 @@
 import l from '../../common/logger';
+import {NO_FOUNTAIN_AT_LOCATION} from "./constants";
 var http = require('http');
 var query_overpass = require('query-overpass');
 
@@ -11,8 +12,11 @@ class DataService {
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
+        }else if(data.features.length === 0){
+          reject(new Error(NO_FOUNTAIN_AT_LOCATION));
         }else{
-          resolve(data);
+          // return only the first fountain in the list
+          resolve(data.features[0]);
         }
       }, {flatProperties: true})
     })

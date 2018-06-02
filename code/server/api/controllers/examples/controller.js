@@ -2,14 +2,28 @@ import ExamplesService from '../../services/examples.service';
 import DataService from '../../services/data.service'
 import translateOsm from '../../services/translate.service';
 import l from '../../../common/logger'
+import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
+import {NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 
 export class Controller {
   byCoords(req, res) {
     DataService
       .byCoords(req.query.lat, req.query.lng)
-      .then(r => translateOsm(r.features[0]))
+      // .then(r => applyImpliedPropertiesOsm(r))
+      .then(r => translateOsm(r))
+      // .then(function (r) {
+      //   if('id_wikidata' in r.properties){
+      //     // fetch relevant information from wikidata based on wikidata ID
+      //   }else{
+      //     // otherwise, try to discover the fountain in wikidata based on coordinates
+      //   }
+      // })
       .then(r => res.json(r))
-      .catch(error => {l.info(error)})
+      .catch(error => {
+        switch (error.message){
+          case NO_FOUNTAIN_AT_LOCATION:
+            res.send({});
+        }})
   }
   
   all(req, res) {

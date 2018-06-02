@@ -51,6 +51,8 @@ paths:
       responses:
         200:
           description: Returns a fountain with metadata collected from OSM
+        204:
+          description: No fountain found at location.
   /examples:
     get:
       tags:
