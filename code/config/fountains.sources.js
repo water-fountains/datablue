@@ -70,7 +70,7 @@ const osm_fountain_config = {
           {
             "key": "access_horse",
             "value": "yes"
-          },
+          }
         ]
       },{
         "tag": {

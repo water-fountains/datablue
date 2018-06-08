@@ -1,9 +1,10 @@
 import ExamplesService from '../../services/examples.service';
 import DataService from '../../services/data.service'
+import WikidataService from '../../services/wikidata.service'
 import translateOsm from '../../services/translate.service';
 import l from '../../../common/logger'
 import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
-import {NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
+import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 
 export class Controller {
   byCoords(req, res) {
@@ -11,17 +12,23 @@ export class Controller {
       .byCoords(req.query.lat, req.query.lng)
       .then(r => applyImpliedPropertiesOsm(r))
       .then(r => translateOsm(r))
-      // .then(function (r) {
-      //   if('id_wikidata' in r.properties){
-      //     // fetch relevant information from wikidata based on wikidata ID
-      //   }else{
-      //     // otherwise, try to discover the fountain in wikidata based on coordinates
-      //   }
-      // })
+      .then(function (r) {
+        // if('id_wikidata' in r.properties){
+        //   // fetch relevant information from wikidata based on wikidata ID
+        //     WikidataService.byId(r.properties.id_wikidata)
+        //         // .then(r => translateWikidata(r))
+        // }else{
+        //   // otherwise, try to discover the fountain in wikidata based on coordinates
+        // }
+          // todo: figure how to merge two streams of data from promises
+        return new Promise(function(resolve, reject){ resolve(r)})
+      })
       .then(r => res.json(r))
       .catch(error => {
         switch (error.message){
           case NO_FOUNTAIN_AT_LOCATION:
+            res.status(204);
+          case FUNCTION_NOT_AVAILABLE:
             res.send({});
         }})
   }

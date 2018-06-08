@@ -18,7 +18,8 @@
     "pino": "^4.15.0",
     "query-overpass": "^1.5.3",
     "source-map-support": "^0.5.4",
-    "swagger-express-middleware": "^1.0.0-alpha.12"
+    "swagger-express-middleware": "^1.0.0-alpha.12",
+    "wikidata-sdk": "^5.11.1"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",

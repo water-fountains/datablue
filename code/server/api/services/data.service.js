@@ -1,6 +1,5 @@
 import l from '../../common/logger';
 import {NO_FOUNTAIN_AT_LOCATION} from "./constants";
-var http = require('http');
 var query_overpass = require('query-overpass');
 
 class DataService {
