@@ -16,6 +16,7 @@ class DataService {
           reject(new Error(NO_FOUNTAIN_AT_LOCATION));
         }else{
           // return only the first fountain in the list
+          // l.info(data.features[0]);
           resolve(data.features[0]);
         }
       }, {flatProperties: true})

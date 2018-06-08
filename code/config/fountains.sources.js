@@ -6,70 +6,83 @@ const osm_fountain_config = {
           "value": "drinking_fountain"
         },
         "implies":
-        {
-          "potable": true
-        }
+        [
+          {
+            "key": "drinking_water",
+            "value": "yes"
+          }
+        ]
       },{
         "tag": {
           "name": "amenity",
           "value": "drinking_water"
         },
         "implies":
-        {
-          "potable": true
-        }
+          [
+            {
+              "key": "drinking_water",
+              "value": "yes"
+            }
+          ]
       },{
         "tag": {
           "name": "amenity",
           "value": "water_point"
         },
         "implies":
-        {
-          "potable": true,
-          "access_bottle": true
-        }
+          [
+            {
+              "key": "drinking_water",
+              "value": "yes"
+            },
+            {
+              "key": "bottle",
+              "value": "yes"
+            },
+          ]
       },{
         "tag": {
           "name": "man_made",
           "value": "water_tap"
         },
-        "implies":
-        {
-          "access_bottle": true
-        }
+        "implies":[
+          {
+            "key": "bottle",
+            "value": "yes"
+          },
+        ]
       },{
         "tag": {
           "name": "natural",
           "value": "spring"
         },
-        "implies":
-        {}
+        "implies": []
       },{
         "tag": {
           "name": "amenity",
           "value": "watering_place"
         },
-        "implies":
-        {
-        	"access_horse": true,
-          "access_bottle": true
-        }
+        "implies":[
+          {
+            "key": "bottle",
+            "value": "yes"
+          },
+          {
+            "key": "access_horse",
+            "value": "yes"
+          },
+        ]
       },{
         "tag": {
           "name": "amenity",
           "value": "fountain"
-        },
-        "implies":
-        {
-        	"decorative": true
         }
       },{
         "tag": {
           "name": "man_made",
           "value": "water_well"
         },
-        "implies":
-        {}
+        "implies": []
       }
     ],
   "keys": [

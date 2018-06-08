@@ -9,7 +9,7 @@ export class Controller {
   byCoords(req, res) {
     DataService
       .byCoords(req.query.lat, req.query.lng)
-      // .then(r => applyImpliedPropertiesOsm(r))
+      .then(r => applyImpliedPropertiesOsm(r))
       .then(r => translateOsm(r))
       // .then(function (r) {
       //   if('id_wikidata' in r.properties){

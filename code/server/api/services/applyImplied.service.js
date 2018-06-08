@@ -6,34 +6,21 @@ import osm_fountain_config from '../../../config/fountains.sources';
 
 function applyImpliedPropertiesOsm(data) {
   return new Promise((resolve, reject) => {
-    // create a deep copy
-    let data_translated = JSON.parse(JSON.stringify(data));
-    // delete all properties
-    data_translated.properties = {};
     // remap the properties
-    osm_fountain_config.keys.forEach(function(key){
-      if('separable' in key){
-        // if values can be broken up into array
-        data_translated['properties'][key.property] =
-          data.properties[key.key]
-            .split(key.separable.separator)
-            .map((val)=>{
-              let a = {};
-              a[key.separable.map_to_subproperty] = val;
-              return a;
-            });
-        
-      }else if('value_translation' in key){
-        // values need to be translated
-        data_translated['properties'][key.property] =
-          key.value_translation[data.properties[key.key]];
-        
-      }else{
-        data_translated['properties'][key.property] = data.properties[key.key];
+    osm_fountain_config.sub_sources.forEach(function(sub_source){
+      let tag_name = sub_source.tag.name;
+      let tag_value = sub_source.tag.value;
+      // check if our fountain has the tag
+      if((tag_name in data.properties) &&
+        (data.properties[tag_name] === tag_value)){
+        sub_source.implies.forEach(implication =>{
+          // apply implied property values
+          data.properties[implication.key] = implication.value;
+        })
       }
     });
     // return the translated data
-    resolve(data_translated);
+    resolve(data);
     // if there is an issue, reject the promise
     setTimeout(() => reject('woops'), 500);
   })
