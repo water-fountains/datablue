@@ -1,10 +1,12 @@
 import ExamplesService from '../../services/examples.service';
 import DataService from '../../services/data.service'
 import WikidataService from '../../services/wikidata.service'
-import translateOsm from '../../services/translate.service';
+import translateOsm from '../../services/translate.osm.service';
+import translateWikidata from '../../services/translate.wikidata.service';
 import l from '../../../common/logger'
 import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
+import combineData from "../../services/combine.data.service";
 
 export class Controller {
   byCoords(req, res) {
@@ -13,15 +15,17 @@ export class Controller {
       .then(r => applyImpliedPropertiesOsm(r))
       .then(r => translateOsm(r))
       .then(function (r) {
-        // if('id_wikidata' in r.properties){
-        //   // fetch relevant information from wikidata based on wikidata ID
-        //     WikidataService.byId(r.properties.id_wikidata)
-        //         // .then(r => translateWikidata(r))
-        // }else{
-        //   // otherwise, try to discover the fountain in wikidata based on coordinates
-        // }
-          // todo: figure how to merge two streams of data from promises
-        return new Promise(function(resolve, reject){ resolve(r)})
+        let osmPromise = new Promise((resolve, reject) => {resolve(r)});
+        if('id_wikidata' in r.properties){
+          // fetch relevant information from wikidata based on wikidata ID
+            let wdPromise = WikidataService.byId(r.properties.id_wikidata)
+                .then(r => translateWikidata(r));
+          return Promise.all([wdPromise, osmPromise])
+            .then(r => combineData(r));
+        }else{
+          // otherwise, try to discover the fountain in wikidata based on coordinates
+          return osmPromise;
+        }
       })
       .then(r => res.json(r))
       .catch(error => {
@@ -31,20 +35,6 @@ export class Controller {
           case FUNCTION_NOT_AVAILABLE:
             res.send({});
         }})
-  }
-  
-  all(req, res) {
-    ExamplesService.all()
-      .then(r => res.json(r));
-  }
-
-  byId(req, res) {
-    ExamplesService
-      .byId(req.params.id)
-      .then(r => {
-        if (r) res.json(r);
-        else res.status(404).end();
-      });
   }
 
   create(req, res) {

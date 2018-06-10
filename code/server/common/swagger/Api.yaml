@@ -40,57 +40,19 @@ paths:
           in: query
           schema:
             type: float
-          default: 47.3650
+          default: 47.364622
           description: approximate latitude of requested fountain
         - name: lng
           in: query
           schema:
             type: float
-          default: 8.5540
+          default: 8.537836
           description: approximate longitude of requested fountain
       responses:
         200:
           description: Returns a fountain with metadata collected from OSM
         204:
           description: No fountain found at location.
-  /examples:
-    get:
-      tags:
-        - Examples
-      description: Fetch all examples
-      responses:
-        200:
-          description: Returns all examples
-    post:
-      tags:
-        - Examples
-      description: Create a new example
-      parameters:
-        - name: example
-          in: body
-          description: an example
-          required: true
-          schema: 
-            $ref: "#/definitions/ExampleBody"
-      responses:
-        200:
-          description: Returns all examples
-
-  /examples/{id}:
-    get:
-      tags:
-        - Examples
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: The id of the example to retrieve
-          type: integer
-      responses:
-        200:
-          description: Return the example with the specified id
-        404:
-          description: Example not found
 
   /spec:
     get:

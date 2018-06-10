@@ -1,5 +1,5 @@
 import l from '../../common/logger';
-import osm_fountain_config from '../../../config/fountains.sources';
+import osm_fountain_config from '../../../config/fountains.sources.osm';
 
 // This service translates data read from a data source into the servers standardized terminology.
 // For this, the config files are used

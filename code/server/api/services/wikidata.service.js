@@ -56,7 +56,6 @@ class WikidataService {
                 try {
                     const parsedData = JSON.parse(rawData);
                     const data = wdk.simplify.entity(parsedData.entities[qid]);
-                    l.info(data);
                     resolve(data);
                 } catch (e) {
                     reject(e);
