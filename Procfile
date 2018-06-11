@@ -1,1 +1,1 @@
-web: node code/build.js && backpack code/build && cd build && node main
+web: node build.js && backpack build && cd build && node main
