@@ -1,0 +1,1 @@
+web: node code/build.js && backpack code/build && cd build && node main
