@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "datablue",
   "main": "index.js",
+  "engine": {
+    "node": "8.11.1"
+  },
   "scripts": {
     "start": "cd build && node main",
     "compile": "node build.js && backpack build",
