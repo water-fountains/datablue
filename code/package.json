@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "datablue",
   "main": "index.js",
-  "engine": {
+  "engines": {
     "node": "8.11.1"
   },
   "scripts": {
