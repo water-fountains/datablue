@@ -1,1 +1,1 @@
-web: node build.js && backpack build && cd build && node main
+web: npm install && npm compile && npm start
