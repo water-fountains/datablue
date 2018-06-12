@@ -16,24 +16,28 @@ export class Controller {
       .then(r => translateOsm(r))
       .then(function (r) {
         let osmPromise = new Promise((resolve, reject) => {resolve(r)});
+        let wdPromise;
         if('id_wikidata' in r.properties){
           // fetch relevant information from wikidata based on wikidata ID
-            let wdPromise = WikidataService.byId(r.properties.id_wikidata)
-                .then(r => translateWikidata(r));
-          return Promise.all([wdPromise, osmPromise])
-            .then(r => combineData(r));
+          wdPromise = WikidataService.byId(r.properties.id_wikidata)
+              .then(r => translateWikidata(r));
         }else{
           // otherwise, try to discover the fountain in wikidata based on coordinates
-          return osmPromise;
+          wdPromise = new Promise((resolve, reject) => {resolve({pano_url:undefined})});
         }
+        return Promise.all([wdPromise, osmPromise])
+          .then(r => combineData(r));
       })
       .then(r => res.json(r))
       .catch(error => {
+        l.info(error);
         switch (error.message){
           case NO_FOUNTAIN_AT_LOCATION:
             res.status(204);
           case FUNCTION_NOT_AVAILABLE:
             res.send({});
+          default:
+            res.status(500);
         }})
   }
 

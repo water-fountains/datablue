@@ -12,30 +12,33 @@ function translateOsm(data) {
     data_translated.properties = {};
     // remap the properties
     osm_fountain_config.keys.forEach(function(key){
-      if('separable' in key){
-        // if values can be broken up into array
-        data_translated['properties'][key.property] =
-          data.properties[key.key]
-            .split(key.separable.separator)
-            .map((val)=>{
-          let a = {};
-          a[key.separable.map_to_subproperty] = val;
-          return a;
-        });
-        
-      }else if('value_translation' in key){
-        // values need to be translated
-        data_translated['properties'][key.property] =
-          key.value_translation[data.properties[key.key]];
-        
-      }else{
-        data_translated['properties'][key.property] = data.properties[key.key];
+      // check if fountain has key
+      if(key.key in data.properties){
+        if('separable' in key){
+          // if values can be broken up into array
+          data_translated.properties[key.property] =
+            data.properties[key.key]
+              .split(key.separable.separator)
+              .map((val)=>{
+                let a = {};
+                a[key.separable.map_to_subproperty] = val;
+                return a;
+              });
+    
+        }else if('value_translation' in key){
+          // values need to be translated
+          data_translated['properties'][key.property] =
+            key.value_translation[data.properties[key.key]];
+    
+        }else{
+          data_translated.properties[key.property] = data.properties[key.key];
+        }
       }
     });
     // return the translated data
     resolve(data_translated);
     // if there is an issue, reject the promise
-    setTimeout(() => reject('woops'), 500);
+    setTimeout(() => reject('woops'), 2000);
   })
 }
 

@@ -76,7 +76,8 @@ const osm_fountain_config = {
         "tag": {
           "name": "amenity",
           "value": "fountain"
-        }
+        },
+        "implies": []
       },{
         "tag": {
           "name": "man_made",

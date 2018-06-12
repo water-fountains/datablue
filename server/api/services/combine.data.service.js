@@ -8,7 +8,12 @@ function combineData(r) {
     let osm = r[1];
     
     // copy some properties over to osm
-    osm.properties['pano_url'] = wikidata.pano_url[0];
+    if(typeof wikidata.pano_url !== 'undefined'){
+      osm.properties['pano_url'] = wikidata.pano_url[0];
+    }else{
+      // use default panorama link
+      osm.properties['pano_url'] = `https://www.instantstreetview.com/@${osm.geometry.coordinates[1]},${osm.geometry.coordinates[0]},0h,0p,1z`
+    }
     
     // return the translated data
     resolve(osm);

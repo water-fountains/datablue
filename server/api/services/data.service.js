@@ -1,13 +1,14 @@
 import l from '../../common/logger';
 import {NO_FOUNTAIN_AT_LOCATION} from "./constants";
+import osm_fountain_config from "../../../config/fountains.sources.osm";
 var query_overpass = require('query-overpass');
 
 class DataService {
   byCoords(lat, lng) {
     // fetch fountain from OSM by coordinates
     return new Promise((resolve, reject)=>{
-      let query = 'node[amenity=drinking_water](around:10.0,' + lat + ',' + lng + ');out;';
-      // l.info(query);
+      let query = queryBuilderCoords(lat, lng);
+      l.debug(query);
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
@@ -21,6 +22,15 @@ class DataService {
       }, {flatProperties: true})
     })
   }
+}
+
+function queryBuilderCoords(lat, lng) {
+  let query = `
+    (${osm_fountain_config.sub_sources.map((item, i)=>
+    `node[${item.tag.name}=${item.tag.value}](around:10.0,${lat},${lng});`).join('')}
+    );out;
+  `;
+  return query;
 }
 
 export default new DataService();
