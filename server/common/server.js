@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
 import * as os from 'os';
+import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import swaggerify from './swagger';
@@ -14,6 +15,7 @@ export default class ExpressServer {
   constructor() {
     const root = path.normalize(`${__dirname}/../..`);
     app.set('appPath', `${root}client`);
+    app.use(cors());
     app.use(helmet());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
