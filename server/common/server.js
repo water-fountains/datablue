@@ -2,7 +2,6 @@ import Express from 'express';
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
-import * as https from 'https';
 import * as os from 'os';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -10,9 +9,6 @@ import swaggerify from './swagger';
 import l from './logger';
 
 const app = new Express();
-const options = {
-  key: fs.readFileSync('certificates/private.key')
-};
 
 export default class ExpressServer {
   constructor() {
