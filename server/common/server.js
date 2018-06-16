@@ -2,12 +2,21 @@ import Express from 'express';
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
+import * as https from 'https';
 import * as os from 'os';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import swaggerify from './swagger';
 import l from './logger';
+import fs from 'fs';
+
+let privateKey = '';
+let certificate = '';
+if(process.env.NODE_ENV === 'production') {
+  privateKey = fs.readFileSync('privatekey.pem');
+  certificate = fs.readFileSync('certificate.pem');
+}
 
 const app = new Express();
 
@@ -30,7 +39,15 @@ export default class ExpressServer {
 
   listen(port = process.env.PORT) {
     const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`);
-    http.createServer(app).listen(port, welcome(port));
-    return app;
+    if(process.env.NODE_ENV === 'production'){
+      https.createServer({
+        key: privateKey,
+        cert: certificate
+      }, app).listen(port, welcome(port));
+      return app;
+    }else{
+      http.createServer(app).listen(port, welcome(port));
+      return app;
+    }
   }
 }

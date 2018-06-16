@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "cd build && node main",
+    "init_symlink_server": "ln -sf /etc/letsencrypt/live/water-fountains.org/cert.pem cert.pem && ln -sf /etc/letsencrypt/live/water-fountains.org/privkey.pem privkey.pem",
     "compile": "node build.js && backpack build",
     "dev": "node build.js && backpack dev | pino -o 'short'",
     "debug": "node build.js && backpack dev --inspect-brk | pino -o 'short'",
@@ -21,7 +22,9 @@
     "cors": "^2.8.4",
     "dotenv": "^5.0.1",
     "express": "^4.16.2",
+    "fs": "0.0.1-security",
     "helmet": "^3.12.1",
+    "https": "^1.0.0",
     "pino": "^4.15.0",
     "query-overpass": "^1.5.3",
     "source-map-support": "^0.5.4",
