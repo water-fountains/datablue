@@ -14,7 +14,46 @@ Datablue will consist in a collection of scripts and data structures for collect
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/59c350e2-310e-4279-8169-7044839b7307). See the [docs](/docs/components.md) for planned components.
 
 # Up and running
-(still to be defined)
+
+## Install It
+```
+npm install
+```
+
+## Run It
+#### Run in *development* mode:
+
+```
+npm run dev
+```
+
+#### Run in *production* mode:
+warning: this assumes you have a private key and certificate for ssl encryption located at 
+
+`/etc/letsencrypt/live/water-fountains.org/`
+
+On the server, copy the environment file
+
+`cp .envTEMPLATE .env`
+
+and add to `.env` the following variable
+
+`NODE_ENV=production`
+
+Then run
+```
+npm run init_symlink_server
+npm run compile
+pm2 start build/main.js --name "datablue"
+```
+
+
+
+### Try It
+* Point you're browser to [http://localhost:3000](http://localhost:3000)
+* Invoke the example REST endpoint `curl http://localhost:3000/api/v1/examples`
+   
+
 
 # Contributing
 

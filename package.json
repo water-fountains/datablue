@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "cd build && node main",
-    "init_symlink_server": "ln -sf /etc/letsencrypt/live/water-fountains.org/cert.pem cert.pem && ln -sf /etc/letsencrypt/live/water-fountains.org/privkey.pem privkey.pem",
+    "init_symlink_server": "ln -sf /etc/letsencrypt/live/water-fountains.org/certificate.pem build/cert.pem && ln -sf /etc/letsencrypt/live/water-fountains.org/privkey.pem build/privatekey.pem",
     "compile": "node build.js && backpack build",
     "dev": "node build.js && backpack dev | pino -o 'short'",
     "debug": "node build.js && backpack dev --inspect-brk | pino -o 'short'",
