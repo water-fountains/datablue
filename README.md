@@ -5,13 +5,11 @@ for more information on the overall project.
 
 The project is open source under the GNU Affero General Public License, with a profit contribution agreement applying under restricted conditions. See [COPYING](/COPYING) for information.
 
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/aWaterMap/datablue-Aggregation)
-
 ## Vision
 Datablue will consist in a collection of scripts and data structures for collecting and manipulating data, which can be executed on a schedule to generate an always up-to-date consolidated dataset.
-![data flow](/docs/images/data-flow.png)
 
-View the data processing concept [here](https://www.lucidchart.com/invitations/accept/59c350e2-310e-4279-8169-7044839b7307). See the [docs](/docs/components.md) for planned components.
+![data processing](https://www.lucidchart.com/publicSegments/view/fbd5eb93-ad45-4c2f-9502-17792052a63a/image.png)
+View the data processing concept [here](https://www.lucidchart.com/invitations/accept/24f813e7-3d79-4de6-90bc-a3bfbe8d8cbf). See the [docs](/docs/components.md) for planned components.
 
 # Up and running
 
@@ -51,7 +49,7 @@ pm2 start build/main.js --name "datablue"
 
 ### Try It
 * Point you're browser to [http://localhost:3000](http://localhost:3000)
-* Invoke the example REST endpoint `curl http://localhost:3000/api/v1/examples`
+* Invoke the example REST endpoint `curl http://localhost:3000/api/v1/fountains`
    
 
 
@@ -61,4 +59,4 @@ Submit an issue for a feature request, architecture suggestion, or to discuss a 
 
 If you would like to contribute directly to the code, fork this repo and make a pull request.
 
-To get ideas for how to contribute, check out the [docs](/docs) or look for *TODO* comments in the code.
+To get ideas for how to contribute, check out the repository issues.
