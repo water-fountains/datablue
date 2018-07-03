@@ -1,5 +1,4 @@
-import ExamplesService from '../../services/examples.service';
-import DataService from '../../services/data.service'
+import DataService from '../../services/osm.service'
 import WikidataService from '../../services/wikidata.service'
 import translateOsm from '../../services/translate.osm.service';
 import translateWikidata from '../../services/translate.wikidata.service';
@@ -11,7 +10,7 @@ import combineData from "../../services/combine.data.service";
 export class Controller {
   byCoords(req, res) {
     DataService
-      .byCoords(req.query.lat, req.query.lng)
+      .byCenter(req.query.lat, req.query.lng)
       .then(r => applyImpliedPropertiesOsm(r))
       .then(r => translateOsm(r))
       .then(function (r) {
