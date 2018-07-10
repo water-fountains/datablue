@@ -4,7 +4,10 @@ const wikidata_fountain_config = {
     {
       "claim": "P571",
       "property": "construction_date",
-      "rank": 1
+      "rank": 1,
+      "value_translation": val=>{
+        return parseInt(val.substring(0,4));
+      }
     },{
       "claim": "P1476",
       "property": "name",
@@ -12,9 +15,9 @@ const wikidata_fountain_config = {
     },{
       "claim": "P137",
       "property": "operator_name",
-      // "value_translation": {
-      //   "Q27229237": "Wasserversorgung Zürich"
-      // },
+      "value_translation": val=>{switch(val){
+        case "Q27229237": return "Wasserversorgung Zürich";
+      }},
       "rank": 1
     },{
       "claim": "P2795",
@@ -28,6 +31,10 @@ const wikidata_fountain_config = {
       "claim": "P18",
       "property": "image_url",
       "rank": 1
+    },{
+      "claim": "P625",
+      "property": "coords_wikidata",
+      "rank": 2
     }
   ]
   };

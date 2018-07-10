@@ -32,8 +32,6 @@ definitions:
 paths:
   /fountain:
     get:
-      tags:
-        - Basics
       description: Fetch fountain information based on coordinates
       parameters:
         - name: lat
@@ -53,6 +51,29 @@ paths:
           description: Returns a fountain with metadata collected from OSM
         204:
           description: No fountain found at location.
+  /fountains:
+    get:
+      description: Fetch fountains within bounding box
+      parameters:
+        - name: city
+          in: query
+          type: string
+          enum: [zurich]
+          default: zurich
+          description: name of city for which fountains are to be served
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
+          default: false
+          description: indicates whether to force a refresh of the dataset
+      responses:
+        200:
+          description: Returns a collection of fountains with metadata collected from OSM and Wikidata.
+        204:
+          description: No fountains found at location.
+        500:
+          description: internal server error.
 
   /spec:
     get:
