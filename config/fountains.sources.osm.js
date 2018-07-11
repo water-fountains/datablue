@@ -150,7 +150,7 @@ const osm_fountain_config = {
     },{
       "key": "ref",
       "property": "id_operator",
-      "rank": 1
+      "rank": 2
     },{
       "key": "wikidata",
       "property": "id_wikidata",

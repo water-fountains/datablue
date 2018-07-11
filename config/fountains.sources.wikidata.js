@@ -33,8 +33,12 @@ const wikidata_fountain_config = {
       "rank": 1
     },{
       "claim": "P625",
-      "property": "coords_wikidata",
-      "rank": 2
+      "property": "coords",
+      "rank": 2,
+      "value_translation": coords=>{
+        // return coords in lng lat format
+        return [coords[1], coords[0]]
+      }
     }
   ]
   };

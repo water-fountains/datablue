@@ -13,6 +13,13 @@ function translateWikidata(fountains) {
     // for each fountain in data, remap the properties
     fountains.forEach(f=>{
       let newFountain = {};
+      // copy wikidata id
+      newFountain['id_wikidata'] = {
+        value: f.id,
+        rank: 1,
+        source_name: 'Wikidata',
+        source_url: `//wikidata.org/wiki/${f.id}`
+      };
       // translate claims
       wikidata_fountain_config.claims.forEach(function(c){
         // check if fountain has claim
@@ -20,7 +27,7 @@ function translateWikidata(fountains) {
           // initialize property
           newFountain[c.property] = {
             rank: c.rank,
-            source_name: 'wikidata',
+            source_name: 'Wikidata',
             source_url: `//wikidata.org/wiki/${f.id}`
           };
           // check if values need to be translated

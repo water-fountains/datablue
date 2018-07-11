@@ -41,10 +41,10 @@ class OsmService {
   }
 }
 
-function queryBuilderCenter(lat, lng) {
+function queryBuilderCenter(lat, lng, radius=10) {
   let query = `
     (${osm_fountain_config.sub_sources.map((item, i)=>
-    `node[${item.tag.name}=${item.tag.value}](around:10.0,${lat},${lng});`).join('')}
+    `node[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')}
     );out;
   `;
   return query;

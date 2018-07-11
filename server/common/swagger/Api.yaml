@@ -46,6 +46,12 @@ paths:
             type: float
           default: 8.537836
           description: approximate longitude of requested fountain
+        - name: radius
+          in: query
+          schema:
+            type: float
+          default: 10.0
+          description: radius in meters in which fountains should be searched
       responses:
         200:
           description: Returns a fountain with metadata collected from OSM

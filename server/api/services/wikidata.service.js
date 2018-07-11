@@ -2,28 +2,32 @@ import l from '../../common/logger';
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "./constants";
 const https = require('https');
 const axios = require('axios');
+const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
 
 class WikidataService {
-  byCoords(lat, lng) {
-    // fetch fountain from OSM by coordinates
-    return new Promise((resolve, reject)=>{
-        const sparql = `
-      SELECT ?fountainLabel ?coord ?img_url ?date ?fountain 
-      WHERE {
-        ?fountain wdt:P31 wd:Q43483;  
-                  wdt:P625 ?coord.
-        OPTIONAL {?fountain wdt:P571 ?date.}
-        OPTIONAL {?fountain wdt:P18 ?img_url.}
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
-      }`;
-      reject(new Error(FUNCTION_NOT_AVAILABLE))
-    })
+  idsByCenter(lat, lng, radius=10) {
+    // fetch fountain from OSM by coordinates, within radius in meters
+    const sparql = `
+        SELECT ?place
+        WHERE
+        {
+          SERVICE wikibase:around {
+            ?place wdt:P625 ?location .
+            bd:serviceParam wikibase:center "Point(${lng} ${lat})"^^geo:wktLiteral.
+            bd:serviceParam wikibase:radius "${radius/1000}".
+          } .
+          # Is a water well or fountain or subclass of fountain
+          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 }).
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" .
+          }
+        }`;
+    return doSparqlRequest(sparql);
   }
   
-  IdsByBoundingBox(latMin, lngMin, latMax, lngMax){
-    return new Promise((resolve, reject)=> {
-      const sparql = `
+  idsByBoundingBox(latMin, lngMin, latMax, lngMax){
+    const sparql = `
         SELECT ?place
         WHERE
         {
@@ -38,46 +42,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" .
           }
         }`;
-      const url = wdk.sparqlQuery(sparql);
-      // l.debug(url);
-  
-      // get data
-      https.get(url, (res) => {
-        const {statusCode} = res;
-        const contentType = res.headers['content-type'];
-    
-        let error;
-        if (statusCode !== 200) {
-          error = new Error('Request Failed.\n' +
-            `Status Code: ${statusCode}`);
-        }
-        // else if (!/^application\/json/.test(contentType)) {
-        //   error = new Error('Invalid content-type.\n' +
-        //     `Expected application/json but received ${contentType}`);
-        // }
-        if (error) {
-          // consume response data to free up memory
-          res.resume();
-          reject(error);
-        }
-    
-        res.setEncoding('utf8');
-        let rawData = '';
-        res.on('data', (chunk) => {
-          rawData += chunk;
-        });
-        res.on('end', () => {
-          try {
-            const parsedData = JSON.parse(rawData);
-            const simplifiedResults = wdk.simplifySparqlResults(parsedData);
-            // l.info(simplifiedResults);
-            resolve(simplifiedResults);
-          } catch (e) {
-            reject(e);
-          }
-        });
-      });
-    });
+    return doSparqlRequest(sparql);
   }
   
 
@@ -134,6 +99,46 @@ function chunk (arr, len) {
   }
   
   return chunks;
+}
+
+function doSparqlRequest(sparql){
+  return new Promise((resolve, reject)=> {
+    // create url from SPARQL
+    const url = wdk.sparqlQuery(sparql);
+
+    // get data
+    https.get(url, (res) => {
+      const {statusCode} = res;
+      const contentType = res.headers['content-type'];
+      
+      let error;
+      if (statusCode !== 200) {
+        error = new Error('Request Failed.\n' +
+          `Status Code: ${statusCode}`);
+      }
+      if (error) {
+        // consume response data to free up memory
+        res.resume();
+        reject(error);
+      }
+      
+      res.setEncoding('utf8');
+      let rawData = '';
+      res.on('data', (chunk) => {
+        rawData += chunk;
+      });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(rawData);
+          let simplifiedResults = wdk.simplifySparqlResults(parsedData);
+          // l.info(simplifiedResults);
+          resolve(simplifiedResults);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  });
 }
 
 export default new WikidataService();

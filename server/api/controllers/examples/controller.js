@@ -10,43 +10,26 @@ import {combineData, conflate} from "../../services/conflate.data.service";
 
 export class Controller {
   byCoords(req, res) {
-    OsmService
-      .byCenter(req.query.lat, req.query.lng)
+    
+    // OSM promise
+    let osmPromise = OsmService
+      .byCenter(req.query.lat, req.query.lng, req.query.radius)
       .then(r => applyImpliedPropertiesOsm(r))
-      .then(r => translateOsm(r))
-      .then(function (r) {
-        let osmPromise = new Promise((resolve, reject) => {
-          resolve(r[0])
-        });
-        let wdPromise;
-        if ('id_wikidata' in r[0]) {
-          // fetch relevant information from wikidata based on wikidata ID
-          wdPromise = WikidataService.byIds([r[0].id_wikidata.value])
-            // translate wikidata values
-            .then(r => translateWikidata(r))
-          // from all fountain data, just return the first (and only) fountain.
-        .then(r => new Promise((resolve, reject) =>{resolve(r[0])}));
-        } else {
-          // otherwise, try to discover the fountain in wikidata based on coordinates
-          wdPromise = new Promise((resolve, reject) => {
-            resolve({pano_url: undefined})
-          });
-        }
-        return Promise.all([wdPromise, osmPromise])
-          .then(r => combineData(r));
-      })
-      .then(r => res.json(r))
+      .then(r => translateOsm(r));
+    
+    let wikidataPromise = WikidataService
+      .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
+      .then(r=>WikidataService.byIds(r))
+      .then(r => translateWikidata(r));
+  
+    // conflate
+    Promise.all([osmPromise, wikidataPromise])
+      .then(r => conflate(r))
+      // return the first fountain in the list
+      .then(r => res.json(r[0]))
       .catch(error => {
-        l.info(error);
-        switch (error.message) {
-          case NO_FOUNTAIN_AT_LOCATION:
-            res.status(204);
-          case FUNCTION_NOT_AVAILABLE:
-            res.send({});
-          default:
-            res.status(500);
-        }
-      });
+        l.error(error);
+      })
   }
   
   byLocation(req, res){
@@ -63,7 +46,7 @@ export class Controller {
       
       // get data from Wikidata
       let wikidataPromise = WikidataService
-        .IdsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
+        .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
         .then(r=>WikidataService.byIds(r))
         .then(r => translateWikidata(r));
       
