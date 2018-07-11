@@ -26,7 +26,7 @@ npm run dev
 ```
 
 #### Run in *production* mode:
-warning: this assumes you have a private key and certificate for ssl encryption located at 
+warning: this assumes you have a private key `privkey.pem` and certificate `cert.pem` for ssl encryption located at 
 
 `/etc/letsencrypt/live/water-fountains.org/`
 
