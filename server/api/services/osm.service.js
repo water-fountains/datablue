@@ -12,8 +12,8 @@ class OsmService {
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
-        }else if(data.features.length === 0){
-          reject(new Error(NO_FOUNTAIN_AT_LOCATION));
+        // }else if(data.features.length === 0){
+        //   reject(new Error(NO_FOUNTAIN_AT_LOCATION));
         }else{
           // return only the first fountain in the list
           // l.info(data.features[0]);
