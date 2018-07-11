@@ -1,4 +1,6 @@
 import l from '../../common/logger';
+import {default_fountain, processImageUrl, processPanoUrl} from "../../../config/default.fountain.object";
+
 const _ = require('lodash');
 const turf = require('@turf/distance');
 
@@ -38,7 +40,6 @@ export function combineData(r) {
 }
 export function conflate(r) {
   return new Promise((resolve, reject)=>{
-    // todo: instead of just returning the data, it must be conflated (identify matching fountains and merge)
     let conflated_fountains = [];
     let matched_idx_1 = [];
     let matched_idx_2 = [];
@@ -123,19 +124,21 @@ function mergeFountains(f1, f2, mergeNotes='', mergeDistance=null) {
   let mergedFountain = {};
   
   // make array of all properties that exist
-  // todo: instead of creating this list from the two fountains, the list should be made from a config file that includes default values
-  let props = _.union(Object.keys(f1), Object.keys(f2));
-  // loop through properties
-  props.forEach(p=>{
-    // extract properties
-    let propArray = _.map([f1, f2], p);
-    // keep only the property with the highest rank
-    mergedFountain[p] = _.sortBy(propArray, ['rank'])[0]
+  // loop through properties of default fountain
+  _.forEach(default_fountain.properties, (p, key)=>{
+    // extract properties of all fountains
+    let propArray = _.map([f1, f2, default_fountain.properties], key);
+    // keep only the property with the highest rank available
+    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0]
   });
   
-  mergedFountain['merge_notes'] = mergeNotes;
-  mergedFountain['merge_distance'] = mergeDistance;
-  
+  // process panorama and image url
+    mergedFountain.pano_url.value = processPanoUrl(mergedFountain);
+    mergedFountain.image_url.value = processImageUrl(mergedFountain);
+    
+    mergedFountain['merge_notes'] = mergeNotes;
+    mergedFountain['merge_distance'] = mergeDistance;
+    
   return mergedFountain;
 }
 

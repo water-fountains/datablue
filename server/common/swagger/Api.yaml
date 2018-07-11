@@ -64,8 +64,8 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [zurich]
-          default: zurich
+          enum: [zurich, zurich_old_town]
+          default: zurich_old_town
           description: name of city for which fountains are to be served
         - name: refresh
           in: query

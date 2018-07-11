@@ -168,14 +168,6 @@ const osm_fountain_config = {
       "property": "id_osm",
       "rank": 1
     },{
-      "key": "lat",
-      "property": "latitude",
-      "rank": 1
-    },{
-      "key": "lon",
-      "property": "longitude",
-      "rank": 1
-    },{
       "key": "start_date",
       "property": "construction_date",
       "rank": 2
