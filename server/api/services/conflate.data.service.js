@@ -96,7 +96,7 @@ export function conflate(r) {
         if (dMin < 10) {
           // conlfate the two fountains
           conflated_fountains.push(mergeFountains(
-            r[0][idx_1], r[1][idx_2], `merged by location`, dMin));
+            [r[0][idx_1], r[1][idx_2]], `merged by location`, dMin));
           // document the indexes for removal
           matched_idx_1.push(idx_1);
           matched_idx_2.push(idx_2);
