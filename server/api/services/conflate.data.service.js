@@ -46,7 +46,7 @@ export function conflate(r) {
     let matched_idx_2 = [];
   
     // try to match based on wikidata id, if possible
-    if(_.min(r[0].length, r[1].length)>0) {
+    if(_.min([r[0].length, r[1].length])>0) {
       r[0].forEach((f1, idx_1) => {
         if (f1.hasOwnProperty('id_wikidata')) {
           let idx_2 = _.findIndex(r[1], (f2) => {
@@ -62,7 +62,7 @@ export function conflate(r) {
             let d = turf.default(r[0][idx_1].coords.value, r[1][idx_2].coords.value);
             // conlfate the two fountains
             conflated_fountains.push(mergeFountains(
-              r[0][idx_1], r[1][idx_2], 'merged by wikidata id', d));
+              [r[0][idx_1], r[1][idx_2]], 'merged by wikidata id', d));
             // document the indexes for removal
             matched_idx_1.push(idx_1);
             matched_idx_2.push(idx_2);
@@ -83,7 +83,7 @@ export function conflate(r) {
     }
     
     // try to match based on coordinates
-    if(_.min(r[0].length, r[1].length)>0) {
+    if(_.min([r[0].length, r[1].length])>0) {
       r[0].forEach((f1, idx_1) => {
         // compute distance array
         let distances = _.map(r[1], f2 => {
