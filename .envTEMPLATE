@@ -2,7 +2,9 @@ APP_ID=datablue
 PORT=3000
 LOG_LEVEL=debug
 REQUEST_LIMIT=100kb
+GOOGLE_API_KEY=mykey
 SESSION_SECRET=mySecret
+NODE_ENV=development
 
 #Swagger
 SWAGGER_API_SPEC=/spec

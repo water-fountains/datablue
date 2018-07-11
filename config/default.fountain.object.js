@@ -53,7 +53,7 @@ export const default_fountain = {
 
 export function processImageUrl(fountain) {
   if (true){  //(fountain.image_url.value === null){
-    return `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.coords.value[1]},${fountain.coords.value[0]}&fov=120&key=AIzaSyCITz2QveQZtY3INHqHcFiBQz0pJZnY3G0`;
+    return `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.coords.value[1]},${fountain.coords.value[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`;
   }else{
     let imgString = fountain.image_url.value.replace(/ /g, '_');
     return `//upload.wikimedia.org/wikipedia/commons/thumb/5/52/${imgString}/${imgString}`;
