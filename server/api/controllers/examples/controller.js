@@ -7,6 +7,7 @@ import l from '../../../common/logger'
 import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
+import {fillWikimediaImageGallery, getMainImage} from "../../services/processing.service";
 
 export class Controller {
   byCoords(req, res) {
@@ -25,6 +26,8 @@ export class Controller {
     // conflate
     Promise.all([osmPromise, wikidataPromise])
       .then(r => conflate(r))
+      .then(r => fillWikimediaImageGallery(r))
+      .then(r => getMainImage(r))
       // return the first fountain in the list
       .then(r => res.json(r[0]))
       .catch(error => {
@@ -53,6 +56,8 @@ export class Controller {
       // conflate
       Promise.all([osmPromise, wikidataPromise])
         .then(r => conflate(r))
+        .then(r => fillWikimediaImageGallery(r))
+        .then(r => getMainImage(r))
         .then(r => res.json(r))
         .catch(error => {
           l.error(error);

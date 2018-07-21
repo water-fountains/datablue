@@ -111,7 +111,7 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
   
   // process panorama and image url
     mergedFountain.pano_url.value = processPanoUrl(mergedFountain);
-    mergedFountain.image_url.value = processImageUrl(mergedFountain);
+    // mergedFountain.image_url.value = processImageUrl(mergedFountain);
     
     mergedFountain['merge_notes'] = mergeNotes;
     mergedFountain['merge_distance'] = mergeDistance;

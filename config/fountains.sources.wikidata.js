@@ -40,6 +40,29 @@ const wikidata_fountain_config = {
         return [coords[1], coords[0]]
       }
     }
+  ],
+  "sitelinks":[
+    {
+      "sitelink": "commonswiki",
+      "property": "wiki_commons_name",
+      "rank": 1
+    },
+    {
+      "sitelink": "dewiki",
+      "property": "wikipedia_en_url",
+      "rank": 1,
+      "value_translation": name=>{
+        return `https://en.wikipedia.org/wiki/${name}`
+      }
+    },
+    {
+      "sitelink": "enwiki",
+      "property": "wikipedia_de_url",
+      "rank": 1,
+      "value_translation": name=>{
+        return `https://de.wikipedia.org/wiki/${name}`
+      }
+    }
   ]
   };
 

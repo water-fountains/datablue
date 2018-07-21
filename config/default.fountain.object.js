@@ -47,6 +47,18 @@ export const default_fountain = {
     water_type:{
       value: 'no water type defined',
       rank: 10
+    },
+    wiki_commons_name:{
+      value: null,
+      rank: 10
+    },
+    wikipedia_en_url:{
+      value: null,
+      rank: 10
+    },
+    wikipedia_de_url:{
+      value: null,
+      rank: 10
     }
 }
 };

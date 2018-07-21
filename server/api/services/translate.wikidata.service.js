@@ -21,24 +21,13 @@ function translateWikidata(fountains) {
         source_url: `//wikidata.org/wiki/${f.id}`
       };
       // translate claims
-      wikidata_fountain_config.claims.forEach(function(c){
-        // check if fountain has claim
-        if (c.claim in f.claims){
-          // initialize property
-          newFountain[c.property] = {
-            rank: c.rank,
-            source_name: 'Wikidata',
-            source_url: `//wikidata.org/wiki/${f.id}`
-          };
-          // check if values need to be translated
-          if('value_translation' in c){
-            newFountain[c.property].value =
-              c.value_translation(f.claims[c.claim][0]);
-          }else{
-            newFountain[c.property].value = f.claims[c.claim][0];
-          }
-        }
-      });
+      newFountain = translate(newFountain, f.claims, wikidata_fountain_config.claims, 'claim', true);
+      
+      // translate site links
+      newFountain = translate(newFountain, f.sitelinks, wikidata_fountain_config.sitelinks, 'sitelink');
+      
+      
+      
       // add fountain to list
       data_translated.push(newFountain);
     });
@@ -49,6 +38,33 @@ function translateWikidata(fountains) {
   })
 }
 
+function translate(newFountain, data, defaults, propertyName, selectFirst=false) {
+  defaults.forEach(function(p){
+    // check if fountain has claim
+    if (p[propertyName] in data){
+      // initialize property
+      newFountain[p.property] = {
+        rank: p.rank,
+        source_name: 'Wikidata',
+        source_url: `//wikidata.org/wiki/${newFountain.id_wikidata.value}`
+      };
+      // check if values need to be translated
+      let v;
+      if (selectFirst) {
+        v = data[p[propertyName]][0];
+      }else{
+        v = data[p[propertyName]];
+      }
+      if('value_translation' in p){
+        newFountain[p.property].value = p.value_translation(v);
+      }else{
+        newFountain[p.property].value = v;
+      }
+    }
+  });
+  
+  return newFountain;
+}
 
 
 export default translateWikidata;

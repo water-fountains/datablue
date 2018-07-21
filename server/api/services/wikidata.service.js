@@ -48,7 +48,7 @@ class WikidataService {
 
   byIds(qids) {
     // fetch fountains by their QIDs
-    const chunckSize = 10;  // how many fountains should be fetched at a time
+    const chunckSize = 50;  // how many fountains should be fetched at a time
       return new Promise((resolve, reject)=>{
         let allFountainData = [];
         let httpPromises = [];
