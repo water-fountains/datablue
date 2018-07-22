@@ -12,11 +12,22 @@ Datablue will consist in a collection of scripts and data structures for collect
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/24f813e7-3d79-4de6-90bc-a3bfbe8d8cbf). See the [docs](/docs/components.md) for planned components.
 
 # Up and running
+First, clone this repository to your computer.
 
 ## Install It
+Then, open a command window in the folder you cloned (e.g. datablue) and run:
 ```
 npm install
 ```
+
+On the server, copy the environment file
+
+`cp .envTEMPLATE .env`
+
+in the newly copied `.env` file, set the following variables:
+
+- `NODE_ENV=production` if you are running in production
+- `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`.
 
 ## Run It
 #### Run in *development* mode:
@@ -30,13 +41,7 @@ warning: this assumes you have a private key `privkey.pem` and certificate `cert
 
 `/etc/letsencrypt/live/water-fountains.org/`
 
-On the server, copy the environment file
-
-`cp .envTEMPLATE .env`
-
-and add to `.env` the following variable
-
-`NODE_ENV=production`
+If this isn't the case, modify the `init_symlink_server` script in `package.json`.
 
 Then run
 ```
@@ -47,9 +52,10 @@ pm2 start build/main.js --name "datablue"
 
 
 
-### Try It
+## Try It
 * Point you're browser to [http://localhost:3000](http://localhost:3000)
 * Invoke the example REST endpoint `curl http://localhost:3000/api/v1/fountains`
+* In production mode, the endpoint is available over https.
    
 
 
