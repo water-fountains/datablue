@@ -8,7 +8,7 @@ import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
 const NodeCache = require( "node-cache" );
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
-import {fillWikimediaImageGallery, getMainImage} from "../../services/processing.service";
+import {fillImageGalleries} from "../../services/processing.service";
 
 const cityCache = new NodeCache( {
   stdTTL: 60*60*2, // time til expire in seconds
@@ -45,8 +45,7 @@ export class Controller {
     // conflate
     Promise.all([osmPromise, wikidataPromise])
       .then(r => conflate(r))
-      .then(r => fillWikimediaImageGallery(r))
-      .then(r => getMainImage(r))
+      .then(r => fillImageGalleries(r))
       // return the first fountain in the list
       .then(r => res.json(r[0]))
       .catch(error => {
@@ -103,8 +102,7 @@ function generateLocationData(locationName){
     // conflate
     Promise.all([osmPromise, wikidataPromise])
       .then(r => conflate(r))
-      .then(r => fillWikimediaImageGallery(r))
-      .then(r => getMainImage(r))
+      .then(r => fillImageGalleries(r))
       .then(r => resolve(r))
       .catch(error => {
         l.error(`Error conflating or processing data: ${error}`);

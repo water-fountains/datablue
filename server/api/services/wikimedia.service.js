@@ -1,3 +1,5 @@
+import {getStaticStreetView} from "./google.service";
+
 const _ = require ('lodash');
 const axios = require ('axios');
 const https = require('https');
@@ -6,62 +8,86 @@ import l from '../../common/logger';
 
 
 class WikimediaService {
-  getMainImage(fountain){
+  fillGallery(fountain){
+    // fills gallery with images from wikidata, wikimedia commons,
+    // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
-      let main_image = {};
-      main_image.value = this.getImageUrl(fountain.properties.image_url.value, 800);
-      main_image.source_name = 'Wikimedia Commons';
-      main_image.source_url = `//commons.wikimedi.org/wiki/${fountain.properties.wiki_commons_name.value}`;
-      this.getImageInfo(main_image, `File:${fountain.properties.image_url.value}`)
-        .then(r => {
-          fountain.properties.main_image = main_image;
-          resolve(fountain);
-        })
-    
-    })
-  }
-  getImagesInCategory(fountain){
-    let categoryName = fountain.properties.wiki_commons_name.value;
-    return new Promise((resolve, reject) =>{
-      if(_.isNull(categoryName)){
-        resolve(fountain);
-      }else{
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=${categoryName}&prop=imageinfo&format=json`;
+      // initialize default gallery
+      fountain.properties.gallery = {
+        value: [{
+          large: './assets/gallery_placeholder_lg.png',
+          medium: './assets/gallery_placeholder_med.png',
+          small: './assets/gallery_placeholder_small.png',
+          description: 'add an image'
+        }]
+      };
+      // if no image is entered, use a google street view image
+      if(_.isNull(fountain.properties.image_url.value)){
+        fountain.properties.image_url.source_name = 'Google Street View';
+        getStaticStreetView(fountain)
+          .then(image=>{
+            fountain.properties.gallery.value = [image].concat(fountain.properties.gallery.value);
+            resolve(fountain);
+          })
+      }
+      // check if fountain has a main image but no wikimedia category
+      else if(!_.isNull(fountain.properties.image_url.value) &&
+        _.isNull(fountain.properties.wiki_commons_name.value)){
+        fountain.properties.gallery.source_name = 'Wikimedia Commons';
+        fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.image_url.value}`;
+        // fetch info for just the one image
+        this.getImageInfo('File:'+fountain.properties.image_url.value)
+          .then(r=>{
+            fountain.properties.gallery.value = [r].concat(fountain.properties.gallery.value);
+            resolve(fountain);
+          })
+      }
+      // check if fountain also has a Wikimedia category
+      else if(!_.isNull(fountain.properties.wiki_commons_name.value)) {
+        // if so, update image source
+        fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.wiki_commons_name.value}`;
+  
+        // fetch all images in category
+        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=${fountain.properties.wiki_commons_name.value}&prop=imageinfo&format=json`;
   
         axios.get(url)
-          .then(r =>{
-            let promises = [];
-            _.forEach(r.data.query.categorymembers, page =>{
-              let newImage = {};
-              newImage.imageUrl = this.getImageUrl(page.title, 800);
-              newImage.thumbnailUrl = this.getImageUrl(page.title, 30);
-              promises.push(this.getImageInfo(newImage, page.title));
+          .then(r => {
+            let image_promises = [];
+            let category_members = r.data.query.categorymembers;
+      
+            // make sure main image is at the beginning of the list of images
+            let category_members_sorted = _.sortBy(category_members, function (page) {
+              return page.title.includes(fountain.properties.image_url.value) ? 0 : 1;
             });
-            Promise.all(promises)
+      
+            // fill in information for each image
+            _.forEach(category_members_sorted, page => {
+              image_promises.push(this.getImageInfo(page.title));
+            });
+            Promise.all(image_promises)
               .then(r => {
-                fountain.properties.gallery = {
-                  value: r,
-                  rank: 1,
-                  source_name: 'Wikimedia Commons',
-                  source_url: `//commons.wikimedia.org/wiki/${fountain.properties.wiki_commons_name.value}`
-                };
+                fountain.properties.gallery.value = r.concat(fountain.properties.gallery.value);
                 resolve(fountain);
               });
           })
       }
       
     });
-    
   }
   
-  getImageInfo(newImage, pageTitle){
+  getImageInfo(pageTitle){
     return new Promise((resolve, reject) =>{
-      let metadata = {};
-      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${pageTitle.replace(/ /g, '_').replace(/&/g, '%26')}&prop=imageinfo&iiprop=extmetadata&format=json`;
+      let newImage = {};
+      newImage.big = this.getImageUrl(pageTitle, 1200);
+      newImage.medium = this.getImageUrl(pageTitle, 512);
+      newImage.small = this.getImageUrl(pageTitle, 120);
+      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       axios.get(url)
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]].imageinfo[0];
         newImage.metadata = makeMetadata(data);
+        newImage.description = `${newImage.metadata.artist}, ${newImage.metadata.license_short}`;
+        newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);
     
       }).catch(error=>{
@@ -72,11 +98,18 @@ class WikimediaService {
     
   }
   
+  sanitizeTitle(title){
+    return title
+      .replace(/ /g, '_')
+      .replace(/,/g, '%2C')
+      .replace(/&/g, '%26');
+  }
+  
   getImageUrl(pageTitle, imageSize=640){
     // construct url of thumbnail
-    let imgName = pageTitle.replace(/ /g, '_').replace(/&/g, '%26').replace('File:','');
+    let imgName = this.sanitizeTitle(pageTitle).replace('File:','');
   
-    let h = md5(imgName);
+    let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
     return `//upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
   }
 }
@@ -105,7 +138,7 @@ function makeMetadata(data){
   ];
   let metadata = {};
   _.forEach(template, pair=>{
-    if(data.extmetadata.hasOwnProperty('LicenceUrl')){
+    if(data.extmetadata.hasOwnProperty(pair.sourceName)){
       metadata[pair.outputName] = data.extmetadata[pair.sourceName].value;
     }else{
       metadata[pair.outputName] = null;

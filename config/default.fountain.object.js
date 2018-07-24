@@ -59,6 +59,10 @@ export const default_fountain = {
     wikipedia_de_url:{
       value: null,
       rank: 10
+    },
+    gallery:{
+      value: null,
+      rank: 10
     }
 }
 };
