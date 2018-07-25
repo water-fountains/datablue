@@ -48,6 +48,7 @@ export class Controller {
       .then(r => fillImageGalleries(r))
       // return the first fountain in the list
       .then(r => res.json(r[0]))
+      // todo: update whole dataset
       .catch(error => {
         l.error(error);
       })

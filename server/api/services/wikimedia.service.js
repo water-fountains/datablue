@@ -15,7 +15,7 @@ class WikimediaService {
       // initialize default gallery
       fountain.properties.gallery = {
         value: [{
-          large: './assets/gallery_placeholder_lg.png',
+          big: './assets/gallery_placeholder_lg.png',
           medium: './assets/gallery_placeholder_med.png',
           small: './assets/gallery_placeholder_small.png',
           description: 'add an image'
@@ -86,7 +86,7 @@ class WikimediaService {
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]].imageinfo[0];
         newImage.metadata = makeMetadata(data);
-        newImage.description = `${newImage.metadata.artist}, ${newImage.metadata.license_short}`;
+        newImage.description = `<a href='${newImage.metadata.license_url}' target=blank>${newImage.metadata.license_short}</a> ${newImage.metadata.artist}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);
     
@@ -132,7 +132,7 @@ function makeMetadata(data){
       sourceName: 'UsageTerms',
       outputName: 'license_long'
     },{
-      sourceName: 'LicenceUrl',
+      sourceName: 'LicenseUrl',
       outputName: 'license_url'
     },
   ];
