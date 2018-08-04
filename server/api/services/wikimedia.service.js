@@ -1,5 +1,6 @@
 import {getStaticStreetView} from "./google.service";
 
+const utf8 = require('utf8');
 const _ = require ('lodash');
 const axios = require ('axios');
 const https = require('https');
@@ -84,11 +85,17 @@ class WikimediaService {
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       axios.get(url)
         .then(response => {
-        let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]].imageinfo[0];
-        newImage.metadata = makeMetadata(data);
-        newImage.description = `<a href='${newImage.metadata.license_url}' target=blank>${newImage.metadata.license_short}</a> ${newImage.metadata.artist}`;
-        newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
-        resolve(newImage);
+          try{
+            let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
+            if(data.hasOwnProperty('imageinfo')){
+              newImage.metadata = makeMetadata(data.imageinfo[0]);
+              newImage.description = `<a href='${newImage.metadata.license_url}' target=blank>${newImage.metadata.license_short}</a> ${newImage.metadata.artist}`;
+              newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+              resolve(newImage);
+            }
+        }catch (error){
+            l.info(error)
+          }
     
       }).catch(error=>{
         l.debug(`Error getting metadata for ${pageTitle}`);
@@ -99,9 +106,12 @@ class WikimediaService {
   }
   
   sanitizeTitle(title){
+    // this doesn't cover all situations, but the following doesn't work either
+    // return encodeURI(title.replace(/ /g, '_'));
     return title
       .replace(/ /g, '_')
       .replace(/,/g, '%2C')
+      // .replace(/ü/g, '%C3%BC')
       .replace(/&/g, '%26');
   }
   

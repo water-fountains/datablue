@@ -16,6 +16,7 @@ consumes:
   - application/json
 produces:
   - application/json
+  - text/html
 
 
 definitions:
@@ -30,22 +31,39 @@ definitions:
         example: no_stress
 
 paths:
-  /fountain:
+  /fountain/{queryType}:
     get:
       description: Fetch fountain information based on coordinates
       parameters:
+        - name: queryType
+          in: path
+          type: string
+          enum: [byCoords, byId]
+          default: byCoords
+          description: how to query the fountains
+          required: true
+        - name: database
+          in: query
+          type: string
+          enum: [datablue, operator, wikidata, osm]
+          example: wikidata
+          description: database for which the id is valid
+        - name: idval
+          in: query
+          type: string
+          example: Q27229889
         - name: lat
           in: query
           schema:
             type: float
-          default: 47.364622
-          description: approximate latitude of requested fountain
+          example: 47.364622
+          description: approximate latitude of requested fountain, only required if querying by coords
         - name: lng
           in: query
           schema:
             type: float
-          default: 8.537836
-          description: approximate longitude of requested fountain
+          example: 8.537836
+          description: approximate longitude of requested fountain, only required if querying by coords
         - name: radius
           in: query
           schema:
@@ -57,6 +75,8 @@ paths:
           description: Returns a fountain with metadata collected from OSM
         204:
           description: No fountain found at location.
+        500:
+          description: Swagger error.
   /fountains:
     get:
       description: Fetch fountains within bounding box
@@ -65,7 +85,8 @@ paths:
           in: query
           type: string
           enum: [zurich, zurich_old_town]
-          default: zurich_old_town
+          example: zurich_old_town
+          required: true
           description: name of city for which fountains are to be served
         - name: refresh
           in: query
@@ -73,6 +94,12 @@ paths:
             type: boolean
           default: false
           description: indicates whether to force a refresh of the dataset
+        - name: essential
+          in: query
+          schema:
+            type: boolean
+          default: true
+          description: indicates whether to return only the essential data
       responses:
         200:
           description: Returns a collection of fountains with metadata collected from OSM and Wikidata.

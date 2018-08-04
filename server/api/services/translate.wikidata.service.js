@@ -21,10 +21,10 @@ function translateWikidata(fountains) {
         source_url: `//wikidata.org/wiki/${f.id}`
       };
       // translate claims
-      newFountain = translate(newFountain, f.claims, wikidata_fountain_config.claims, 'claim', true);
+      newFountain = translate(newFountain, f, 'claims');
       
       // translate site links
-      newFountain = translate(newFountain, f.sitelinks, wikidata_fountain_config.sitelinks, 'sitelink');
+      newFountain = translate(newFountain, f, 'sitelinks');
       
       
       
@@ -38,27 +38,32 @@ function translateWikidata(fountains) {
   })
 }
 
-function translate(newFountain, data, defaults, propertyName, selectFirst=false) {
-  defaults.forEach(function(p){
+function translate(newFountain, data, pCat) {
+  wikidata_fountain_config[pCat].props.forEach(function(p){
     // check if fountain has claim
-    if (p[propertyName] in data){
+    if (p.src_p_name in data[pCat]){
       // initialize property
-      newFountain[p.property] = {
+      newFountain[p.dst_p_name] = {
         rank: p.rank,
         source_name: 'Wikidata',
-        source_url: `//wikidata.org/wiki/${newFountain.id_wikidata.value}`
+        source_url: `//wikidata.org/wiki/${newFountain.id_wikidata.value}`,
+        comment: ''
       };
       // check if values need to be translated
-      let v;
-      if (selectFirst) {
-        v = data[p[propertyName]][0];
-      }else{
-        v = data[p[propertyName]];
-      }
       if('value_translation' in p){
-        newFountain[p.property].value = p.value_translation(v);
+        newFountain[p.dst_p_name].value = p.value_translation(data[pCat][p.src_p_name]);
       }else{
-        newFountain[p.property].value = v;
+        let v;
+        if (wikidata_fountain_config[pCat].val_in_array) {
+          v = data[pCat][p.src_p_name][0];
+        }else{
+          v = data[pCat][p.src_p_name];
+        }
+        if(wikidata_fountain_config[pCat].val_is_obj){
+          newFountain[p.dst_p_name].value = v.value;
+        }else{
+          newFountain[p.dst_p_name].value = v
+        }
       }
     }
   });

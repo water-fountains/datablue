@@ -34,6 +34,7 @@
     "query-overpass": "^1.5.3",
     "source-map-support": "^0.5.4",
     "swagger-express-middleware": "^1.0.0-alpha.12",
+    "utf8": "^3.0.0",
     "wikidata-sdk": "^5.11.1"
   },
   "devDependencies": {

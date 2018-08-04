@@ -5,10 +5,14 @@ import translateOsm from '../../services/translate.osm.service';
 import translateWikidata from '../../services/translate.wikidata.service';
 import l from '../../../common/logger'
 import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
+
+const distance = require('@turf/distance');
 const NodeCache = require( "node-cache" );
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
-import {fillImageGalleries} from "../../services/processing.service";
+import {createUniqueIds, essenceOf, fillImageGalleries} from "../../services/processing.service";
+
+const _ = require('lodash');
 
 const cityCache = new NodeCache( {
   stdTTL: 60*60*2, // time til expire in seconds
@@ -29,29 +33,12 @@ cityCache.on('expired', (key, value)=>{
 
 export class Controller {
   
-  byCoords(req, res) {
-    
-    // OSM promise
-    let osmPromise = OsmService
-      .byCenter(req.query.lat, req.query.lng, req.query.radius)
-      .then(r => applyImpliedPropertiesOsm(r))
-      .then(r => translateOsm(r));
-    
-    let wikidataPromise = WikidataService
-      .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
-      .then(r=>WikidataService.byIds(r))
-      .then(r => translateWikidata(r));
-  
-    // conflate
-    Promise.all([osmPromise, wikidataPromise])
-      .then(r => conflate(r))
-      .then(r => fillImageGalleries(r))
-      // return the first fountain in the list
-      .then(r => res.json(r[0]))
-      // todo: update whole dataset
-      .catch(error => {
-        l.error(error);
-      })
+  getSingle(req, res){
+    if(req.params.queryType === 'byCoords'){
+      byCoords(req, res)
+    }else{
+      byId(req, res)
+    }
   }
   
   byLocation(req, res){
@@ -61,7 +48,14 @@ export class Controller {
         .then(r => {
         // save new data to storage
         cityCache.set(req.query.city, r, 60*60*2);
-        res.json(r);
+        // create a reduced version of the data as well
+        let r_essential = essenceOf(r);
+        cityCache.set(req.query.city + '_essential', r_essential, 60*60*2);
+        if(req.query.essential){
+          res.json(r_essential);
+        }else{
+          res.json(r);
+        }
       })
         .catch(error =>{
           l.error(`unable to set Cache. Error: ${error}`)
@@ -69,7 +63,11 @@ export class Controller {
     }
     // otherwise, get the data from storage
     else{
-      res.json(cityCache.get(req.query.city));
+      if(req.query.essential){
+        res.json(cityCache.get(req.query.city + '_essential'));
+      }else{
+        res.json(cityCache.get(req.query.city));
+      }
     }
     
   }
@@ -104,11 +102,57 @@ function generateLocationData(locationName){
     Promise.all([osmPromise, wikidataPromise])
       .then(r => conflate(r))
       .then(r => fillImageGalleries(r))
-      .then(r => resolve(r))
+      .then(r => createUniqueIds(r))
+      .then(r => resolve(
+        {
+          type: 'FeatureCollection',
+          features: r
+        }
+      ))
       .catch(error => {
         l.error(`Error conflating or processing data: ${error}`);
         reject(error);
       })
     
   });
+}
+
+function byId(req, res){
+  let fountain = _.find(
+    cityCache.get('zurich').features,
+    f=>{
+      return f.properties['id_'+req.query.database].value == req.query.idval
+    });
+  res.json(fountain)
+}
+
+function byCoords(req, res) {
+  
+  // OSM promise
+  let osmPromise = OsmService
+    .byCenter(req.query.lat, req.query.lng, req.query.radius)
+    .then(r => applyImpliedPropertiesOsm(r))
+    .then(r => translateOsm(r));
+  
+  let wikidataPromise = WikidataService
+    .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
+    .then(r=>WikidataService.byIds(r))
+    .then(r => translateWikidata(r));
+  
+  // conflate
+  Promise.all([osmPromise, wikidataPromise])
+    .then(r => conflate(r))
+    .then(r => fillImageGalleries(r))
+    // return the first fountain in the list
+    .then(r => {
+      // todo: don't return the first fountain but rather the closest
+      let distances = _.map(r, f=>{
+        return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
+      });
+      res.json(r[_.indexOf(distances, _.min(distances))])
+    })
+    // todo: update whole dataset with the refreshed data
+    .catch(error => {
+      l.error(error);
+    })
 }

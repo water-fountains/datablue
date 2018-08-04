@@ -14,7 +14,7 @@ export function conflate(r) {
   
     // try to match based on wikidata id, if possible
     if(_.min([r[0].length, r[1].length])>0) {
-      r[0].forEach((f1, idx_1) => {
+      for(const [idx_1, f1] of r[0].entries()){
         if (f1.hasOwnProperty('id_wikidata')) {
           let idx_2 = _.findIndex(r[1], (f2) => {
             if (f2.hasOwnProperty('id_wikidata')) {
@@ -35,15 +35,15 @@ export function conflate(r) {
             matched_idx_2.push(idx_2);
           }
         }
-      });
+      }
   
-      // remove matched fountains (reverse order to not mess up indexes
-      // console.log(r[0].length);
+      // remove matched fountains (reverse order to not mess up indexes)
+      // sort indexes in matched_idx_2, otherwise indexes will be messed up
+      matched_idx_2 = _.orderBy(matched_idx_2);
       for (let i = matched_idx_1.length -1; i >= 0; i--)
         r[0].splice(matched_idx_1[i],1);
       for (let i = matched_idx_2.length -1; i >= 0; i--)
         r[1].splice(matched_idx_2[i],1);
-      // console.log(r[0].length);
       // reset list of matched indexes
       matched_idx_1 = [];
       matched_idx_2 = [];
@@ -51,7 +51,7 @@ export function conflate(r) {
     
     // try to match based on coordinates
     if(_.min([r[0].length, r[1].length])>0) {
-      r[0].forEach((f1, idx_1) => {
+      for(const [idx_1, f1] of r[0].entries()){
         // compute distance array
         let distances = _.map(r[1], f2 => {
           // compute distance in meters
@@ -69,9 +69,11 @@ export function conflate(r) {
           matched_idx_2.push(idx_2);
           //todo: if matching is ambiguous, add a note for community
         }
-      });
+      }
   
-      // remove matched fountains again (reverse order to not mess up indexes
+      // remove matched fountains (reverse order to not mess up indexes)
+      // sort indexes in matched_idx_2, otherwise indexes will be messed up
+      matched_idx_2 = _.orderBy(matched_idx_2);
       for (let i = matched_idx_1.length -1; i >= 0; i--)
         r[0].splice(matched_idx_1[i],1);
       for (let i = matched_idx_2.length -1; i >= 0; i--)
@@ -122,11 +124,12 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
 function collection2GeoJson(collection){
   return _.map(collection, f=>{
     return {
-      "geometry":{
-        "type": 'point',
-        "coordinates": f.coords.value
+      type: 'Feature',
+      geometry:{
+        type: 'Point',
+        coordinates: f.coords.value
       },
-      "properties": _.cloneDeep(f)
+      properties: _.cloneDeep(f)
     }
   })
 }

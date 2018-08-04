@@ -3,5 +3,5 @@ import controller from './controller';
 
 export default express
   .Router()
-  .get('/fountain/', controller.byCoords)
+  .get('/fountain/:queryType/', controller.getSingle)
   .get('/fountains/', controller.byLocation)

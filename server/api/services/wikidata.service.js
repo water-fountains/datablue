@@ -71,7 +71,11 @@ class WikidataService {
               responses.forEach(r => {
                 let data = [];
                 for (let key in r.data.entities) {
-                  data.push(wdk.simplify.entity(r.data.entities[key]));
+                  data.push(wdk.simplify.entity(
+                    r.data.entities[key],
+                    {
+                      keepQualifiers: true
+                    }));
                 }
                 dataAll = dataAll.concat(data);
               });
