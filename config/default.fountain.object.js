@@ -89,6 +89,16 @@ export const default_fountain = {
       value: null,
       rank: 10,
       essential: false
+    },
+    access_pet:{
+      value: null,
+      rank: 10,
+      essential: true
+    },
+    access_bottle:{
+      value: null,
+      rank: 10,
+      essential: true
     }
 }
 };
