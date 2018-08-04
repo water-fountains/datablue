@@ -37,7 +37,7 @@ class WikidataService {
             bd:serviceParam wikibase:cornerEast "Point(${lngMax} ${latMax})"^^geo:wktLiteral.
           } .
           # Is a water well or fountain or subclass of fountain
-          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 }) || EXISTS { ?place wdt:P31/wdt:P279* wd:Q29592411 }).
+          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q29592411}).
           SERVICE wikibase:label {
             bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" .
           }
