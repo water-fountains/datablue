@@ -31,12 +31,12 @@ definitions:
         example: no_stress
 
 paths:
-  /fountain/{queryType}:
+  /fountain:
     get:
       description: Fetch fountain information based on coordinates
       parameters:
         - name: queryType
-          in: path
+          in: query
           type: string
           enum: [byCoords, byId]
           default: byCoords

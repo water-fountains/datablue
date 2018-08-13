@@ -1,22 +1,22 @@
 export const default_fountain = {
   properties: {
     name:{
-      value: 'Unnamed fountain',
+      value: 'Fountain',
       rank: 10,
       essential: true
   },
     id_osm:{
-      value: 'no match found in Open Street Map',
+      value: 'undefined',
       rank: 10,
       essential: true
   },
     id_operator:{
-      value: 'no match found in Open Street Map',
+      value: 'undefined',
       rank: 10,
       essential: true
   },
     id_wikidata:{
-      value: 'no match found in Wikidata',
+      value: 'undefined',
       rank: 10,
       essential: true
   },
