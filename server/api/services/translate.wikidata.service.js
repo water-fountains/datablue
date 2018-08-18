@@ -16,9 +16,10 @@ function translateWikidata(fountains) {
       // copy wikidata id
       newFountain['id_wikidata'] = {
         value: f.id,
-        rank: 1,
+        rank: 3,
         source_name: 'Wikidata',
-        source_url: `//wikidata.org/wiki/${f.id}`
+        source_url: `//wikidata.org/wiki/${f.id}`,
+        comment: ''
       };
       // translate claims
       newFountain = translate(newFountain, f, 'claims');

@@ -27,7 +27,8 @@ function translateOsm(fountains) {
           newFountain[key.property] = {
             rank: key.rank,
             source_name: 'Open Street Map',
-            source_url: `//www.openstreetmap.org/${f.properties.id}`
+            source_url: `//www.openstreetmap.org/${f.properties.id}`,
+            comment: ''
           };
           if ('separable' in key) {
             // if values can be broken up into array
