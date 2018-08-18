@@ -34,7 +34,7 @@ cityCache.on('expired', (key, value)=>{
 export class Controller {
   
   getSingle(req, res){
-    if(req.params.queryType === 'byCoords'){
+    if(req.query.queryType === 'byCoords'){
       byCoords(req, res)
     }else{
       byId(req, res)

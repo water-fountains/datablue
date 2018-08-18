@@ -70,6 +70,25 @@ const wikidata_fountain_config = {
       }
     }
   ]},
+  "labels":{
+      val_in_array: false,
+    val_is_obj: false,
+    props: [
+      {
+        src_p_name: "en",
+        dst_p_name: "name_en",
+        rank: 2,
+      },{
+        src_p_name: "fr",
+        dst_p_name: "name_fr",
+        rank: 2,
+      },{
+        src_p_name: "de",
+        dst_p_name: "name_de",
+        rank: 2,
+      },
+    ]
+  },
   "sitelinks":{
     val_in_array: false,
     val_is_obj: false,

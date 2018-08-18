@@ -26,6 +26,9 @@ function translateWikidata(fountains) {
       // translate site links
       newFountain = translate(newFountain, f, 'sitelinks');
       
+      // translate labels (names
+      newFountain = translate(newFountain, f, 'labels');
+      
       
       
       // add fountain to list

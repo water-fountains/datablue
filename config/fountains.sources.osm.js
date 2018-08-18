@@ -90,7 +90,22 @@ const osm_fountain_config = {
     {
       "key": "name",
       "property": "name",
-      "rank": 2
+      "rank": 1
+    },
+    {
+      "key": "name:en",
+      "property": "name_en",
+      "rank": 1
+    },
+    {
+      "key": "name:fr",
+      "property": "name_fr",
+      "rank": 1
+    },
+    {
+      "key": "name:de",
+      "property": "name_de",
+      "rank": 1
     },{
       "key": "description",
       "property": "short_description",
@@ -182,6 +197,10 @@ const osm_fountain_config = {
     },{
       "key": "fixme",
       "property": "fixme",
+      "rank": 1
+    },{
+      "key": "flow_rate",
+      "property": "flow_rate",
       "rank": 1
     },
   ]

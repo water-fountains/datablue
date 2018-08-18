@@ -1,9 +1,29 @@
 export const default_fountain = {
   properties: {
     name:{
-      value: 'Fountain',
+      value: '',
       rank: 10,
       essential: true
+  },
+    name_en:{
+      value: '',
+      rank: 10,
+      essential: true
+  },
+    name_de:{
+      value: '',
+      rank: 10,
+      essential: true
+  },
+    name_fr:{
+      value: '',
+      rank: 10,
+      essential: true
+  },
+    description_short:{
+      value: '',
+      rank: 10,
+      essential: false
   },
     id_osm:{
       value: 'undefined',
@@ -99,6 +119,11 @@ export const default_fountain = {
       value: null,
       rank: 10,
       essential: true
+    },
+    water_flow:{
+      value: null,
+      rank: 10,
+      essential: false
     }
 }
 };
