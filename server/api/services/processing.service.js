@@ -65,3 +65,35 @@ export function essenceOf(fountainCollection) {
   return newCollection;
   
 }
+
+export function fillOutNames(fountainCollection) {
+  // takes a collection of fountains and returns the same collection, with holes in fountain names filled best possible way
+  return new Promise((resolve, reject) => {
+    let langs = ['en','de','fr'];
+    fountainCollection.forEach(f => {
+      // fill default name if not filled
+      if(f.properties.name.value === ''){
+        for(let lang of langs){
+          if(f.properties[`name_${lang}`].value !== ''){
+            f.properties.name = f.properties[`name_${lang}`];
+            f.properties.name.comment = `Value taken from language ${lang}.`;
+            break;
+          }
+        }
+      }
+      // fill specific names if not filled and a default name exists
+      if(f.properties.name.value !== '') {
+        for (let lang of langs) {
+          if (f.properties[`name_${lang}`].value === '') {
+            f.properties[`name_${lang}`] = _.clone(f.properties.name);
+            if(!(f.properties.name.hasOwnProperty('comment')) || f.properties.name.comment === ''){
+              f.properties[`name_${lang}`].comment = 'Value taken from default.';
+            }
+          }
+        }
+      }
+      
+    });
+    resolve(fountainCollection)
+  });
+}

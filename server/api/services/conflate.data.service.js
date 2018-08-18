@@ -86,7 +86,6 @@ export function conflate(r) {
     r[1] = _.map(r[1], f=>{return mergeFountains(f, 'unmatched')});
     
     // append the unmatched fountains to the list
-    // todo: for some reason, we are getting duplicate fountains in the end result
     conflated_fountains = _.concat(
       conflated_fountains,
       r[0],

@@ -10,7 +10,7 @@ const distance = require('@turf/distance');
 const NodeCache = require( "node-cache" );
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
-import {createUniqueIds, essenceOf, fillImageGalleries} from "../../services/processing.service";
+import {createUniqueIds, essenceOf, fillImageGalleries, fillOutNames} from "../../services/processing.service";
 
 const _ = require('lodash');
 
@@ -101,6 +101,7 @@ function generateLocationData(locationName){
     // conflate
     Promise.all([osmPromise, wikidataPromise])
       .then(r => conflate(r))
+      .then(r => fillOutNames(r))
       .then(r => fillImageGalleries(r))
       .then(r => createUniqueIds(r))
       .then(r => resolve(
@@ -143,9 +144,9 @@ function byCoords(req, res) {
   Promise.all([osmPromise, wikidataPromise])
     .then(r => conflate(r))
     .then(r => fillImageGalleries(r))
+    .then(r => fillOutNames(r))
     // return the first fountain in the list
     .then(r => {
-      // todo: don't return the first fountain but rather the closest
       let distances = _.map(r, f=>{
         return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
       });
