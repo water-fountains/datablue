@@ -108,7 +108,7 @@ const osm_fountain_config = {
       "rank": 1
     },{
       "key": "description",
-      "property": "short_description",
+      "property": "description_short",
       "rank": 2
     },{
       "key": "drinking_water",

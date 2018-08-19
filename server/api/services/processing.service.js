@@ -72,9 +72,9 @@ export function fillOutNames(fountainCollection) {
     let langs = ['en','de','fr'];
     fountainCollection.forEach(f => {
       // fill default name if not filled
-      if(f.properties.name.value === ''){
+      if(f.properties.name.value === null){
         for(let lang of langs){
-          if(f.properties[`name_${lang}`].value !== ''){
+          if(f.properties[`name_${lang}`].value !== null){
             f.properties.name = f.properties[`name_${lang}`];
             f.properties.name.comment = `Value taken from language ${lang}.`;
             break;
@@ -82,9 +82,9 @@ export function fillOutNames(fountainCollection) {
         }
       }
       // fill specific names if not filled and a default name exists
-      if(f.properties.name.value !== '') {
+      if(f.properties.name.value !== null) {
         for (let lang of langs) {
-          if (f.properties[`name_${lang}`].value === '') {
+          if (f.properties[`name_${lang}`].value === null) {
             f.properties[`name_${lang}`] = _.clone(f.properties.name);
             if(!(f.properties.name.hasOwnProperty('comment')) || f.properties.name.comment === ''){
               f.properties[`name_${lang}`].comment = 'Value taken from default.';

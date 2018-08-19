@@ -104,10 +104,13 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
   // make array of all properties that exist
   // loop through properties of default fountain
   _.forEach(default_fountain_copy.properties, (p, key)=>{
-    // extract properties of all fountains
+    // extract properties that should be included for all fountains
     let propArray = _.map(_.concat(fountains, default_fountain_copy.properties), key);
     // keep only the property with the highest rank available
-    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0]
+    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0];
+    // copy some default info
+    mergedFountain[key].name = key;
+    // todo: copy preferred source from defaults
   });
   
   // process panorama and image url
