@@ -1,5 +1,6 @@
 import l from '../../common/logger';
 import wikidata_fountain_config from '../../../config/fountains.sources.wikidata';
+import {PROP_STATUS_OK} from "../../common/constants";
 
 // This service translates data read from a data source into the servers standardized terminology.
 // For this, the config files are used
@@ -16,10 +17,11 @@ function translateWikidata(fountains) {
       // copy wikidata id
       newFountain['id_wikidata'] = {
         value: f.id,
-        rank: 3,
+        rank: 1,
         source_name: 'Wikidata',
         source_url: `//wikidata.org/wiki/${f.id}`,
-        comment: ''
+        comment: '',
+        status: PROP_STATUS_OK
       };
       // translate claims
       newFountain = translate(newFountain, f, 'claims');
@@ -51,7 +53,8 @@ function translate(newFountain, data, pCat) {
         rank: p.rank,
         source_name: 'Wikidata',
         source_url: `//wikidata.org/wiki/${newFountain.id_wikidata.value}`,
-        comment: ''
+        comment: '',
+        status: PROP_STATUS_OK
       };
       // check if values need to be translated
       if('value_translation' in p){

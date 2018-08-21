@@ -1,3 +1,5 @@
+import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../server/common/constants";
+
 const _ = require('lodash');
 
 let default_fountain_template = {
@@ -88,7 +90,8 @@ let default_fountain_template = {
 _.forEach(default_fountain_template.properties, function(value, key) {
   value.rank = 10;
   value.value = null;
-  value.comment = '';
+  value.comment = 'no data found';
+  value.status = PROP_STATUS_WARNING;
 });
 // some custom values
 default_fountain_template.properties.fixme.value = '';

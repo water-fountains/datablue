@@ -4,6 +4,7 @@ const _ = require ('lodash');
 import WikimediaService from './wikimedia.service';
 import wikidata_fountain_config from "../../../config/fountains.sources.wikidata";
 import {default_fountain} from "../../../config/default.fountain.object";
+import {PROP_STATUS_INFO} from "../../common/constants";
 
 export function fillImageGalleries(fountainCollection){
   // takes a collection of fountains and returns the same collection, enhanced with image galleries when available
@@ -75,8 +76,11 @@ export function fillOutNames(fountainCollection) {
       if(f.properties.name.value === null){
         for(let lang of langs){
           if(f.properties[`name_${lang}`].value !== null){
-            f.properties.name = _.clone(f.properties[`name_${lang}`]);
+            f.properties.name.value = f.properties[`name_${lang}`].value;
+            f.properties.name.source_name = f.properties[`name_${lang}`].source_name;
+            f.properties.name.source_url = f.properties[`name_${lang}`].source_url;
             f.properties.name.comment = `Value taken from language ${lang}.`;
+            f.properties.name.status = PROP_STATUS_INFO;
             break;
           }
         }
@@ -85,9 +89,14 @@ export function fillOutNames(fountainCollection) {
       if(f.properties.name.value !== null) {
         for (let lang of langs) {
           if (f.properties[`name_${lang}`].value === null) {
-            f.properties[`name_${lang}`] = _.clone(f.properties.name);
-            if(!(f.properties.name.hasOwnProperty('comment')) || f.properties.name.comment === ''){
-              f.properties[`name_${lang}`].comment = 'Value taken from default.';
+            f.properties[`name_${lang}`].value = f.properties.name.value;
+            f.properties[`name_${lang}`].source_name = f.properties.name.source_name;
+            f.properties[`name_${lang}`].source_url = f.properties.name.source_url;
+            f.properties[`name_${lang}`].status = PROP_STATUS_INFO;
+            if(f.properties.name.comment === ''){
+              f.properties[`name_${lang}`].comment = 'Value taken from default language.';
+            }else{
+              f.properties[`name_${lang}`].comment = f.properties.name.comment;
             }
           }
         }
