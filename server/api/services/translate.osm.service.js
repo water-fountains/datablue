@@ -1,5 +1,6 @@
 import l from '../../common/logger';
 import osm_fountain_config from '../../../config/fountains.sources.osm';
+import {PROP_STATUS_OK} from "../../common/constants";
 
 // This service translates data read from a data source into the servers standardized terminology.
 // For this, the config files are used
@@ -17,7 +18,9 @@ function translateOsm(fountains) {
         value: f.geometry.coordinates,
         rank: 1,
         source_name: 'Open Street Map',
-        source_url: `//www.openstreetmap.org/node//${f.properties.id}`
+        source_url: `//www.openstreetmap.org/node//${f.properties.id}`,
+        comment: '',
+        status: PROP_STATUS_OK
       };
       // translate the properties
       osm_fountain_config.keys.forEach(function (key) {
@@ -27,7 +30,9 @@ function translateOsm(fountains) {
           newFountain[key.property] = {
             rank: key.rank,
             source_name: 'Open Street Map',
-            source_url: `//www.openstreetmap.org/${f.properties.id}`
+            source_url: `//www.openstreetmap.org/${f.properties.id}`,
+            comment: '',
+            status: PROP_STATUS_OK
           };
           if ('separable' in key) {
             // if values can be broken up into array

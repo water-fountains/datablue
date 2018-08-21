@@ -86,7 +86,6 @@ export function conflate(r) {
     r[1] = _.map(r[1], f=>{return mergeFountains(f, 'unmatched')});
     
     // append the unmatched fountains to the list
-    // todo: for some reason, we are getting duplicate fountains in the end result
     conflated_fountains = _.concat(
       conflated_fountains,
       r[0],
@@ -105,10 +104,14 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
   // make array of all properties that exist
   // loop through properties of default fountain
   _.forEach(default_fountain_copy.properties, (p, key)=>{
-    // extract properties of all fountains
+    // extract properties that should be included for all fountains
     let propArray = _.map(_.concat(fountains, default_fountain_copy.properties), key);
     // keep only the property with the highest rank available
-    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0]
+    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0];
+    // copy some default info
+    mergedFountain[key].name = key;
+    mergedFountain[key].type = p.type;
+    // todo: copy preferred source from defaults
   });
   
   // process panorama and image url
@@ -136,11 +139,11 @@ function collection2GeoJson(collection){
 
 
 function processImageUrl(fountain, widthPx=640) {
-  if (fountain.image_url.value === null){
+  if (fountain.featured_image_name.value === null){
     return `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.coords.value[1]},${fountain.coords.value[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`;
   }else{
     // construct url of thumbnail
-    let imgName = fountain.image_url.value.replace(/ /g, '_');
+    let imgName = fountain.featured_image_name.value.replace(/ /g, '_');
     
     let h = md5(imgName);
     return `//upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${widthPx}px-${imgName}`;

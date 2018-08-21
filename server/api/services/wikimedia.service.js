@@ -6,6 +6,7 @@ const axios = require ('axios');
 const https = require('https');
 const md5 = require('js-md5');
 import l from '../../common/logger';
+import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
 
 
 class WikimediaService {
@@ -20,32 +21,40 @@ class WikimediaService {
           medium: './assets/gallery_placeholder_med.png',
           small: './assets/gallery_placeholder_small.png',
           description: 'add an image'
-        }]
+        }],
+        status: PROP_STATUS_WARNING,
+        type: 'object',
+        name: 'gallery',
+        comments: ''
       };
       // if no image is entered, use a google street view image
-      if(_.isNull(fountain.properties.image_url.value)){
-        fountain.properties.image_url.source_name = 'Google Street View';
+      if(_.isNull(fountain.properties.featured_image_name.value)){
+        fountain.properties.featured_image_name.source_name = 'Google Street View';
         getStaticStreetView(fountain)
           .then(image=>{
             fountain.properties.gallery.value = [image].concat(fountain.properties.gallery.value);
+            
             resolve(fountain);
           })
       }
       // check if fountain has a main image but no wikimedia category
-      else if(!_.isNull(fountain.properties.image_url.value) &&
+      else if(!_.isNull(fountain.properties.featured_image_name.value) &&
         _.isNull(fountain.properties.wiki_commons_name.value)){
         fountain.properties.gallery.source_name = 'Wikimedia Commons';
-        fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.image_url.value}`;
+        fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.featured_image_name.value}`;
         // fetch info for just the one image
-        this.getImageInfo('File:'+fountain.properties.image_url.value)
+        this.getImageInfo('File:'+fountain.properties.featured_image_name.value)
           .then(r=>{
             fountain.properties.gallery.value = [r].concat(fountain.properties.gallery.value);
+            fountain.properties.gallery.status = PROP_STATUS_OK;
+            fountain.properties.gallery.comments = '';
             resolve(fountain);
           })
       }
       // check if fountain also has a Wikimedia category
       else if(!_.isNull(fountain.properties.wiki_commons_name.value)) {
-        // if so, update image source
+        // if so, change image source
+        fountain.properties.gallery.source_name = 'Wikimedia Commons';
         fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.wiki_commons_name.value}`;
   
         // fetch all images in category
@@ -58,7 +67,7 @@ class WikimediaService {
       
             // make sure main image is at the beginning of the list of images
             let category_members_sorted = _.sortBy(category_members, function (page) {
-              return page.title.includes(fountain.properties.image_url.value) ? 0 : 1;
+              return page.title.includes(fountain.properties.featured_image_name.value) ? 0 : 1;
             });
       
             // fill in information for each image
@@ -68,6 +77,8 @@ class WikimediaService {
             Promise.all(image_promises)
               .then(r => {
                 fountain.properties.gallery.value = r.concat(fountain.properties.gallery.value);
+                fountain.properties.gallery.status = PROP_STATUS_OK;
+                fountain.properties.gallery.comments = '';
                 resolve(fountain);
               });
           })

@@ -1,104 +1,126 @@
-export const default_fountain = {
+import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../server/common/constants";
+
+const _ = require('lodash');
+
+let default_fountain_template = {
   properties: {
     name:{
-      value: 'Fountain',
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
+  },
+    name_en:{
+      essential: true,
+      type: 'string'
+  },
+    name_de:{
+      essential: true,
+      type: 'string'
+  },
+    name_fr:{
+      essential: true,
+      type: 'string'
+  },
+    description_short:{
+      essential: false,
+      type: 'string'
   },
     id_osm:{
-      value: 'undefined',
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
   },
     id_operator:{
-      value: 'undefined',
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
   },
     id_wikidata:{
-      value: 'undefined',
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
   },
     construction_date:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'number'
   },
     availability:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'string'
   },
     floor_level:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'string'
   },
     fixme:{
-      value: '',
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'string'
   },
     directions:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
   },
     pano_url:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'url'
   },
-    image_url:{
-      value: null,
-      rank: 10,
-      essential: false
+    featured_image_name:{
+      essential: false,
+      type: 'url'
   },
     coords:{
-      value: [],
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'coords'
     },
     water_type:{
-      value: 'unavailable',
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'string'
     },
     wiki_commons_name:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'string'
     },
     wikipedia_en_url:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'url'
     },
     wikipedia_de_url:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'url'
     },
     operator_name:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'string'
     },
     gallery:{
-      value: null,
-      rank: 10,
-      essential: false
+      essential: false,
+      type: 'object'
     },
     access_pet:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'boolean_string'
     },
     access_bottle:{
-      value: null,
-      rank: 10,
-      essential: true
+      essential: true,
+      type: 'boolean_string'
+    },
+    access_wheelchair:{
+      essential: true,
+      type: 'boolean_string'
+    },
+    potable:{
+      essential: false,
+      type: 'boolean_string'
+    },
+    water_flow:{
+      essential: false,
+      type: 'string'
     }
 }
 };
+_.forEach(default_fountain_template.properties, function(value, key) {
+  value.rank = 10;
+  value.value = null;
+  value.comment = 'no data found';
+  value.status = PROP_STATUS_WARNING;
+});
+// some custom values
+default_fountain_template.properties.fixme.value = '';
+
+export const default_fountain = default_fountain_template;
