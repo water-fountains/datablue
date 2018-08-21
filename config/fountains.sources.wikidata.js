@@ -35,7 +35,7 @@ const wikidata_fountain_config = {
       "rank": 1
     },{
       "src_p_name": "P18",
-      "dst_p_name": "image_url",
+      "dst_p_name": "featured_image_name",
       "rank": 1
     },{
       "src_p_name": "P625",

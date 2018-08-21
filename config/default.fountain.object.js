@@ -5,85 +5,112 @@ const _ = require('lodash');
 let default_fountain_template = {
   properties: {
     name:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     name_en:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     name_de:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     name_fr:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     description_short:{
-      essential: false
+      essential: false,
+      type: 'string'
   },
     id_osm:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     id_operator:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     id_wikidata:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     construction_date:{
-      essential: true
+      essential: true,
+      type: 'number'
   },
     availability:{
-      essential: false
+      essential: false,
+      type: 'string'
   },
     floor_level:{
-      essential: false
+      essential: false,
+      type: 'string'
   },
     fixme:{
-      essential: false
+      essential: false,
+      type: 'string'
   },
     directions:{
-      essential: true
+      essential: true,
+      type: 'string'
   },
     pano_url:{
-      essential: false
+      essential: false,
+      type: 'url'
   },
-    image_url:{
-      essential: false
+    featured_image_name:{
+      essential: false,
+      type: 'url'
   },
     coords:{
-      essential: false
+      essential: false,
+      type: 'coords'
     },
     water_type:{
-      essential: true
+      essential: true,
+      type: 'string'
     },
     wiki_commons_name:{
-      essential: false
+      essential: false,
+      type: 'string'
     },
     wikipedia_en_url:{
-      essential: true
+      essential: true,
+      type: 'url'
     },
     wikipedia_de_url:{
-      essential: true
+      essential: true,
+      type: 'url'
     },
     operator_name:{
-      essential: false
+      essential: false,
+      type: 'string'
     },
     gallery:{
-      essential: false
+      essential: false,
+      type: 'object'
     },
     access_pet:{
-      essential: true
+      essential: true,
+      type: 'boolean_string'
     },
     access_bottle:{
-      essential: true
+      essential: true,
+      type: 'boolean_string'
     },
     access_wheelchair:{
-      essential: true
+      essential: true,
+      type: 'boolean_string'
     },
     potable:{
-      essential: false
+      essential: false,
+      type: 'boolean_string'
     },
     water_flow:{
-      essential: false
+      essential: false,
+      type: 'string'
     }
 }
 };

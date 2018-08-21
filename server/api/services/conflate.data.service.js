@@ -110,6 +110,7 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
     mergedFountain[key] = _.sortBy(propArray, ['rank'])[0];
     // copy some default info
     mergedFountain[key].name = key;
+    mergedFountain[key].type = p.type;
     // todo: copy preferred source from defaults
   });
   
@@ -138,11 +139,11 @@ function collection2GeoJson(collection){
 
 
 function processImageUrl(fountain, widthPx=640) {
-  if (fountain.image_url.value === null){
+  if (fountain.featured_image_name.value === null){
     return `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.coords.value[1]},${fountain.coords.value[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`;
   }else{
     // construct url of thumbnail
-    let imgName = fountain.image_url.value.replace(/ /g, '_');
+    let imgName = fountain.featured_image_name.value.replace(/ /g, '_');
     
     let h = md5(imgName);
     return `//upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${widthPx}px-${imgName}`;
