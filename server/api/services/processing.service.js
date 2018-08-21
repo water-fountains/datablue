@@ -75,7 +75,7 @@ export function fillOutNames(fountainCollection) {
       if(f.properties.name.value === null){
         for(let lang of langs){
           if(f.properties[`name_${lang}`].value !== null){
-            f.properties.name = f.properties[`name_${lang}`];
+            f.properties.name = _.clone(f.properties[`name_${lang}`]);
             f.properties.name.comment = `Value taken from language ${lang}.`;
             break;
           }
