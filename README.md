@@ -66,3 +66,5 @@ Submit an issue for a feature request, architecture suggestion, or to discuss a 
 If you would like to contribute directly to the code, fork this repo and make a pull request.
 
 To get ideas for how to contribute, check out the repository issues.
+
+To add a fountain property to be processed and made available by datablue, check this guide: [Guide: include a new fountain property (operator id) in the processing pipeline](https://github.com/water-fountains/datablue/wiki/Guide:-include-a-new-fountain-property-(operator-id)-in-the-processing-pipeline)
