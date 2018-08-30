@@ -26,6 +26,16 @@ const wikidata_fountain_config = {
       }},
       "rank": 1
     },{
+      "src_p_name": "P5623",
+      "dst_p_name": "water_type",
+      "value_translation": vals=>{switch(vals[0].value){
+        case "Q53633635": return "tapwater";
+        case "Q1881858": return "springwater";
+        case "Q53634173": return "own_supply";
+        case "Q161598": return "groundwater";
+      }},
+      "rank": 1
+    },{
       "src_p_name": "P2795",
       "dst_p_name": "directions",
       "rank": 2
@@ -54,7 +64,7 @@ const wikidata_fountain_config = {
         // loop through all catalog codes to find the right one
         catCodes.forEach(code=>{
           // return value only if qualifier matches the operator id
-          if(code.qualifiers['P972'][0] == locations.zurich.operator_qid){
+          if(code.qualifiers['P972'][0] === locations.zurich.operator_qid){
             catCode = code.value
           }
         });
