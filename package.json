@@ -25,6 +25,7 @@
     "dotenv": "^5.0.1",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
+    "haversine": "^1.1.0",
     "helmet": "^3.13.0",
     "https": "^1.0.0",
     "js-md5": "^0.7.3",

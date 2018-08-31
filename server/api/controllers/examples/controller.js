@@ -11,6 +11,7 @@ const NodeCache = require( "node-cache" );
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
 import {createUniqueIds, essenceOf, fillImageGalleries, fillOutNames} from "../../services/processing.service";
+import {updateCacheWithFountain} from "../../services/database.service";
 
 const _ = require('lodash');
 
@@ -145,12 +146,14 @@ function byCoords(req, res) {
     .then(r => conflate(r))
     .then(r => fillImageGalleries(r))
     .then(r => fillOutNames(r))
-    // return the first fountain in the list
+    // return the closest fountain in the list
     .then(r => {
       let distances = _.map(r, f=>{
         return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
       });
-      res.json(r[_.indexOf(distances, _.min(distances))])
+      let closest = r[_.indexOf(distances, _.min(distances))];
+      res.json(closest);
+      updateCacheWithFountain(cityCache, closest, 'zurich')
     })
     // todo: update whole dataset with the refreshed data
     .catch(error => {
