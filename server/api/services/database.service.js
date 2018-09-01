@@ -22,17 +22,22 @@ function replaceFountain(fountains, fountain) {
   
   let distances = [];
   
-  _.forEach(fountains.features, function(f, key){
-    let ismatch =is_match(f, fountain);
+  for(let j = 0; j < fountains.features.length; j++ ){
+    let ismatch =is_match(fountains.features[j], fountain);
     if(ismatch === true){
       //replace fountain
-      fountain.properties.id = f.properties.id;
-      fountains.features[key] = fountain;
-      return fountains;
+      fountain.properties.id = fountains.features[j].properties.id;
+      fountains.features[j] = fountain;
+      return [fountains, fountain];
     }else{
-      distances.push(ismatch)
+      // compute distance otherwise
+      distances.push(
+      haversine(fountains.features[j].geometry.coordinates, fountain.geometry.coordinates, {
+        unit: 'meter',
+        format: '[lon,lat]'
+      }))
     }
-  });
+  };
   
   let min_d = _.min(distances);
   if(min_d < 15){
@@ -40,7 +45,7 @@ function replaceFountain(fountains, fountain) {
     //replace fountain
     fountain.properties.id = f.properties.id;
     fountains.features[key] = fountain;
-    return fountains;
+    return [fountains, fountain];
   }else{
     // fountain was not found; just add it to the list
     fountain.properties.id = _.max(fountains.features.map(f=>{return f.properties.id}))+1;
@@ -52,14 +57,10 @@ function replaceFountain(fountains, fountain) {
 
 function is_match(f1, f2) {
   // returns true if match, otherwise returns distance
-  _.forEach(['id_wikidata', 'id_operator', 'id_osm'], id_name=>{
+  let ids = ['id_wikidata', 'id_operator', 'id_osm'];
+  for(let id_name of ids){
     if(f1.properties[id_name].value === f2.properties[id_name].value){
       return true;
     }
-    // compute distances
-    return haversine(f1.geometry.coordinates, f2.geometry.coordinates, {
-      unit: 'meter',
-      format: '[lon,lat]'
-    })
-  })
+  }
 }

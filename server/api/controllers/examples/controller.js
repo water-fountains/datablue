@@ -123,7 +123,7 @@ function byId(req, res){
   let fountain = _.find(
     cityCache.get('zurich').features,
     f=>{
-      return f.properties['id_'+req.query.database].value == req.query.idval
+      return f.properties['id_'+req.query.database].value === req.query.idval
     });
   res.json(fountain)
 }
