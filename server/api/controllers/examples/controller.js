@@ -152,8 +152,8 @@ function byCoords(req, res) {
         return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
       });
       let closest = r[_.indexOf(distances, _.min(distances))];
+      closest = updateCacheWithFountain(cityCache, closest, 'zurich');
       res.json(closest);
-      updateCacheWithFountain(cityCache, closest, 'zurich')
     })
     // todo: update whole dataset with the refreshed data
     .catch(error => {
