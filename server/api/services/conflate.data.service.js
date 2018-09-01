@@ -111,6 +111,7 @@ function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
     // copy some default info
     mergedFountain[key].name = key;
     mergedFountain[key].type = p.type;
+    mergedFountain[key].essential = p.essential;
     // todo: copy preferred source from defaults
   });
   
