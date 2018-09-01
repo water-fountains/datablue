@@ -155,7 +155,6 @@ function byCoords(req, res) {
       closest = updateCacheWithFountain(cityCache, closest, 'zurich');
       res.json(closest);
     })
-    // todo: update whole dataset with the refreshed data
     .catch(error => {
       l.error(error);
     })
