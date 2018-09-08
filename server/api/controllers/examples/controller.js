@@ -78,6 +78,9 @@ export default new Controller();
 function generateLocationData(locationName){
   return new Promise((resolve, reject)=>{
     // get bounding box of location
+    if(!loc.locations.hasOwnProperty(locationName)){
+      reject(new Error(`location not found in config: ${locationName}`))
+    }
     let bbox = loc.locations[locationName].bounding_box;
     // get data from Osm
     let osmPromise = OsmService
