@@ -21,15 +21,17 @@ const cityCache = new NodeCache( {
   deleteOnExpire: false // on expire, we want the cache to be recreated.
 } );
 
-// when cache expires, regenerate it
+// when cache expires, regenerate it (ignore non-essential)
 cityCache.on('expired', (key, value)=>{
-  generateLocationData(key)
-    .then(r=>{
-      // save new data to storage
-      cityCache.set(key, r, 60*60*2);
-    }).catch(error =>{
-    l.error(`unable to set Cache. Error: ${error}`)
-  })
+  if(!key.includes('_essential')){
+    generateLocationData(key)
+      .then(r=>{
+        // save new data to storage
+        cityCache.set(key, r, 60*60*2);
+      }).catch(error =>{
+      l.error(`unable to set Cache. Error: ${error}`)
+    })
+  }
 });
 
 export class Controller {
