@@ -43,18 +43,20 @@ class OsmService {
 
 function queryBuilderCenter(lat, lng, radius=10) {
   let query = `
-    (${osm_fountain_config.sub_sources.map((item, i)=>
-    `node[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')}
-    );out;
+    (${['node', 'way'].map(e=>
+      osm_fountain_config.sub_sources.map((item, i)=>
+        `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')).join('')}
+    );out center;
   `;
   return query;
 }
 
 function queryBuilderBox(latMin, lngMin, latMax, lngMax) {
   let query = `
-    (${osm_fountain_config.sub_sources.map((item, i)=>
-    `node[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`).join('')}
-    );out;
+    (${['node', 'way'].map(e=>
+      osm_fountain_config.sub_sources.map((item, i)=>
+    `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`).join('')).join('')}
+    );out center;
   `;
   return query;
 }
