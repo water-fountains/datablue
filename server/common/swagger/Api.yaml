@@ -33,7 +33,7 @@ definitions:
 paths:
   /fountain:
     get:
-      description: Fetch fountain information based on coordinates
+      description: Fetch detailed fountain information based on coordinates or identifier
       parameters:
         - name: queryType
           in: query
@@ -47,11 +47,12 @@ paths:
           type: string
           enum: [datablue, operator, wikidata, osm]
           example: wikidata
-          description: database for which the id is valid
+          description: database for which the provided identifier is valid
         - name: idval
           in: query
           type: string
           example: Q27229889
+          description: identifier used for fountain
         - name: lat
           in: query
           schema:
