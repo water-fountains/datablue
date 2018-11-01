@@ -100,7 +100,18 @@ class WikimediaService {
             let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
             if(data.hasOwnProperty('imageinfo')){
               newImage.metadata = makeMetadata(data.imageinfo[0]);
-              newImage.description = `<a href='${newImage.metadata.license_url}' target=blank>${newImage.metadata.license_short}</a> ${newImage.metadata.artist}`;
+              // if image doesn't have a license url, just use plain text
+              let license = newImage.metadata.license_short;
+              if(newImage.metadata.license_url === null){
+                license = license?(license+' '):"";
+              }else{
+                license = `<a href='${newImage.metadata.license_url}' target='_blank'>${newImage.metadata.license_short}</a> `
+              }
+              // if artist name is a link, then it usually isn't set to open in a new page. Change that
+              let artist = newImage.metadata.artist;
+              artist = artist?artist.replace('href', 'target="_blank" href'):"";
+              // save description
+              newImage.description = `${license}${artist}`;
               newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
               resolve(newImage);
             }
