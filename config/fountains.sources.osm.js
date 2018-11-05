@@ -200,7 +200,7 @@ const osm_fountain_config = {
       "rank": 1
     },{
       "key": "flow_rate",
-      "property": "flow_rate",
+      "property": "water_flow",
       "rank": 1
     },
   ]
