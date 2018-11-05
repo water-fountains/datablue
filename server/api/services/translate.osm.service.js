@@ -18,7 +18,7 @@ function translateOsm(fountains) {
         value: f.geometry.coordinates,
         rank: 1,
         source_name: 'Open Street Map',
-        source_url: `//www.openstreetmap.org/node//${f.properties.id}`,
+        source_url: `https://www.openstreetmap.org/${f.properties.id}`,
         comment: '',
         status: PROP_STATUS_OK
       };
@@ -30,7 +30,7 @@ function translateOsm(fountains) {
           newFountain[key.property] = {
             rank: key.rank,
             source_name: 'Open Street Map',
-            source_url: `//www.openstreetmap.org/${f.properties.id}`,
+            source_url: `https://www.openstreetmap.org/${f.properties.id}`,
             comment: '',
             status: PROP_STATUS_OK
           };

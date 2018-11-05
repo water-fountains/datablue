@@ -19,7 +19,7 @@ function translateWikidata(fountains) {
         value: f.id,
         rank: 1,
         source_name: 'Wikidata',
-        source_url: `//wikidata.org/wiki/${f.id}`,
+        source_url: `https://wikidata.org/wiki/${f.id}`,
         comment: '',
         status: PROP_STATUS_OK
       };
@@ -52,7 +52,7 @@ function translate(newFountain, data, pCat) {
       newFountain[p.dst_p_name] = {
         rank: p.rank,
         source_name: 'Wikidata',
-        source_url: `//wikidata.org/wiki/${newFountain.id_wikidata.value}`,
+        source_url: `https://wikidata.org/wiki/${newFountain.id_wikidata.value}`,
         comment: '',
         status: PROP_STATUS_OK
       };
