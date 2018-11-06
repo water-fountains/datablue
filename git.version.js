@@ -29,4 +29,4 @@ async function createVersionsFile(filename) {
   writeFileSync(filename, content, {encoding: 'utf8'});
 }
 
-createVersionsFile('build.info.js');
+createVersionsFile('server/common/build.info.js');
