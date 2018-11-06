@@ -10,12 +10,17 @@ import cookieParser from 'cookie-parser';
 import swaggerify from './swagger';
 import l from './logger';
 import fs from 'fs';
+import buildInfo from './build.info';
 
 let privateKey = '';
 let certificate = '';
+let port = '';
 if(process.env.NODE_ENV === 'production') {
   privateKey = fs.readFileSync('privatekey.pem');
   certificate = fs.readFileSync('certificate.pem');
+  port = buildInfo.branch==='stable'?3001:3000;
+}else{
+  port = process.env.PORT;
 }
 
 const app = new Express();
@@ -37,8 +42,8 @@ export default class ExpressServer {
     swaggerify(app, routes);
     return this;
   }
-
-  listen(port = process.env.PORT) {
+  
+    listen() {
     const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`);
     if(process.env.NODE_ENV === 'production'){
       https.createServer({

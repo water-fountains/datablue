@@ -7,10 +7,14 @@
     "node": "8.11.1"
   },
   "scripts": {
+    "prestart": "node git.version",
     "start": "cd build && node main",
     "init_symlink_server": "ln -sf /etc/letsencrypt/live/water-fountains.org/cert.pem certificate.pem && ln -sf /etc/letsencrypt/live/water-fountains.org/privkey.pem privatekey.pem",
+    "precompile": "node git.version.js",
     "compile": "node build.js && backpack build",
+    "predev": "node git.version",
     "dev": "node build.js && backpack dev | pino -o 'short'",
+    "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect-brk | pino -o 'short'",
     "test": "node build.js && _mocha --compilers js:babel-register --exit",
     "postinstall": "node build.js && backpack build",
