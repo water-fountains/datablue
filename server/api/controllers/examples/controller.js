@@ -126,7 +126,7 @@ function generateLocationData(locationName){
 
 function byId(req, res){
   let fountain = _.find(
-    cityCache.get('zurich').features,
+    cityCache.get(req.query.city).features,
     f=>{
       return f.properties['id_'+req.query.database].value === req.query.idval
     });
@@ -157,7 +157,7 @@ function byCoords(req, res) {
         return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
       });
       let closest = r[_.indexOf(distances, _.min(distances))];
-      closest = updateCacheWithFountain(cityCache, closest, 'zurich');
+      closest = updateCacheWithFountain(cityCache, closest, req.query.city);
       res.json(closest);
     })
     .catch(error => {

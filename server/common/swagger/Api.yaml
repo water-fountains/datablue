@@ -48,6 +48,13 @@ paths:
           enum: [datablue, operator, wikidata, osm]
           example: wikidata
           description: database for which the provided identifier is valid
+        - name: city
+          in: query
+          type: string
+          enum: [zurich, geneva, basel]
+          example: zurich_old_town
+          required: false
+          description: name of city for which fountains are to be served
         - name: idval
           in: query
           type: string
@@ -85,7 +92,7 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [zurich, zurich_old_town]
+          enum: [zurich, geneva, basel]
           example: zurich_old_town
           required: true
           description: name of city for which fountains are to be served

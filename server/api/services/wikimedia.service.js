@@ -72,7 +72,10 @@ class WikimediaService {
       
             // fill in information for each image
             _.forEach(category_members_sorted, page => {
-              image_promises.push(this.getImageInfo(page.title));
+              // only use photo media
+              if(page.title.slice(-3).toLowerCase() === 'jpg'){
+                image_promises.push(this.getImageInfo(page.title));
+              }
             });
             Promise.all(image_promises)
               .then(r => {

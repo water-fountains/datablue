@@ -15,7 +15,7 @@ export const locations = {
         "latMax": 46.29001987172955,
         "lngMax": 6.273880004882812
       },
-      "operator_qid": 'Q53629101'
+      "operator_qid": 'null'
     },
     "basel": {
       "bounding_box": {
@@ -24,7 +24,7 @@ export const locations = {
         "latMax": 47.60477416894759,
         "lngMax": 7.676696777343749
       },
-      "operator_qid": 'Q53629101'
+      "operator_qid": 'null'
     },
   "zurich_old_town": {
     "bounding_box": {
