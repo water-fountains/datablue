@@ -80,9 +80,17 @@ let default_fountain_template = {
       essential: true,
       type: 'url'
     },
+    wikipedia_en_summary:{
+      essential: false,
+      type: 'string'
+    },
     wikipedia_de_url:{
       essential: true,
       type: 'url'
+    },
+    wikipedia_de_summary:{
+      essential: false,
+      type: 'string'
     },
     operator_name:{
       essential: false,

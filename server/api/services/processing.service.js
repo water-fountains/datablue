@@ -2,9 +2,10 @@ import {getStaticStreetView} from "./google.service";
 
 const _ = require ('lodash');
 import WikimediaService from './wikimedia.service';
+import WikipediaService from './wikipedia.service';
 import wikidata_fountain_config from "../../../config/fountains.sources.wikidata";
 import {default_fountain} from "../../../config/default.fountain.object";
-import {PROP_STATUS_INFO} from "../../common/constants";
+import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
 export function fillImageGalleries(fountainCollection){
   // takes a collection of fountains and returns the same collection, enhanced with image galleries when available
@@ -17,6 +18,43 @@ export function fillImageGalleries(fountainCollection){
     Promise.all(promises)
       .then(r =>resolve(r));
     
+  })
+}
+
+export function fillWikipediaSummaries(fountainCollection){
+  // takes a collection of fountains and returns the same collection, enhanced with image galleries when available
+  return new Promise((resolve, reject) => {
+    let promises = [];
+    // loop through fountains
+    _.forEach(fountainCollection, fountain =>{
+      // check English and German
+      _.forEach(['en', 'de'], lang =>{
+        let urlParam = `wikipedia_${lang}_url`;
+        let summaryParam = `wikipedia_${lang}_summary`;
+        if(!_.isNull(fountain.properties[urlParam].value)){
+          // if not Null, get summary and create new property
+          promises.push(new Promise((resolve, reject) => {
+            WikipediaService.getSummary(fountain.properties[urlParam].value)
+              .then(summary => {
+                fountain.properties[summaryParam].value = summary;
+                fountain.properties[summaryParam].type = 'string';
+                fountain.properties[summaryParam].source_name = 'wikipedia';
+                fountain.properties[summaryParam].source_url = fountain.properties[urlParam].value;
+                if(summary.length > 0){
+                  fountain.properties[summaryParam].status = PROP_STATUS_OK;
+                }
+                resolve();
+              })
+              .catch(error=>{
+                reject(error)
+              })
+          }));
+        }
+      });
+    });
+    
+    Promise.all(promises)
+      .then(r =>resolve(fountainCollection));
   })
 }
 
