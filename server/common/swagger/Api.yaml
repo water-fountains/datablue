@@ -93,19 +93,17 @@ paths:
           in: query
           type: string
           enum: [zurich, geneva, basel]
-          example: zurich_old_town
+          example: zurich
           required: true
           description: name of city for which fountains are to be served
         - name: refresh
           in: query
-          schema:
-            type: boolean
+          type: boolean
           default: false
           description: indicates whether to force a refresh of the dataset
         - name: essential
           in: query
-          schema:
-            type: boolean
+          type: boolean
           default: true
           description: indicates whether to return only the essential data
       responses:

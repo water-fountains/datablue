@@ -22,7 +22,6 @@
     "heroku-prebuild": "cp .envTEMPLATE .env"
   },
   "dependencies": {
-    "@turf/distance": "^6.0.1",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
@@ -39,7 +38,7 @@
     "pino": "^4.17.6",
     "query-overpass": "^1.5.3",
     "source-map-support": "^0.5.9",
-    "swagger-express-middleware": "^1.0.0-alpha.12",
+    "swagger-express-middleware": "^2.0.1",
     "utf8": "^3.0.0",
     "wikidata-sdk": "^5.15.8"
   },
