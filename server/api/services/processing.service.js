@@ -3,12 +3,14 @@ import {getStaticStreetView} from "./google.service";
 const _ = require ('lodash');
 import WikimediaService from './wikimedia.service';
 import WikipediaService from './wikipedia.service';
-import wikidata_fountain_config from "../../../config/fountains.sources.wikidata";
-import {default_fountain} from "../../../config/default.fountain.object";
+import l from '../../common/logger';
+import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
 export function fillImageGalleries(fountainCollection){
-  // takes a collection of fountains and returns the same collection, enhanced with image galleries when available
+  // takes a collection of fountains and returns the same collection,
+  // enhanced with image galleries when available or default images
+  
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
@@ -16,7 +18,8 @@ export function fillImageGalleries(fountainCollection){
     });
     
     Promise.all(promises)
-      .then(r =>resolve(r));
+      .then(r =>resolve(r))
+      .catch(err=>reject(err));
     
   })
 }
@@ -46,6 +49,7 @@ export function fillWikipediaSummaries(fountainCollection){
                 resolve();
               })
               .catch(error=>{
+                l.error(`Error creating Wikipedia summary: ${error}`);
                 reject(error)
               })
           }));
@@ -54,7 +58,8 @@ export function fillWikipediaSummaries(fountainCollection){
     });
     
     Promise.all(promises)
-      .then(r =>resolve(fountainCollection));
+      .then(r =>resolve(fountainCollection))
+      .catch(err=>reject(err));
   })
 }
 
@@ -80,7 +85,7 @@ export function essenceOf(fountainCollection) {
     features: []
   };
   
-  let essentialPropNames = _.map(default_fountain.properties, (p, p_name)=>{if (p.essential) {return p_name} });
+  let essentialPropNames = _.map(fountain_property_metadata, (p, p_name)=>{if (p.essential) {return p_name} });
   
   fountainCollection.features.forEach(f=>{
     let props = _.pick(f.properties, essentialPropNames);

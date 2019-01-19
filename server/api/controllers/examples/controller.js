@@ -1,17 +1,15 @@
 import OsmService from '../../services/osm.service';
 import * as loc from '../../../../config/locations';
 import WikidataService from '../../services/wikidata.service';
-import translateOsm from '../../services/translate.osm.service';
-import translateWikidata from '../../services/translate.wikidata.service';
 import l from '../../../common/logger'
 import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
 
-const distance = require('@turf/distance');
 const NodeCache = require( "node-cache" );
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
 import {combineData, conflate} from "../../services/conflate.data.service";
 import {createUniqueIds, essenceOf, fillImageGalleries, fillWikipediaSummaries, fillOutNames} from "../../services/processing.service";
 import {updateCacheWithFountain} from "../../services/database.service";
+const haversine = require("haversine");
 
 const _ = require('lodash');
 
@@ -61,7 +59,9 @@ export class Controller {
         }
       })
         .catch(error =>{
-          l.error(`unable to set Cache. Error: ${error}`)
+          l.error(`Error: ${error}`);
+          // res.status(500);
+          res.sendStatus(500);
         })
     }
     // otherwise, get the data from storage
@@ -88,7 +88,6 @@ function generateLocationData(locationName){
     let osmPromise = OsmService
       .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
       .then(r => applyImpliedPropertiesOsm(r))
-      .then(r => translateOsm(r))
       .catch(e=>{
         l.error(`Error collecting OSM data: ${e}`);
         reject(e);
@@ -98,7 +97,6 @@ function generateLocationData(locationName){
     let wikidataPromise = WikidataService
       .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
       .then(r=>WikidataService.byIds(r))
-      .then(r => translateWikidata(r))
       .catch(e=>{
         l.error(`Error collecting wikidata data: ${e}`);
         reject(e);
@@ -106,7 +104,10 @@ function generateLocationData(locationName){
     
     // conflate
     Promise.all([osmPromise, wikidataPromise])
-      .then(r => conflate(r))
+      .then(r => conflate({
+        osm: r[0],
+        wikidata: r[1]
+      }))
       .then(r => fillOutNames(r))
       .then(r => fillImageGalleries(r))
       .then(r => fillWikipediaSummaries(r))
@@ -139,23 +140,28 @@ function byCoords(req, res) {
   // OSM promise
   let osmPromise = OsmService
     .byCenter(req.query.lat, req.query.lng, req.query.radius)
-    .then(r => applyImpliedPropertiesOsm(r))
-    .then(r => translateOsm(r));
+    .then(r => applyImpliedPropertiesOsm(r));
   
   let wikidataPromise = WikidataService
     .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
-    .then(r=>WikidataService.byIds(r))
-    .then(r => translateWikidata(r));
+    .then(r=>WikidataService.byIds(r));
   
   // conflate
   Promise.all([osmPromise, wikidataPromise])
-    .then(r => conflate(r))
+    .then(r => conflate({
+      osm: r[0],
+      wikidata: r[1]
+    }))
     .then(r => fillImageGalleries(r))
     .then(r => fillOutNames(r))
     // return the closest fountain in the list
     .then(r => {
       let distances = _.map(r, f=>{
-        return distance.default(f.geometry.coordinates, [req.query.lng, req.query.lat])
+        return haversine(
+          f.geometry.coordinates, [req.query.lng, req.query.lat], {
+            unit: 'meter',
+            format: '[lon,lat]'
+          });
       });
       let closest = r[_.indexOf(distances, _.min(distances))];
       closest = updateCacheWithFountain(cityCache, closest, req.query.city);

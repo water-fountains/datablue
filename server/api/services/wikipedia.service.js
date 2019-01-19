@@ -14,7 +14,7 @@ class WikipediaService {
       return new Promise((resolve, reject) =>{
       // fetches summary text from Wikipedia
       // fetch all images in category
-      let url = wikipediaUrl.replace('/wiki/', summaryUrlSnippet);
+      let url = encodeURI(wikipediaUrl.replace('/wiki/', summaryUrlSnippet));
       
       axios.get(url)
         .then(r => {
@@ -24,7 +24,8 @@ class WikipediaService {
           resolve(summary);
         })
         .catch(function (error) {
-          reject(error);
+          l.error(`Error fetching Wikipedia summary: ${error} (url: ${url})`);
+          resolve('Error fetching Wikipedia summary');
         })
       });
     }

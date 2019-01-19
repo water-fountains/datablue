@@ -15,6 +15,10 @@ class WikimediaService {
     // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
       // initialize default gallery
+      // setTimeout(()=>{
+      //   l.info(`fountain ran out of time getting information. Osm ID: ${fountain.properties.id_osm.value}`);
+      //   reject('ran out of time')
+      // }, 1000);
       fountain.properties.gallery = {
         value: [{
           big: './assets/gallery_placeholder_lg.png',
@@ -50,6 +54,9 @@ class WikimediaService {
             fountain.properties.gallery.comments = '';
             resolve(fountain);
           })
+          .catch(err => {
+            reject(err)
+          });
       }
       // check if fountain also has a Wikimedia category
       else if(!_.isNull(fountain.properties.wiki_commons_name.value)) {
@@ -58,9 +65,9 @@ class WikimediaService {
         fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.wiki_commons_name.value}`;
   
         // fetch all images in category
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=${fountain.properties.wiki_commons_name.value}&prop=imageinfo&format=json`;
+        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=${this.sanitizeTitle(fountain.properties.wiki_commons_name.value)}&prop=imageinfo&format=json`;
   
-        axios.get(url)
+        axios.get(url, {timeout: 5000})
           .then(r => {
             let image_promises = [];
             let category_members = r.data.query.categorymembers;
@@ -83,7 +90,14 @@ class WikimediaService {
                 fountain.properties.gallery.status = PROP_STATUS_OK;
                 fountain.properties.gallery.comments = '';
                 resolve(fountain);
+              })
+              .catch(err => {
+                reject(err)
               });
+          })
+          .catch(err => {
+            l.error(`Failed to create gallery for fountain. Url: ${url}`);
+            reject(err)
           })
       }
       
@@ -97,7 +111,7 @@ class WikimediaService {
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      axios.get(url)
+      axios.get(url, {timeout: 5000})
         .then(response => {
           try{
             let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
@@ -119,11 +133,12 @@ class WikimediaService {
               resolve(newImage);
             }
         }catch (error){
-            l.info(error)
+            l.error(`Error processing metadata. Title: ${pageTitle}`);
+            reject(error)
           }
     
       }).catch(error=>{
-        l.debug(`Error getting metadata for ${pageTitle}`);
+        l.error(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
         reject(error);
       });
     });
@@ -142,7 +157,7 @@ class WikimediaService {
   
   getImageUrl(pageTitle, imageSize=640){
     // construct url of thumbnail
-    let imgName = this.sanitizeTitle(pageTitle).replace('File:','');
+    let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
   
     let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
     return `//upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
