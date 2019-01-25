@@ -225,7 +225,7 @@ let fountain_properties = {
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P5282'],
+        src_path: ['claims', 'P5282', 0, 'value'],
         value_translation: identity
       }
     }

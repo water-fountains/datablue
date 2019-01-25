@@ -1,6 +1,6 @@
 import l from '../../common/logger';
 import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
-import {PROP_STATUS_OK} from "../../common/constants";
+import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
 const _ = require('lodash');
 const haversine = require('haversine');
@@ -182,7 +182,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
     
   });
   // process panorama and image url
-  mergedProperties.pano_url.value = processPanoUrl(mergedProperties);
+  processPanoUrl(mergedProperties);
   
   mergedProperties['merge_notes'] = mergeNotes;
   mergedProperties['merge_distance'] = mergeDistance;
@@ -224,8 +224,8 @@ function processImageUrl(fountain, widthPx=640) {
 
 function processPanoUrl(fountain) {
   if(fountain.pano_url.value === null){
-    return `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`;
-  }else{
-    return fountain.pano_url.value;
+    fountain.pano_url.value = `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`;
+    fountain.pano_url.status = PROP_STATUS_INFO;
+    fountain.pano_url.comment = 'URL generated automatically from coordinates'
   }
 }
