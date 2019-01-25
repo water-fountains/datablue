@@ -154,6 +154,7 @@ function byCoords(req, res) {
     }))
     .then(r => fillImageGalleries(r))
     .then(r => fillOutNames(r))
+    .then(r => fillWikipediaSummaries(r))
     // return the closest fountain in the list
     .then(r => {
       let distances = _.map(r, f=>{
