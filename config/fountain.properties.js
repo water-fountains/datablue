@@ -77,17 +77,32 @@ let fountain_properties = {
       }
     }
   },
-  description_short: {
+  description_short_en: {
     essential: false,
     type: 'string',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
-        src_path: ['properties', 'description'],
+        src_path: ['properties', 'description:en'],
         value_translation: identity
       },
       wikidata: {
         src_path: ['descriptions', 'en'],
+        value_translation: identity
+      }
+    }
+  },
+  description_short_de: {
+    essential: false,
+    type: 'string',
+    src_pref: ['osm', 'wikidata'],
+    src_config: {
+      osm: {
+        src_path: ['properties', 'description:de'],
+        value_translation: identity
+      },
+      wikidata: {
+        src_path: ['descriptions', 'de'],
         value_translation: identity
       }
     }
