@@ -473,17 +473,6 @@ let fountain_properties = {
         value_translation: identity
       }
     }
-  },
-  fix_me: {
-    essential: false,
-    type: 'string',
-    src_pref: ['osm'],
-    src_config: {
-      osm: {
-        src_path: ['properties', 'fixme'],
-        value_translation: identity
-      }
-    }
   }
 };
 _.forEach(fountain_properties, function (property, key) {
@@ -494,7 +483,6 @@ _.forEach(fountain_properties, function (property, key) {
   property.source = '';
 });
 // some custom values
-fountain_properties.fixme.value = '';
 fountain_properties.fixme.status = PROP_STATUS_OK;
 
 export const fountain_property_metadata = fountain_properties;
