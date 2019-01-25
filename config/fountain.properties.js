@@ -250,7 +250,7 @@ let fountain_properties = {
         src_path: ['claims', 'P625'],
         value_translation: coordList => {
           // return coords in lng lat format
-          return [coordList[0].value[1], coordList[0].value[0]]
+          return coordList[0].value.reverse();
         }
       },
       osm: {
@@ -498,3 +498,8 @@ fountain_properties.fixme.value = '';
 fountain_properties.fixme.status = PROP_STATUS_OK;
 
 export const fountain_property_metadata = fountain_properties;
+
+export function get_prop(fountain, source, property) {
+  return fountain_properties[property].src_config[source].value_translation(
+    _.get(fountain, fountain_properties[property].src_config[source].src_path));
+}

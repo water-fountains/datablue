@@ -1,5 +1,5 @@
 import l from '../../common/logger';
-import {fountain_property_metadata} from "../../../config/fountain.properties";
+import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
 import {PROP_STATUS_OK} from "../../common/constants";
 
 const _ = require('lodash');
@@ -13,9 +13,47 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // coordinate property paths
 const coords_path_wd = fountain_property_metadata.coords.src_config.wikidata.src_path;
 const coords_path_osm = fountain_property_metadata.coords.src_config.osm.src_path;
+// coordinate property translator functions
+const coords_translation_wd = fountain_property_metadata.coords.src_config.wikidata.value_translation;
+const coords_translation_osm = fountain_property_metadata.coords.src_config.osm.value_translation;
 
 // This service finds matching fountains from osm and wikidata
 // and merges their properties
+
+export function conflate(ftns) {
+  return new Promise((resolve, reject)=>{
+    
+    let conflated = {
+      wikidata: [],
+      coord: []
+    };
+    
+    // Only try to match if both lists contain fountains
+    if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
+      conflated.wikidata = conflateByWikidata(ftns);
+      conflated.coord = conflateByCoordinates(ftns);
+    }
+    
+    // process remaining fountains that were not matched
+    let unmatched = {};
+    unmatched.osm = _.map(ftns.osm, f_osm =>{
+      return mergeFountainProperties({osm:f_osm, wikidata:{}}, 'unmatched')});
+    unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
+      return mergeFountainProperties({osm:{}, wikidata:f_wd}, 'unmatched')});
+    
+    // append the unmatched fountains to the list
+    let conflated_fountains_all = _.concat(
+      conflated.coord,
+      conflated.wikidata,
+      unmatched.osm,
+      unmatched.wikidata
+    );
+    
+    // return fountains
+    resolve(properties2GeoJson(conflated_fountains_all));
+  })
+}
+
 
 function conflateByWikidata(ftns) {
   // Holder for conflated fountains
@@ -34,7 +72,8 @@ function conflateByWikidata(ftns) {
     if (idx_wd >= 0) {
       // compute distance between fountains
       let d = haversine(
-        _.get(ftns.osm[idx_osm], coords_path_osm, [0,0]), _.get(ftns.wikidata[idx_wd], coords_path_wd, [10,10]), {
+        get_prop(ftns.osm[idx_osm], 'osm', 'coords'),
+        get_prop(ftns.wikidata[idx_wd], 'wikidata', 'coords'), {
           unit: 'meter',
           format: '[lon,lat]'
         });
@@ -76,12 +115,14 @@ function conflateByCoordinates(ftns) {
   let matched_idx_osm = [];
   let matched_idx_wd = [];
   
+  let coords_all_wd = _.map(ftns.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
+  
   for (const [idx_osm, f_osm] of ftns.osm.entries()) {
     // compute distance array
-    let distances = _.map(ftns.wikidata, f_wd => {
+    let coords_osm = get_prop(f_osm, 'osm', 'coords');
+    let distances = _.map(coords_all_wd, c_wd => {
       // compute distance in meters
-      return haversine(
-        _.get(f_osm, coords_path_osm, [0,0]), _.get(f_wd, coords_path_wd, [10,10]), {
+      return haversine( c_wd, coords_osm, {
           unit: 'meter',
           format: '[lon,lat]'
         });
@@ -90,7 +131,7 @@ function conflateByCoordinates(ftns) {
     let idx_wd = _.indexOf(distances, dMin);
     // selection criteria: dMin smaller than 10 meters
     if (dMin < 10) {
-      // conlfate the two fountains
+      // conflate the two fountains
       conflated_fountains.push(mergeFountainProperties(
         {
           osm: ftns.osm[idx_osm],
@@ -107,40 +148,6 @@ function conflateByCoordinates(ftns) {
   
   
   return conflated_fountains;
-}
-
-export function conflate(ftns) {
-  return new Promise((resolve, reject)=>{
-    
-    let conflated = {
-      wikidata: [],
-      coord: []
-    };
-    
-    // Only try to match if both lists contain fountains
-    if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
-      conflated.wikidata = conflateByWikidata(ftns);
-      conflated.coord = conflateByCoordinates(ftns);
-    }
-    
-    // process remaining fountains that were not matched
-    let unmatched = {};
-    unmatched.osm = _.map(ftns.osm, f_osm =>{
-      return mergeFountainProperties({osm:f_osm, wikidata:{}}, 'unmatched')});
-    unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
-      return mergeFountainProperties({osm:{}, wikidata:f_wd}, 'unmatched')});
-    
-    // append the unmatched fountains to the list
-    let conflated_fountains_all = _.concat(
-      conflated.coord,
-      conflated.wikidata,
-      unmatched.osm,
-      unmatched.wikidata
-    );
-    
-    // return fountains
-    resolve(properties2GeoJson(conflated_fountains_all));
-  })
 }
 
 
