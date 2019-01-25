@@ -10,12 +10,6 @@ const md5 = require('js-md5');
 // wikidata property paths
 const idwd_path_wd = fountain_property_metadata.id_wikidata.src_config.wikidata.src_path;
 const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_path;
-// coordinate property paths
-const coords_path_wd = fountain_property_metadata.coords.src_config.wikidata.src_path;
-const coords_path_osm = fountain_property_metadata.coords.src_config.osm.src_path;
-// coordinate property translator functions
-const coords_translation_wd = fountain_property_metadata.coords.src_config.wikidata.value_translation;
-const coords_translation_osm = fountain_property_metadata.coords.src_config.osm.value_translation;
 
 // This service finds matching fountains from osm and wikidata
 // and merges their properties

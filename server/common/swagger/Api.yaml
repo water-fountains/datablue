@@ -31,6 +31,13 @@ definitions:
         example: no_stress
 
 paths:
+  /metadata/fountain_properties:
+    get:
+      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information"
+      responses:
+        200:
+          description: Returns property metadata.
+
   /fountain:
     get:
       description: Fetch detailed fountain information based on coordinates or identifier

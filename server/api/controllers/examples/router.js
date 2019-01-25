@@ -5,3 +5,4 @@ export default express
   .Router()
   .get('/fountain/', controller.getSingle)
   .get('/fountains/', controller.byLocation)
+  .get('/metadata/fountain_properties/', controller.getPropertyMetadata)

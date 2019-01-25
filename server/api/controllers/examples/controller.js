@@ -9,8 +9,8 @@ import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/co
 import {combineData, conflate} from "../../services/conflate.data.service";
 import {createUniqueIds, essenceOf, fillImageGalleries, fillWikipediaSummaries, fillOutNames} from "../../services/processing.service";
 import {updateCacheWithFountain} from "../../services/database.service";
+import {fountain_property_metadata} from "../../../../config/fountain.properties";
 const haversine = require("haversine");
-
 const _ = require('lodash');
 
 const cityCache = new NodeCache( {
@@ -72,7 +72,10 @@ export class Controller {
         res.json(cityCache.get(req.query.city));
       }
     }
-    
+  }
+  
+  getPropertyMetadata(req, res) {
+    res.json(fountain_property_metadata);
   }
 }
 export default new Controller();
