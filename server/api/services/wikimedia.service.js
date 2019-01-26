@@ -6,7 +6,7 @@ const axios = require ('axios');
 const https = require('https');
 const md5 = require('js-md5');
 import l from '../../common/logger';
-import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
+import {PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
 
 
 class WikimediaService {
@@ -33,10 +33,13 @@ class WikimediaService {
       };
       // if no image is entered, use a google street view image
       if(_.isNull(fountain.properties.featured_image_name.value)){
-        fountain.properties.featured_image_name.source_name = 'Google Street View';
+        fountain.properties.featured_image_name.source = 'Google Street View';
         getStaticStreetView(fountain)
           .then(image=>{
             fountain.properties.gallery.value = [image].concat(fountain.properties.gallery.value);
+            fountain.properties.gallery.comments = 'Image obtained from Google Street View Service because no Wikimedia Commons image is associated with the fountain.';
+            fountain.properties.gallery.status = PROP_STATUS_INFO;
+            fountain.properties.gallery.source = 'google';
             
             resolve(fountain);
           })
@@ -44,7 +47,7 @@ class WikimediaService {
       // check if fountain has a main image but no wikimedia category
       else if(!_.isNull(fountain.properties.featured_image_name.value) &&
         _.isNull(fountain.properties.wiki_commons_name.value)){
-        fountain.properties.gallery.source_name = 'Wikimedia Commons';
+        fountain.properties.gallery.source = 'Wikimedia Commons';
         fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.featured_image_name.value}`;
         // fetch info for just the one image
         this.getImageInfo('File:'+fountain.properties.featured_image_name.value)
@@ -52,6 +55,7 @@ class WikimediaService {
             fountain.properties.gallery.value = [r].concat(fountain.properties.gallery.value);
             fountain.properties.gallery.status = PROP_STATUS_OK;
             fountain.properties.gallery.comments = '';
+            fountain.properties.gallery.source = 'wikimedia commons';
             resolve(fountain);
           })
           .catch(err => {
@@ -61,7 +65,7 @@ class WikimediaService {
       // check if fountain also has a Wikimedia category
       else if(!_.isNull(fountain.properties.wiki_commons_name.value)) {
         // if so, change image source
-        fountain.properties.gallery.source_name = 'Wikimedia Commons';
+        fountain.properties.gallery.source = 'wikimedia Commons';
         fountain.properties.gallery.source_url = `//commons.wikimedia.org/wiki/${fountain.properties.wiki_commons_name.value}`;
   
         // fetch all images in category

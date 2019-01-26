@@ -122,7 +122,7 @@ export function fillOutNames(fountainCollection) {
             f.properties.name.value = f.properties[`name_${lang}`].value;
             f.properties.name.source_name = f.properties[`name_${lang}`].source_name;
             f.properties.name.source_url = f.properties[`name_${lang}`].source_url;
-            f.properties.name.comment = `Value taken from language ${lang}.`;
+            f.properties.name.comments = `Value taken from language ${lang}.`;
             f.properties.name.status = PROP_STATUS_INFO;
             break;
           }
@@ -136,10 +136,10 @@ export function fillOutNames(fountainCollection) {
             f.properties[`name_${lang}`].source_name = f.properties.name.source_name;
             f.properties[`name_${lang}`].source_url = f.properties.name.source_url;
             f.properties[`name_${lang}`].status = PROP_STATUS_INFO;
-            if(f.properties.name.comment === ''){
-              f.properties[`name_${lang}`].comment = 'Value taken from default language.';
+            if(f.properties.name.comments === ''){
+              f.properties[`name_${lang}`].comments = 'Value taken from default language.';
             }else{
-              f.properties[`name_${lang}`].comment = f.properties.name.comment;
+              f.properties[`name_${lang}`].comments = f.properties.name.comments;
             }
           }
         }

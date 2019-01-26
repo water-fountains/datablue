@@ -20,6 +20,7 @@ let fountain_properties = {
   name: {
     essential: true,
     type: 'string',
+    description: 'Default name to be shown if no language-specific name is provided',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -35,6 +36,7 @@ let fountain_properties = {
   name_en: {
     essential: true,
     type: 'string',
+    description: 'Name of the fountain in English',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -50,6 +52,7 @@ let fountain_properties = {
   name_de: {
     essential: true,
     type: 'string',
+    description: 'Name of the fountain in German',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -65,6 +68,7 @@ let fountain_properties = {
   name_fr: {
     essential: true,
     type: 'string',
+    description: 'Name of the fountain in French',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -80,6 +84,7 @@ let fountain_properties = {
   description_short_en: {
     essential: false,
     type: 'string',
+    description: 'short description of the fountain in English',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
@@ -95,6 +100,7 @@ let fountain_properties = {
   description_short_de: {
     essential: false,
     type: 'string',
+    description: 'Short description of the fountain in German.',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
@@ -110,6 +116,7 @@ let fountain_properties = {
   id_osm: {
     essential: true,
     type: 'string',
+    description: 'Identifier used by OpenStreetMap for the fountain. Fountains can be either nodes or ways, therefore the identifier must include this information.',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -121,6 +128,7 @@ let fountain_properties = {
   id_operator: {
     essential: true,
     type: 'string',
+    description: 'Identifier used by the fountain operator for the fountain.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -145,6 +153,7 @@ let fountain_properties = {
   id_wikidata: {
     essential: true,
     type: 'string',
+    description: 'Identifier used by Wikidata for the fountain.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -160,6 +169,7 @@ let fountain_properties = {
   construction_date: {
     essential: true,
     type: 'number',
+    description: 'Year of construction. [example: 1971]',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -178,6 +188,7 @@ let fountain_properties = {
   availability: {
     essential: false,
     type: 'string',
+    description: 'Times of the year during which the fountain is running. [example: March-November]',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -189,6 +200,7 @@ let fountain_properties = {
   floor_level: {
     essential: false,
     type: 'string',
+    description: 'Floor at which the fountain is situated.',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -200,6 +212,7 @@ let fountain_properties = {
   fixme: {
     essential: false,
     type: 'string',
+    description: 'Property used in OpenStreetMap to indicate if there might be data issues.',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -211,6 +224,7 @@ let fountain_properties = {
   directions: {
     essential: true,
     type: 'string',
+    description: 'Directions to or address of fountain. [example: near Kappenbühlstrasse 74]',
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -222,6 +236,7 @@ let fountain_properties = {
   pano_url: {
     essential: false,
     type: 'url',
+    description: 'URL to a street-level view of the fountain.',
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -233,6 +248,7 @@ let fountain_properties = {
   featured_image_name: {
     essential: false,
     type: 'url',
+    description: 'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -244,6 +260,7 @@ let fountain_properties = {
   coords: {
     essential: false,
     type: 'coords',
+    description: 'Geographical coordinates at which the fountain is located, expressed as an array of longitude and latitude (in that order).',
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -262,6 +279,7 @@ let fountain_properties = {
   water_type: {
     essential: true,
     type: 'string',
+    description: 'Type of water that the fountain provides, for example tap water, springwater, or groundwater.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -277,7 +295,7 @@ let fountain_properties = {
             case "Q161598":
               return "groundwater";
             default:
-              return null;
+              return "other: "+vals[0].value;
           }
         }
       },
@@ -294,7 +312,7 @@ let fountain_properties = {
             case "Grundwasser":
               return "groundwater";
             default:
-              return null;
+              return "other: "+vals[0].value;
           }
         }
       }
@@ -303,6 +321,7 @@ let fountain_properties = {
   wiki_commons_name: {
     essential: false,
     type: 'string',
+    description: 'Name of the Wikimedia Commons page of the fountain',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -320,6 +339,7 @@ let fountain_properties = {
   wikipedia_en_url: {
     essential: true,
     type: 'url',
+    description: 'URL of the fountain Wikipedia page in English.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -344,12 +364,14 @@ let fountain_properties = {
   wikipedia_en_summary: {
     essential: false,
     type: 'string',
+    description: 'Summary extracted from the fountain Wikipedia page in English.',
     src_pref: [],
     src_config: {}
   },
   wikipedia_de_url: {
     essential: true,
     type: 'url',
+    description: 'URL of the fountain Wikipedia page in German.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -374,12 +396,14 @@ let fountain_properties = {
   wikipedia_de_summary: {
     essential: false,
     type: 'string',
+    description: 'Summary extracted from the fountain Wikipedia page in German.',
     src_pref: [],
     src_config: {}
   },
   operator_name: {
     essential: false,
     type: 'string',
+    description: 'Name of the operator of the fountain.',
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -405,12 +429,14 @@ let fountain_properties = {
   gallery: {
     essential: false,
     type: 'object',
+    description: 'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
     src_pref: [],
     src_config: {}
   },
   access_pet: {
     essential: true,
     type: 'boolean_string',
+    description: 'Whether a fountain for small pets is available. [yes, no]',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -422,6 +448,7 @@ let fountain_properties = {
   access_bottle: {
     essential: true,
     type: 'boolean_string',
+    description: 'Whether a bottle can be refilled easily. [yes, no]',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -433,6 +460,7 @@ let fountain_properties = {
   access_wheelchair: {
     essential: true,
     type: 'boolean_string',
+    description: 'Whether fountain is wheelchair-friendly. [yes, no]',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -444,6 +472,7 @@ let fountain_properties = {
   potable: {
     essential: true,
     type: 'boolean_string',
+    description: 'Indicates whether water is potable or not.',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -455,6 +484,7 @@ let fountain_properties = {
   potable_controlled: {
     essential: true,
     type: 'boolean_string',
+    description: 'Indicates whether the water is officially certified as potable.',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -466,6 +496,7 @@ let fountain_properties = {
   water_flow: {
     essential: false,
     type: 'string',
+    description: 'Flow rate of fountain. [example: 1.5 l/min]',
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -478,12 +509,13 @@ let fountain_properties = {
 _.forEach(fountain_properties, function (property, key) {
   property.name = key;
   property.value = null;
-  property.comment = 'no data found';
+  property.comments = 'no data found';
   property.status = PROP_STATUS_WARNING;
   property.source = '';
 });
 // some custom values
 fountain_properties.fixme.status = PROP_STATUS_OK;
+fountain_properties.fixme.comments = '';
 
 export const fountain_property_metadata = fountain_properties;
 

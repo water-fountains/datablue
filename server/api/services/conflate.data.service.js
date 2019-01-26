@@ -154,7 +154,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
     let temp = {
       name: p.name,
       value: p.value,
-      comment: p.comment,
+      comments: p.comments,
       status: p.status,
       type: p.type
     };
@@ -172,7 +172,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
           throw `Lost in translation of ${p.name} from ${src_name}.`
         }
         temp.status = PROP_STATUS_OK;
-        temp.comment = '';
+        temp.comments = '';
         temp.source = src_name;
         break;
       }
@@ -226,6 +226,6 @@ function processPanoUrl(fountain) {
   if(fountain.pano_url.value === null){
     fountain.pano_url.value = `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`;
     fountain.pano_url.status = PROP_STATUS_INFO;
-    fountain.pano_url.comment = 'URL generated automatically from coordinates'
+    fountain.pano_url.comments = 'URL generated automatically from coordinates'
   }
 }
