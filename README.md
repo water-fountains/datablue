@@ -12,8 +12,8 @@ Datablue will consist in a collection of scripts and data structures for collect
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/24f813e7-3d79-4de6-90bc-a3bfbe8d8cbf). See the [docs](/docs/components.md) for planned components.
 
 # Up and running
-- Install NodeJS
-- Clone this repository to your computer.
+- Install NodeJS.
+- Clone this repository to your computer. `git clone https://github.com/water-fountains/proximap.git -b develop`
 
 ## Install It
 Then, open a command window in the folder you cloned (e.g. datablue) and run:
