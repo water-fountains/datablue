@@ -28,7 +28,7 @@ On the server, copy the environment file
 in the newly copied `.env` file, set the following variables:
 
 - `NODE_ENV=production` if you are running in production
-- `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`.
+- `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
 
 ## Run It
 #### Run in *development* mode:
