@@ -13,7 +13,7 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 
 # Up and running
 - Install NodeJS.
-- Clone this repository to your computer. `git clone https://github.com/water-fountains/proximap.git -b develop`
+- Clone this repository to your computer. `git clone https://github.com/water-fountains/datablue.git -b develop`
 
 ## Install It
 Then, open a command window in the folder you cloned (e.g. datablue) and run:
@@ -21,7 +21,7 @@ Then, open a command window in the folder you cloned (e.g. datablue) and run:
 npm install
 ```
 
-On the server, copy the environment file
+In the project you just cloned, copy the environment file. In the root directory of the project, run
 
 `cp .envTEMPLATE .env`
 
