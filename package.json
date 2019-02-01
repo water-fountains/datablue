@@ -1,7 +1,12 @@
 {
   "name": "datablue",
+  "license": "SEE LICENSE IN 'COPYING'",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/water-fountains/datablue"
+  },
   "version": "1.0.0",
-  "description": "datablue",
+  "description": "Datablue is a NodeJS Express server for collecting and aggregating open data.",
   "main": "index.js",
   "engines": {
     "node": "8.11.1"
