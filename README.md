@@ -11,33 +11,17 @@ Datablue will consist in a collection of scripts and data structures for collect
 ![data processing](https://www.lucidchart.com/publicSegments/view/fbd5eb93-ad45-4c2f-9502-17792052a63a/image.png)
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/24f813e7-3d79-4de6-90bc-a3bfbe8d8cbf). See the [docs](/docs/components.md) for planned components.
 
-# Up and running
-- Install NodeJS.
-- Clone this repository to your computer. `git clone https://github.com/water-fountains/datablue.git -b develop`
+# Running the project locally
+1. Make sure you have the latest version of [NodeJS](https://nodejs.org) installed.
+2. Clone this repository to a local project directory `> git clone https://github.com/water-fountains/datablue.git -b develop`.
+3. Open a command line in the local project directory
+    - Install required node packages `> npm install`
+    - Create a copy of the environment file `> cp .envTEMPLATE .env`
+4. In the newly copied `.env` file, set the following variable:
+    - `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
+5. Run it by running `npm run dev` in the local project directory.
 
-## Install It
-Then, open a command window in the folder you cloned (e.g. datablue) and run:
-```
-npm install
-```
-
-In the project you just cloned, copy the environment file. In the root directory of the project, run
-
-`cp .envTEMPLATE .env`
-
-in the newly copied `.env` file, set the following variables:
-
-- `NODE_ENV=production` if you are running in production
-- `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
-
-## Run It
-#### Run in *development* mode:
-
-```
-npm run dev
-```
-
-#### Run in *production* mode:
+# Running the project in *production* mode:
 warning: this assumes you have a private key `privkey.pem` and certificate `cert.pem` for ssl encryption located at 
 
 `/etc/letsencrypt/live/water-fountains.org/`
