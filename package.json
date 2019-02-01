@@ -17,8 +17,6 @@
     "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect-brk | pino -o 'short'",
     "test": "node build.js && _mocha --compilers js:babel-register --exit",
-    "preinstall": "node git.version.js",
-    "postinstall": "node build.js && backpack build",
     "heroku-prebuild": "cp .envTEMPLATE .env"
   },
   "dependencies": {
