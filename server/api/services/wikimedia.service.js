@@ -115,7 +115,7 @@ class WikimediaService {
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      axios.get(url, {timeout: 5000})
+      axios.get(url, {timeout: 1000})
         .then(response => {
           try{
             let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
@@ -137,13 +137,23 @@ class WikimediaService {
               resolve(newImage);
             }
         }catch (error){
-            l.error(`Error processing metadata. Title: ${pageTitle}`);
-            reject(error)
+            l.info(`Error processing metadata. Title: ${pageTitle}`);
+            resolve(
+              {
+                description: 'Error processing image metadata from Wikimedia Commons',
+                url: `https://commons.wikimedia.org/wiki/${pageTitle}`
+              }
+            );
           }
     
       }).catch(error=>{
-        l.error(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
-        reject(error);
+        l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
+        resolve(
+          {
+            description: 'Timeout while fetching image metadata from Wikimedia Commons',
+            url: `https://commons.wikimedia.org/wiki/${pageTitle}`
+          }
+        );
       });
     });
     
