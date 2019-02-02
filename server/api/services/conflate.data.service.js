@@ -184,8 +184,10 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
   // process panorama and image url
   processPanoUrl(mergedProperties);
   
-  mergedProperties['merge_notes'] = mergeNotes;
-  mergedProperties['merge_distance'] = mergeDistance;
+  mergedProperties['conflation_info'] = {
+    'merge_notes': mergeNotes,
+    'merge_distance': mergeDistance
+  };
   
   return mergedProperties
 }
