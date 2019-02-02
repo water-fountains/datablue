@@ -6,9 +6,9 @@ const _ = require('lodash');
 function str2bool(val) {
   switch (val) {
     case 'yes':
-      return true;
+      return 'true';
     case 'no':
-      return false;
+      return 'false';
     default:
       return 'other';
   }
