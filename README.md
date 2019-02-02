@@ -1,5 +1,5 @@
 # datablue
-Datablue is a tool for collecting and aggregating open data.
+Datablue is a tool for collecting and aggregating open data, written using NodeJS and Express.
 It is being developed in conjunction with [Proximap](//github.com/mmmatthew/proximap), a responsive web app for finding nearby public infrastructure, using drinking fountains as a showcase example. Check out [water-fountains.org](//water-fountains.org)
 for more information on the overall project.
 
@@ -12,7 +12,9 @@ Datablue will consist in a collection of scripts and data structures for collect
 View the data processing concept [here](https://www.lucidchart.com/invitations/accept/24f813e7-3d79-4de6-90bc-a3bfbe8d8cbf). See the [docs](/docs/components.md) for planned components.
 
 # Running the project locally
-1. Make sure you have the latest version of [NodeJS](https://nodejs.org) installed.
+1. Requirements (make sure these are up to date)
+  - [NodeJS](https://nodejs.org) is a JavaScript runtime.
+  - [Git](https://git-scm.com/) is a version control system.
 2. Clone this repository to a local project directory `> git clone https://github.com/water-fountains/datablue.git -b develop`.
 3. Open a command line in the local project directory
     - Install required node packages `> npm install`
@@ -20,6 +22,9 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 4. In the newly copied `.env` file, set the following variable:
     - `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
 5. Run it by running `npm run dev` in the local project directory.
+6. Try it
+   * Point you're browser to [http://localhost:3000](http://localhost:3000)
+   * Invoke the example REST endpoint `curl http://localhost:3000/api/v1/fountains`
 
 # Running the project in *production* mode:
 warning: this assumes you have a private key `privkey.pem` and certificate `cert.pem` for ssl encryption located at 
@@ -34,15 +39,8 @@ npm run init_symlink_server
 npm run compile
 pm2 start build/main.js --name "datablue"
 ```
-
-
-
-## Try It
-* Point you're browser to [http://localhost:3000](http://localhost:3000)
-* Invoke the example REST endpoint `curl http://localhost:3000/api/v1/fountains`
-* In production mode, the endpoint is available over https.
+Note: In production mode, the endpoint is available over https.
    
-
 
 # Contributing
 
