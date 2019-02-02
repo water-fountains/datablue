@@ -5,9 +5,10 @@ import l from '../../common/logger'
 import applyImpliedPropertiesOsm from "../services/applyImplied.service";
 
 const NodeCache = require( "node-cache" );
-import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../services/constants";
-import {combineData, conflate} from "../services/conflate.data.service";
-import {createUniqueIds, essenceOf, fillImageGalleries, fillWikipediaSummaries, fillOutNames} from "../services/processing.service";
+import {conflate} from "../services/conflate.data.service";
+import {
+  createUniqueIds, essenceOf, defaultCollectionEnhancement
+} from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
 import {fountain_property_metadata} from "../../../config/fountain.properties";
 const haversine = require("haversine");
@@ -111,9 +112,7 @@ function generateLocationData(locationName){
         osm: r[0],
         wikidata: r[1]
       }))
-      .then(r => fillOutNames(r))
-      .then(r => fillImageGalleries(r))
-      .then(r => fillWikipediaSummaries(r))
+      .then(r => defaultCollectionEnhancement(r))
       .then(r => createUniqueIds(r))
       .then(r => resolve(
         {
@@ -155,9 +154,7 @@ function byCoords(req, res) {
       osm: r[0],
       wikidata: r[1]
     }))
-    .then(r => fillImageGalleries(r))
-    .then(r => fillOutNames(r))
-    .then(r => fillWikipediaSummaries(r))
+    .then(r => defaultCollectionEnhancement(r))
     // return the closest fountain in the list
     .then(r => {
       let distances = _.map(r, f=>{

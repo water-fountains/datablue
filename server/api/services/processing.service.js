@@ -7,6 +7,17 @@ import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
+export function defaultCollectionEnhancement(fountainCollection) {
+  return new Promise((resolve, reject)=>{
+    fillImageGalleries(fountainCollection)
+      .then(r => fillOutNames(r))
+      .then(r => fillWikipediaSummaries(r))
+      .then(r => resolve(r))
+      .catch(err=>reject(err))
+  })
+}
+
+
 export function fillImageGalleries(fountainCollection){
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
