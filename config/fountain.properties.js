@@ -113,6 +113,22 @@ let fountain_properties = {
       }
     }
   },
+  description_short_fr: {
+    essential: false,
+    type: 'string',
+    description: 'Short description of the fountain in French.',
+    src_pref: ['osm', 'wikidata'],
+    src_config: {
+      osm: {
+        src_path: ['properties', 'description:fr'],
+        value_translation: identity
+      },
+      wikidata: {
+        src_path: ['descriptions', 'fr'],
+        value_translation: identity
+      }
+    }
+  },
   id_osm: {
     essential: true,
     type: 'string',
@@ -397,6 +413,38 @@ let fountain_properties = {
     essential: false,
     type: 'string',
     description: 'Summary extracted from the fountain Wikipedia page in German.',
+    src_pref: [],
+    src_config: {}
+  },
+  wikipedia_fr_url: {
+    essential: true,
+    type: 'url',
+    description: 'URL of the fountain Wikipedia page in French.',
+    src_pref: ['wikidata', 'osm'],
+    src_config: {
+      wikidata: {
+        src_path: ['sitelinks', 'frwiki'],
+        value_translation: name => {
+          return `https://fr.wikipedia.org/wiki/${name}`
+        }
+      },
+      osm: {
+        src_path: ['properties', 'wikipedia'],
+        value_translation: val => {
+          let parts = val.split(':');
+          if (parts[0] === 'fr') {
+            return `https://fr.wikipedia.org/wiki/${parts[1]}`;
+          } else {
+            return null;
+          }
+        }
+      }
+    }
+  },
+  wikipedia_fr_summary: {
+    essential: false,
+    type: 'string',
+    description: 'Summary extracted from the fountain Wikipedia page in French.',
     src_pref: [],
     src_config: {}
   },
