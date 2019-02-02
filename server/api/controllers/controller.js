@@ -1,15 +1,15 @@
-import OsmService from '../../services/osm.service';
-import * as loc from '../../../../config/locations';
-import WikidataService from '../../services/wikidata.service';
-import l from '../../../common/logger'
-import applyImpliedPropertiesOsm from "../../services/applyImplied.service";
+import OsmService from '../services/osm.service';
+import * as loc from '../../../config/locations';
+import WikidataService from '../services/wikidata.service';
+import l from '../../common/logger'
+import applyImpliedPropertiesOsm from "../services/applyImplied.service";
 
 const NodeCache = require( "node-cache" );
-import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../../services/constants";
-import {combineData, conflate} from "../../services/conflate.data.service";
-import {createUniqueIds, essenceOf, fillImageGalleries, fillWikipediaSummaries, fillOutNames} from "../../services/processing.service";
-import {updateCacheWithFountain} from "../../services/database.service";
-import {fountain_property_metadata} from "../../../../config/fountain.properties";
+import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "../services/constants";
+import {combineData, conflate} from "../services/conflate.data.service";
+import {createUniqueIds, essenceOf, fillImageGalleries, fillWikipediaSummaries, fillOutNames} from "../services/processing.service";
+import {updateCacheWithFountain} from "../services/database.service";
+import {fountain_property_metadata} from "../../../config/fountain.properties";
 const haversine = require("haversine");
 const _ = require('lodash');
 
