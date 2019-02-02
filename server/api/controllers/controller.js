@@ -1,8 +1,9 @@
 import OsmService from '../services/osm.service';
-import * as loc from '../../../config/locations';
 import WikidataService from '../services/wikidata.service';
 import l from '../../common/logger'
 import applyImpliedPropertiesOsm from "../services/applyImplied.service";
+import {locations} from '../../../config/locations';
+import {fountain_property_metadata} from "../../../config/fountain.properties";
 
 const NodeCache = require( "node-cache" );
 import {conflate} from "../services/conflate.data.service";
@@ -10,7 +11,6 @@ import {
   createUniqueIds, essenceOf, defaultCollectionEnhancement
 } from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
-import {fountain_property_metadata} from "../../../config/fountain.properties";
 const haversine = require("haversine");
 const _ = require('lodash');
 
@@ -78,16 +78,20 @@ export class Controller {
   getPropertyMetadata(req, res) {
     res.json(fountain_property_metadata);
   }
+  
+  getLocationMetadata(req, res) {
+    res.json(locations);
+  }
 }
 export default new Controller();
 
 function generateLocationData(locationName){
   return new Promise((resolve, reject)=>{
     // get bounding box of location
-    if(!loc.locations.hasOwnProperty(locationName)){
+    if(!locations.hasOwnProperty(locationName)){
       reject(new Error(`location not found in config: ${locationName}`))
     }
-    let bbox = loc.locations[locationName].bounding_box;
+    let bbox = locations[locationName].bounding_box;
     // get data from Osm
     let osmPromise = OsmService
       .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)

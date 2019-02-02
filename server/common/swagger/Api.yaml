@@ -33,10 +33,17 @@ definitions:
 paths:
   /metadata/fountain_properties:
     get:
-      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information"
+      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information."
       responses:
         200:
           description: Returns property metadata.
+
+  /metadata/locations:
+    get:
+      description: "Fetch general metadata for locations, including bounds and official operator information."
+      responses:
+        200:
+          description: Returns location metadata.
 
   /fountain:
     get:

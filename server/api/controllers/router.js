@@ -6,3 +6,4 @@ export default express
   .get('/fountain/', controller.getSingle)
   .get('/fountains/', controller.byLocation)
   .get('/metadata/fountain_properties/', controller.getPropertyMetadata)
+  .get('/metadata/locations/', controller.getLocationMetadata)
