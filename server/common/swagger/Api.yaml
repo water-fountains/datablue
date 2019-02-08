@@ -65,7 +65,7 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [zurich, geneva, basel]
+          enum: [zurich, geneva, basel, lucerne]
           example: zurich_old_town
           required: false
           description: name of city for which fountains are to be served
@@ -106,7 +106,7 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [zurich, geneva, basel]
+          enum: [zurich, geneva, basel, lucerne]
           example: zurich
           required: true
           description: name of city for which fountains are to be served

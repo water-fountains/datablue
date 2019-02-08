@@ -26,13 +26,13 @@ export const locations = {
       },
       "operator_qid": 'null'
     },
-  "zurich_old_town": {
+  "lucerne": {
     "bounding_box": {
-      "latMin": 47.369480840890425,
-      "lngMin": 8.535454273223877,
-      "latMax": 47.37395668987681,
-      "lngMax": 8.541848659515379
+      "latMin": 47.03608752310776,
+      "lngMin": 8.282318115234375,
+      "latMax": 47.068718776878946,
+      "lngMax": 8.33810806274414
     },
-    "operator_qid": 'Q53629101'
+    "operator_qid": 'null'
   }
   };
