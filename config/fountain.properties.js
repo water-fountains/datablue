@@ -251,13 +251,30 @@ let fountain_properties = {
   },
   pano_url: {
     essential: false,
-    type: 'url',
-    description: 'URL to a street-level view of the fountain.',
+    type: 'object',
+    description: 'URLs to street-level views of the fountain. The source of the imagery is determined automatically on the basis of the domain name.',
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P5282', 0, 'value'],
-        value_translation: identity
+        src_path: ['claims', 'P5282'],
+        value_translation: (list)=>{
+          return _.map(list, el=>{
+            let url = el.value;
+            // determine source from url
+            let source_name = 'unknown';
+            if(url.includes('goo.gl/maps') || url.includes('instantstreetview')){
+              source_name = 'Google';
+            }else if(url.includes('mapillary')){
+              source_name = 'Mapillary';
+            }else if(url.includes('openstreetcam')){
+              source_name = 'OpenStreetCam';
+            }
+            return {
+              source_name: source_name,
+              url: url
+            }
+          })
+        }
       }
     }
   },
