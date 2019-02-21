@@ -123,6 +123,7 @@ function doSparqlRequest(sparql){
       if (error) {
         // consume response data to free up memory
         res.resume();
+        res.sendStatus(500);
         reject(error);
       }
       
