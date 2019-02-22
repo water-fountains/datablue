@@ -299,8 +299,8 @@ let fountain_properties = {
       wikidata: {
         src_path: ['claims', 'P625'],
         value_translation: coordList => {
-          // return coords in lng lat format
-          return coordList[0].value.reverse();
+          // return coords in lng lat format !! reverse will mutate array
+          return coordList[0].value.slice().reverse()
         }
       },
       osm: {

@@ -156,7 +156,7 @@ function byCoords(req, res) {
     .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
     .then(r=>WikidataService.byIds(r))
     .catch(e=>{
-      l.error(`Error collecting OSM data: ${e}`);
+      l.error(`Error collecting Wikidata data: ${e}`);
       res.sendStatus(500);
     });
   

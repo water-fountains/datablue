@@ -80,6 +80,10 @@ class WikidataService {
                 dataAll = dataAll.concat(data);
               });
               resolve(dataAll);
+            })
+            .catch(e=>{
+              
+              reject(e)
             });
         }catch (error){
           reject(error);
@@ -111,7 +115,7 @@ function doSparqlRequest(sparql){
     const url = wdk.sparqlQuery(sparql);
 
     // get data
-    https.get(url, (res) => {
+    let request = https.get(url, (res) => {
       const {statusCode} = res;
       const contentType = res.headers['content-type'];
       
@@ -138,10 +142,17 @@ function doSparqlRequest(sparql){
           // l.info(simplifiedResults);
           resolve(simplifiedResults);
         } catch (e) {
+          l.error('Error occurred simplifying wikidata results.');
           reject(e);
         }
       });
     });
+    
+    request.on('error', e=>{
+      l.error(`Error occurred with wikidata query: ${e}`);
+      l.info(url);
+      reject(e);
+    })
   });
 }
 
