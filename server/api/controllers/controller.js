@@ -146,11 +146,19 @@ function byCoords(req, res) {
   // OSM promise
   let osmPromise = OsmService
     .byCenter(req.query.lat, req.query.lng, req.query.radius)
-    .then(r => applyImpliedPropertiesOsm(r));
+    .then(r => applyImpliedPropertiesOsm(r))
+    .catch(e=>{
+      l.error(`Error collecting OSM data: ${e}`);
+      res.sendStatus(500);
+    });
   
   let wikidataPromise = WikidataService
     .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
-    .then(r=>WikidataService.byIds(r));
+    .then(r=>WikidataService.byIds(r))
+    .catch(e=>{
+      l.error(`Error collecting Wikidata data: ${e}`);
+      res.sendStatus(500);
+    });
   
   // conflate
   Promise.all([osmPromise, wikidataPromise])
@@ -172,7 +180,8 @@ function byCoords(req, res) {
       closest = updateCacheWithFountain(cityCache, closest, req.query.city);
       res.json(closest);
     })
-    .catch(error => {
-      l.error(error);
-    })
+    .catch(e=>{
+      l.error(`Error collecting OSM data: ${e}`);
+      res.sendStatus(500);
+    });
 }
