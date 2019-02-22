@@ -20,12 +20,7 @@ class WikimediaService {
       //   reject('ran out of time')
       // }, 1000);
       fountain.properties.gallery = {
-        value: [{
-          big: './assets/gallery_placeholder_lg.png',
-          medium: './assets/gallery_placeholder_med.png',
-          small: './assets/gallery_placeholder_small.png',
-          description: 'add an image'
-        }],
+        value: [],
         status: PROP_STATUS_WARNING,
         type: 'object',
         name: 'gallery',
