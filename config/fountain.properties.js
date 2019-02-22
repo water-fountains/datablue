@@ -263,7 +263,7 @@ let fountain_properties = {
             // determine source from url
             let source_name = 'unknown';
             if(url.includes('goo.gl/maps') || url.includes('instantstreetview')){
-              source_name = 'Google';
+              source_name = 'Google Street View';
             }else if(url.includes('mapillary')){
               source_name = 'Mapillary';
             }else if(url.includes('openstreetcam')){
