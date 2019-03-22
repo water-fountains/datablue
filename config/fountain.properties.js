@@ -506,7 +506,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'dog'],
-        value_translation: str2bool
+        value_translation: identity
       }
     }
   },
@@ -518,7 +518,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'bottle'],
-        value_translation: str2bool
+        value_translation: identity
       }
     }
   },
@@ -530,7 +530,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'wheelchair'],
-        value_translation: str2bool
+        value_translation: identity
       }
     }
   },
@@ -542,7 +542,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'drinking_water'],
-        value_translation: str2bool
+        value_translation: identity
       }
     }
   },
