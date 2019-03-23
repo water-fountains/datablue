@@ -193,7 +193,9 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
   
   mergedProperties['conflation_info'] = {
     'merge_notes': mergeNotes,
-    'merge_distance': mergeDistance
+    'merge_distance': mergeDistance,
+    // document merge date for datablue/#20
+    'merge_date': new Date()
   };
   
   return mergedProperties
