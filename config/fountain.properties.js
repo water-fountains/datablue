@@ -781,7 +781,7 @@ let fountain_properties = {
   access_bottle: {
     i18n:{
       en: 'bottle refill',
-      de: 'Flaschefüllung',
+      de: 'Flaschenfüllung',
       fr: 'remplissage de bouteille'
     },
     essential: true,
