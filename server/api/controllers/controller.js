@@ -24,7 +24,8 @@ const _ = require('lodash');
 const cityCache = new NodeCache( {
   stdTTL: 60*60*2, // time til expire in seconds
   checkperiod: 30, // how often to check for expire in seconds
-  deleteOnExpire: false // on expire, we want the cache to be recreated.
+  deleteOnExpire: false, // on expire, we want the cache to be recreated.
+  useClones: false // do not create a clone of the data when fetching
 } );
 
 // when cache expires, regenerate it (ignore non-essential)
