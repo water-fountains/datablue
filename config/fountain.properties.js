@@ -25,9 +25,18 @@ function identity(val){return val}
 
 let fountain_properties = {
   name: {
+    i18n:{
+      en: 'name',
+      de: 'Name',
+      fr: 'nom'
+    },
     essential: true,
     type: 'string',
-    description: 'Default name to be shown if no language-specific name is provided',
+    descriptions: {
+      en:'Default name to be shown if no language-specific name is provided',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -41,9 +50,18 @@ let fountain_properties = {
     }
   },
   name_en: {
+    i18n:{
+      en: 'name in English',
+      de: 'Name auf Englisch',
+      fr: 'nom en anglais'
+    },
     essential: true,
     type: 'string',
-    description: 'Name of the fountain in English',
+    descriptions: {
+      en:'Name of the fountain in English',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -57,9 +75,18 @@ let fountain_properties = {
     }
   },
   name_de: {
+    i18n:{
+      en: 'name in German',
+      de: 'Name auf Deutsch',
+      fr: 'nom en allemand'
+    },
     essential: true,
     type: 'string',
-    description: 'Name of the fountain in German',
+    descriptions: {
+      en:'Name of the fountain in German',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -73,9 +100,18 @@ let fountain_properties = {
     }
   },
   name_fr: {
+    i18n:{
+      en: 'name in French',
+      de: 'Name auf Französisch',
+      fr: 'nom en français'
+    },
     essential: true,
     type: 'string',
-    description: 'Name of the fountain in French',
+    descriptions: {
+      en:'Name of the fountain in French',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -89,9 +125,18 @@ let fountain_properties = {
     }
   },
   description_short_en: {
+    i18n:{
+      en: 'description in English',
+      de: 'Beschreibung auf Englisch',
+      fr: 'description en anglais'
+    },
     essential: false,
     type: 'string',
-    description: 'short description of the fountain in English',
+    descriptions: {
+      en:'short description of the fountain in English',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
@@ -105,9 +150,18 @@ let fountain_properties = {
     }
   },
   description_short_de: {
+    i18n:{
+      en: 'description in German',
+      de: 'Beschreibung auf Deutsch',
+      fr: 'description en allemand'
+    },
     essential: false,
     type: 'string',
-    description: 'Short description of the fountain in German.',
+    descriptions: {
+      en:'Short description of the fountain in German.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
@@ -121,9 +175,18 @@ let fountain_properties = {
     }
   },
   description_short_fr: {
+    i18n:{
+      en: 'description in French',
+      de: 'Beschreibung auf Französisch',
+      fr: 'description en français'
+    },
     essential: false,
     type: 'string',
-    description: 'Short description of the fountain in French.',
+    descriptions: {
+      en:'Short description of the fountain in French.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
@@ -137,9 +200,18 @@ let fountain_properties = {
     }
   },
   id_osm: {
+    i18n:{
+      en: 'OpenStreetMap identifier',
+      de: 'OpenStreetMap-ID',
+      fr: 'identifiant OpenStreetMap'
+    },
     essential: true,
     type: 'string',
-    description: 'Identifier used by OpenStreetMap for the fountain. Fountains can be either nodes or ways, therefore the identifier must include this information.',
+    descriptions: {
+      en:'Identifier used by OpenStreetMap for the fountain. Fountains can be either nodes or ways, therefore the identifier must include this information.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -149,9 +221,18 @@ let fountain_properties = {
     }
   },
   id_operator: {
+    i18n:{
+      en: 'operator identifier',
+      de: 'Betreiber-ID',
+      fr: 'identifiant opérateur'
+    },
     essential: true,
     type: 'string',
-    description: 'Identifier used by the fountain operator for the fountain.',
+    descriptions: {
+      en:'Identifier used by the fountain operator for the fountain.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -174,9 +255,18 @@ let fountain_properties = {
     }
   },
   id_wikidata: {
+    i18n:{
+      en: 'Wikidata identifier',
+      de: 'Wikidata-ID',
+      fr: 'identifiant Wikidata'
+    },
     essential: true,
     type: 'string',
-    description: 'Identifier used by Wikidata for the fountain.',
+    descriptions: {
+      en:'Identifier used by Wikidata for the fountain.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -190,9 +280,18 @@ let fountain_properties = {
     }
   },
   construction_date: {
+    i18n:{
+      en: 'construction date',
+      de: 'Baujahr',
+      fr: 'date de construction'
+    },
     essential: true,
     type: 'number',
-    description: 'Year of construction. [example: 1971]',
+    descriptions: {
+      en:'Year of construction. [example: 1971]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -209,9 +308,18 @@ let fountain_properties = {
     }
   },
   availability: {
+    i18n:{
+      en: 'availability',
+      de: 'aktiver Zeitraum',
+      fr: 'disponibilité'
+    },
     essential: false,
     type: 'string',
-    description: 'Times of the year during which the fountain is running. [example: March-November]',
+    descriptions: {
+      en:'Times of the year during which the fountain is running. [example: March-November]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -221,9 +329,18 @@ let fountain_properties = {
     }
   },
   floor_level: {
+    i18n:{
+      en: 'floor',
+      de: 'Stockwerk',
+      fr: 'niveau'
+    },
     essential: false,
     type: 'string',
-    description: 'Floor at which the fountain is situated.',
+    descriptions: {
+      en:'Floor at which the fountain is situated.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -233,9 +350,18 @@ let fountain_properties = {
     }
   },
   fixme: {
+    i18n:{
+      en: 'data errors',
+      de: 'Datenfehler',
+      fr: 'erreurs de données'
+    },
     essential: false,
     type: 'string',
-    description: 'Property used in OpenStreetMap to indicate if there might be data issues.',
+    descriptions: {
+      en:'Property used in OpenStreetMap to indicate if there might be data issues.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -245,9 +371,18 @@ let fountain_properties = {
     }
   },
   directions: {
+    i18n:{
+      en: 'location',
+      de: 'Lage',
+      fr: 'emplacement'
+    },
     essential: true,
     type: 'string',
-    description: 'Directions to or address of fountain. [example: near Kappenbühlstrasse 74]',
+    descriptions: {
+      en:'Directions to or address of fountain. [example: near Kappenbühlstrasse 74]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -257,9 +392,18 @@ let fountain_properties = {
     }
   },
   pano_url: {
+    i18n:{
+      en: 'panorama URLs',
+      de: 'Panorama-URLs',
+      fr: 'URL des panoramas'
+    },
     essential: false,
     type: 'object',
-    description: 'URLs to street-level views of the fountain. The source of the imagery is determined automatically on the basis of the domain name.',
+    descriptions: {
+      en:'URLs to street-level views of the fountain. The source of the imagery is determined automatically on the basis of the domain name.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -286,9 +430,18 @@ let fountain_properties = {
     }
   },
   featured_image_name: {
+    i18n:{
+      en: 'featured image',
+      de: 'Hauptbild',
+      fr: 'image principal'
+    },
     essential: false,
     type: 'url',
-    description: 'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
+    descriptions: {
+      en:'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
@@ -298,9 +451,18 @@ let fountain_properties = {
     }
   },
   coords: {
+    i18n:{
+      en: 'coordinates',
+      de: 'Koordinaten',
+      fr: 'coordonnées'
+    },
     essential: false,
     type: 'coords',
-    description: 'Geographical coordinates at which the fountain is located, expressed as an array of longitude and latitude (in that order).',
+    descriptions: {
+      en:'Geographical coordinates at which the fountain is located, expressed as an array of longitude and latitude (in that order).',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
@@ -317,9 +479,18 @@ let fountain_properties = {
     }
   },
   water_type: {
+    i18n:{
+      en: 'water type',
+      de: 'Wasserart',
+      fr: 'type d\'eau'
+    },
     essential: true,
     type: 'string',
-    description: 'Type of water that the fountain provides, for example tap water, springwater, or groundwater.',
+    descriptions: {
+      en:'Type of water that the fountain provides, for example tap water, springwater, or groundwater.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -359,9 +530,18 @@ let fountain_properties = {
     }
   },
   wiki_commons_name: {
+    i18n:{
+      en: 'Wikimedia Commons category',
+      de: 'Wikicommons-Kategorie',
+      fr: 'catégorie Wikimedia Commons'
+    },
     essential: false,
     type: 'string',
-    description: 'Name of the Wikimedia Commons page of the fountain',
+    descriptions: {
+      en:'Name of the Wikimedia Commons page of the fountain',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -377,9 +557,18 @@ let fountain_properties = {
     }
   },
   wikipedia_en_url: {
+    i18n:{
+      en: 'Wikipedia page in English',
+      de: 'Wikipediaseite auf Englisch',
+      fr: 'page Wikipedia en anglais'
+    },
     essential: true,
     type: 'url',
-    description: 'URL of the fountain Wikipedia page in English.',
+    descriptions: {
+      en:'URL of the fountain Wikipedia page in English.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -402,16 +591,34 @@ let fountain_properties = {
     }
   },
   wikipedia_en_summary: {
+    i18n:{
+      en: 'Wikipedia extract in English',
+      de: 'Auszug Wikipedia auf Englisch',
+      fr: 'extrait Wikipedia en anglais'
+    },
     essential: false,
     type: 'string',
-    description: 'Summary extracted from the fountain Wikipedia page in English.',
+    descriptions: {
+      en:'Summary extracted from the fountain Wikipedia page in English.',
+      de: '',
+      fr: ''
+    },
     src_pref: [],
     src_config: {}
   },
   wikipedia_de_url: {
+    i18n:{
+      en: 'Wikipedia page in German',
+      de: 'Wikipediaseite auf Deutsch',
+      fr: 'page Wikipedia en allemand'
+    },
     essential: true,
     type: 'url',
-    description: 'URL of the fountain Wikipedia page in German.',
+    descriptions: {
+      en:'URL of the fountain Wikipedia page in German.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -434,16 +641,34 @@ let fountain_properties = {
     }
   },
   wikipedia_de_summary: {
+    i18n:{
+      en: 'Wikipedia extract in German',
+      de: 'Auszug Wikipedia auf Deutsch',
+      fr: 'extrait Wikipedia en allemand'
+    },
     essential: false,
     type: 'string',
-    description: 'Summary extracted from the fountain Wikipedia page in German.',
+    descriptions: {
+      en:'Summary extracted from the fountain Wikipedia page in German.',
+      de: '',
+      fr: ''
+    },
     src_pref: [],
     src_config: {}
   },
   wikipedia_fr_url: {
+    i18n:{
+      en: 'Wikipedia page in French',
+      de: 'Wikipediaseite auf Französisch',
+      fr: 'page Wikipedia en français'
+    },
     essential: true,
     type: 'url',
-    description: 'URL of the fountain Wikipedia page in French.',
+    descriptions: {
+      en:'URL of the fountain Wikipedia page in French.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -466,16 +691,34 @@ let fountain_properties = {
     }
   },
   wikipedia_fr_summary: {
+    i18n:{
+      en: 'Wikipedia extract in French',
+      de: 'Auszug Wikipedia auf Französisch',
+      fr: 'extrait Wikipedia en français'
+    },
     essential: false,
     type: 'string',
-    description: 'Summary extracted from the fountain Wikipedia page in French.',
+    descriptions: {
+      en:'Summary extracted from the fountain Wikipedia page in French.',
+      de: '',
+      fr: ''
+    },
     src_pref: [],
     src_config: {}
   },
   operator_name: {
+    i18n:{
+      en: 'operator name',
+      de: 'Betreiber-Name',
+      fr: 'nom de l\'opérateur',
+    },
     essential: false,
     type: 'string',
-    description: 'Name of the operator of the fountain.',
+    descriptions: {
+      en:'Name of the operator of the fountain.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
@@ -499,16 +742,34 @@ let fountain_properties = {
     }
   },
   gallery: {
+    i18n:{
+      en: 'image gallery',
+      de: 'Bildergallerie',
+      fr: 'galerie d\'images'
+    },
     essential: false,
     type: 'object',
-    description: 'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
+    descriptions: {
+      en:'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
+      de: '',
+      fr: ''
+    },
     src_pref: [],
     src_config: {}
   },
   access_pet: {
+    i18n:{
+      en: 'pet access',
+      de: 'Kleintierzugriff',
+      fr: 'bol pour animaux'
+    },
     essential: true,
     type: 'boolean_string',
-    description: 'Whether a fountain for small pets is available. [yes, no]',
+    descriptions: {
+      en:'Whether a fountain for small pets is available. [yes, no]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -518,9 +779,18 @@ let fountain_properties = {
     }
   },
   access_bottle: {
+    i18n:{
+      en: 'bottle refill',
+      de: 'Flaschefüllung',
+      fr: 'remplissage de bouteille'
+    },
     essential: true,
     type: 'boolean_string',
-    description: 'Whether a bottle can be refilled easily. [yes, no]',
+    descriptions: {
+      en:'Whether a bottle can be refilled easily. [yes, no]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -530,9 +800,18 @@ let fountain_properties = {
     }
   },
   access_wheelchair: {
+    i18n:{
+      en: 'wheelchair accessible',
+      de: 'Rollstuhlgerecht',
+      fr: 'accès pour handicapés'
+    },
     essential: true,
     type: 'boolean_string',
-    description: 'Whether fountain is wheelchair-friendly. [yes, no]',
+    descriptions: {
+      en:'Whether fountain is wheelchair-friendly. [yes, no]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -542,9 +821,18 @@ let fountain_properties = {
     }
   },
   potable: {
+    i18n:{
+      en: 'potable',
+      de: 'trinkbar',
+      fr: 'potable'
+    },
     essential: true,
     type: 'boolean_string',
-    description: 'Indicates whether water is potable or not.',
+    descriptions: {
+      en:'Indicates whether water is potable or not.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -554,9 +842,18 @@ let fountain_properties = {
     }
   },
   potable_controlled: {
+    i18n:{
+      en: '',
+      de: '',
+      fr: ''
+    },
     essential: true,
     type: 'boolean_string',
-    description: 'Indicates whether the water is officially certified as potable.',
+    descriptions: {
+      en:'Indicates whether the water is officially certified as potable.',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
@@ -566,9 +863,18 @@ let fountain_properties = {
     }
   },
   water_flow: {
+    i18n:{
+      en: 'water flow',
+      de: 'Wasserfluss',
+      fr: 'débit'
+    },
     essential: false,
     type: 'string',
-    description: 'Flow rate of fountain. [example: 1.5 l/min]',
+    descriptions: {
+      en:'Flow rate of fountain. [example: 1.5 l/min]',
+      de: '',
+      fr: ''
+    },
     src_pref: ['osm'],
     src_config: {
       osm: {
