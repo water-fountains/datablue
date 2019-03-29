@@ -900,7 +900,7 @@ let fountain_properties = {
 _.forEach(fountain_properties, function (property, key) {
   property.name = key;
   property.value = null;
-  property.comments = 'no data found';
+  property.comments = '';
   property.status = PROP_STATUS_WARNING;
   property.source = '';
 });
