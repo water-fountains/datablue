@@ -254,7 +254,7 @@ let fountain_properties = {
           // loop through all catalog codes to find the right one
           for(let code of catCodes){
             // return value only if qualifier matches the operator id
-            if (code.qualifiers['P972'][0] in _.values(_.mapKeys(locations, (k,v)=>{return v.operator_qid}))) {
+            if(_.map(locations, 'operator_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
               return code.value;
               
             }
