@@ -33,7 +33,7 @@ let fountain_properties = {
     essential: true,
     type: 'string',
     descriptions: {
-      en:'Default name to be shown if no language-specific name is provided',
+      en:'Common name of the fountain',
       de: '',
       fr: ''
     },
@@ -65,10 +65,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'en'],
         value_translation: identity
       },
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:en'],
         value_translation: identity
       }
@@ -90,10 +92,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'de'],
         value_translation: identity
       },
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:de'],
         value_translation: identity
       }
@@ -115,10 +119,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'fr'],
         value_translation: identity
       },
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:fr'],
         value_translation: identity
       }
@@ -140,10 +146,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:en'],
         value_translation: identity
       },
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'en'],
         value_translation: identity
       }
@@ -165,10 +173,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:de'],
         value_translation: identity
       },
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'de'],
         value_translation: identity
       }
@@ -190,10 +200,12 @@ let fountain_properties = {
     src_pref: ['osm', 'wikidata'],
     src_config: {
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:fr'],
         value_translation: identity
       },
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'fr'],
         value_translation: identity
       }
@@ -215,6 +227,7 @@ let fountain_properties = {
     src_pref: ['osm'],
     src_config: {
       osm: {
+        help: null,
         src_path: ['properties', 'id'],
         value_translation: identity
       }
