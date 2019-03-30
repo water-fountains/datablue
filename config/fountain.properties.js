@@ -227,7 +227,7 @@ let fountain_properties = {
     src_pref: ['osm'],
     src_config: {
       osm: {
-        help: null,
+        help: 'https://wiki.openstreetmap.org/wiki/Elements',
         src_path: ['properties', 'id'],
         value_translation: identity
       }
@@ -283,6 +283,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Wikidata:Identifiers',
         src_path: ['id'],
         value_translation: identity
       },
@@ -301,7 +302,7 @@ let fountain_properties = {
     essential: true,
     type: 'number',
     descriptions: {
-      en:'Year of construction. [example: 1971]',
+      en:'Year of construction.',
       de: '',
       fr: ''
     },
@@ -486,6 +487,7 @@ let fountain_properties = {
         }
       },
       osm: {
+        help: 'https://wiki.openstreetmap.org/wiki/Elements',
         src_path: ['geometry', 'coordinates'],
         value_translation: identity
       }
@@ -585,6 +587,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'enwiki'],
         value_translation: name => {
           return `https://en.wikipedia.org/wiki/${name}`
@@ -635,6 +638,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'dewiki'],
         value_translation: name => {
           return `https://de.wikipedia.org/wiki/${name}`
@@ -685,6 +689,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
+        help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'frwiki'],
         value_translation: name => {
           return `https://fr.wikipedia.org/wiki/${name}`
@@ -856,9 +861,9 @@ let fountain_properties = {
   },
   potable_controlled: {
     i18n:{
-      en: '',
-      de: '',
-      fr: ''
+      en: 'controlled water quality',
+      de: 'kontrollierte Wasserqualität',
+      fr: 'qualité contrôlée'
     },
     essential: true,
     type: 'boolean_string',
