@@ -553,7 +553,7 @@ let fountain_properties = {
     essential: false,
     type: 'string',
     descriptions: {
-      en:'Name of the Wikimedia Commons page of the fountain',
+      en:'Name of the Wikimedia Commons page of the fountain.',
       de: '',
       fr: ''
     },
@@ -561,9 +561,11 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P373'],
-        value_translation: names => {
-          return `Category:${names[0].value}`;
-        }
+        src_path_extra: ['sitelinks', 'commonswiki'],
+        value_translation: commons => {
+          return `Category:${commons[0].value}`;
+        },
+        value_translation_extra: identity
       },
       osm: {
         src_path: ['properties', 'wikimedia_commons'],

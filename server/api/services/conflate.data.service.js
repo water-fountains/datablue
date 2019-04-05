@@ -169,12 +169,19 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
     for(let src_name of p.src_pref){
       const cfg = p.src_config[src_name];
       // Get value of property from source
-      let value =
-        _.get(fountains[src_name], cfg.src_path, null);
+      let value = _.get(fountains[src_name], cfg.src_path, null);
+      let useExtra = false;
+      
+      // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
+      if(value === null && cfg.hasOwnProperty('src_path_extra')){
+        value = _.get(fountains[src_name], cfg.src_path_extra, null);
+        useExtra = true;
+      }
       if(value !== null){
         // if successful, stop looking for values
         try{
-          temp.value = cfg.value_translation(value);
+          // use one translation or the other
+          temp.value = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
         }catch(err) {
           throw `Lost in translation of ${p.name} from ${src_name}.`
         }
