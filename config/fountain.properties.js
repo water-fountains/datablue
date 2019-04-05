@@ -450,7 +450,7 @@ let fountain_properties = {
       fr: 'image principal'
     },
     essential: false,
-    type: 'url',
+    type: 'string',
     descriptions: {
       en:'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
       de: 'Name des Hauptbildes, wie in Wikidata dokumentiert. Dies ist nützlich für die Erstellung des Galerie-Objekts, wird aber ansonsten nicht direkt verwendet.',
@@ -899,6 +899,27 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'flow_rate'],
+        value_translation: identity
+      }
+    }
+  },
+  youtube_video_id: {
+    i18n:{
+      en: 'Youtube video IDs',
+      de: 'YouTube-Video-Kennungen',
+      fr: 'identifiants de vidéos YouTube'
+    },
+    essential: false,
+    type: 'object',
+    descriptions: {
+      en:'YouTube video IDs of a video portraying the fountain',
+      de: 'YouTube-Video-Kennungen',
+      fr: 'identifiant vidéos YouTube'
+    },
+    src_pref: ['wikidata'],
+    src_config: {
+      wikidata: {
+        src_path: ['claims', 'P1651'],
         value_translation: identity
       }
     }
