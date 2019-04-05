@@ -903,6 +903,38 @@ let fountain_properties = {
       }
     }
   },
+  // add property for #132
+  swimming_place: {
+    i18n:{
+      en: 'swimming place',
+      de: 'Badeanlage',
+      fr: 'lieu de baignade'
+    },
+    essential: true,
+    type: 'boolean_string',
+    descriptions: {
+      en:'Indicates whether it is possible to swim in the fountain.',
+      de: 'Gibt an, ob es möglich ist im Brunnen sich zu baden.',
+      fr: 'Indique s\'il est possible de se baigner dans la fontaine.'
+    },
+    src_pref: ['wikidata'],
+    src_config: {
+      wikidata: {
+        src_path: ['claims', 'P31'],
+        value_translation: parents => {
+          // loop through all instances to see if swimming pool or swimming place is among them
+          for(let code of parents){
+            // return value only if qualifier matches the operator id
+            if(['Q1501', 'Q17456505'].indexOf(code.value)>=0) {
+              return 'yes';
+            }
+          }
+  
+          return null;
+        },
+      }
+    }
+  },
   youtube_video_id: {
     i18n:{
       en: 'Youtube video IDs',
