@@ -935,6 +935,29 @@ let fountain_properties = {
       }
     }
   },
+  described_at_url: {
+    i18n:{
+      en: 'described at URL',
+      de: 'wird Beschrieben in URL',
+      fr: 'décrit à l\'URL'
+    },
+    essential: false,
+    type: 'object',
+    descriptions: {
+      en:'Foutnain is described at the following URLs.',
+      de: 'Der Brunnen wird in den angegebenen URLs beschrieben.',
+      fr: 'La fontaine est décrits aux l\'URLs suivantes.'
+    },
+    src_pref: ['wikidata'],
+    src_config: {
+      wikidata: {
+        src_path: ['claims', 'P973'],
+        value_translation: (urls)=>{
+          return _.map(urls, 'value');
+        }
+      }
+    }
+  },
   youtube_video_id: {
     i18n:{
       en: 'Youtube video IDs',
