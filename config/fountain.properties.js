@@ -321,6 +321,34 @@ let fountain_properties = {
       }
     }
   },
+  artist_name: {
+    i18n:{
+      en: 'artist name',
+      de: 'Name des Künstlers',
+      fr: 'nom de l\'artiste'
+    },
+    essential: true,
+    type: 'string',
+    descriptions: {
+      en:'Name of the artist who created or designed the fountain.',
+      de: 'Der Name des Künstlers, der den Brunnen erschaffen hat.',
+      fr: 'Nom de l\'artiste qui a créé ou conçu la fontaine.'
+    },
+    src_pref: ['wikidata', 'osm'],
+    src_config: {
+      wikidata: {
+        src_path: ['claims', 'P170'],
+        value_translation: values => {
+          //just keep the first name
+          return values[0].value;
+        }
+      },
+      osm: {
+        src_path: ['properties', 'artist_name'],
+        value_translation: identity
+      }
+    }
+  },
   availability: {
     i18n:{
       en: 'availability',

@@ -183,7 +183,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
           // use one translation or the other
           temp.value = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
         }catch(err) {
-          throw `Lost in translation of ${p.name} from ${src_name}.`
+          throw `Lost in translation of ${p.name} from ${src_name}: ${err}`
         }
         temp.status = PROP_STATUS_OK;
         temp.comments = '';

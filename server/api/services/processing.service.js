@@ -10,6 +10,7 @@ import {getStaticStreetView} from "./google.service";
 const _ = require ('lodash');
 import WikimediaService from './wikimedia.service';
 import WikipediaService from './wikipedia.service';
+import WikidataService from './wikidata.service';
 import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
@@ -19,6 +20,7 @@ export function defaultCollectionEnhancement(fountainCollection) {
     fillImageGalleries(fountainCollection)
       .then(r => fillOutNames(r))
       .then(r => fillWikipediaSummaries(r))
+      .then(r => fillArtistNames(r))
       .then(r => resolve(r))
       .catch(err=>reject(err))
   })
@@ -37,6 +39,24 @@ export function fillImageGalleries(fountainCollection){
     
     Promise.all(promises)
       .then(r =>resolve(r))
+      .catch(err=>reject(err));
+    
+  })
+}
+
+// created for proximap #129
+export function fillArtistNames(fountainCollection){
+  // takes a collection of fountains and returns the same collection,
+  // enhanced with artist names if only QID was given
+  
+  return new Promise((resolve, reject) => {
+    let promises = [];
+    _.forEach(fountainCollection, fountain =>{
+      promises.push(WikidataService.fillArtistName(fountain));
+    });
+    
+    Promise.all(promises)
+      .then(resolve(fountainCollection))
       .catch(err=>reject(err));
     
   })

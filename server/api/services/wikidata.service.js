@@ -52,53 +52,77 @@ class WikidataService {
     return doSparqlRequest(sparql);
   }
   
-
+  
   byIds(qids) {
     // fetch fountains by their QIDs
     const chunckSize = 50;  // how many fountains should be fetched at a time
-      return new Promise((resolve, reject)=>{
-        let allFountainData = [];
-        let httpPromises = [];
-        try{
-          chunk(qids, chunckSize).forEach(qidChunk=> {
-            // create sparql url
-            const url = wdk.getEntities({
-              ids: qidChunk,
-              format: 'json',
-              props: []
-            });
-            // l.debug(url);
-            // get data
-            httpPromises.push(axios.get(url));
+    return new Promise((resolve, reject)=>{
+      let allFountainData = [];
+      let httpPromises = [];
+      try{
+        chunk(qids, chunckSize).forEach(qidChunk=> {
+          // create sparql url
+          const url = wdk.getEntities({
+            ids: qidChunk,
+            format: 'json',
+            props: []
           });
-          // wait for all http requests to resolve
-          Promise.all(httpPromises)
-            .then(responses => {
-              let dataAll = [];
-              responses.forEach(r => {
-                let data = [];
-                for (let key in r.data.entities) {
-                  data.push(wdk.simplify.entity(
-                    r.data.entities[key],
-                    {
-                      keepQualifiers: true
-                    }));
-                }
-                dataAll = dataAll.concat(data);
-              });
-              resolve(dataAll);
-            })
-            .catch(e=>{
-              
-              reject(e)
+          // l.debug(url);
+          // get data
+          httpPromises.push(axios.get(url));
+        });
+        // wait for all http requests to resolve
+        Promise.all(httpPromises)
+          .then(responses => {
+            let dataAll = [];
+            responses.forEach(r => {
+              let data = [];
+              for (let key in r.data.entities) {
+                data.push(wdk.simplify.entity(
+                  r.data.entities[key],
+                  {
+                    keepQualifiers: true
+                  }));
+              }
+              dataAll = dataAll.concat(data);
             });
-        }catch (error){
-          reject(error);
+            resolve(dataAll);
+          })
+          .catch(e=>{
+            
+            reject(e)
+          });
+      }catch (error){
+        reject(error);
+      }
+      
+      // return data
+      
+    })
+  }
+  
+  fillArtistName(fountain){
+    // created for proximap/#129
+    if(fountain.properties.artist_name.source === 'wikidata'){
+      // create sparql url
+      let qid = fountain.properties.artist_name.value;
+      const url = wdk.getEntities({
+        ids: [qid],
+        format: 'json',
+        props: ['labels']
+      });
+      // l.debug(url);
+      // get data
+      return axios.get(url).then(d=>{
+          return d.data.entities[qid].labels.en.value;
         }
-        
-        // return data
-        
-      })
+      ).then(name=> {
+        fountain.properties.artist_name.value = name;
+        return fountain;
+      });
+    }else{
+      return fountain;
+    }
   }
 }
 
@@ -120,7 +144,7 @@ function doSparqlRequest(sparql){
   return new Promise((resolve, reject)=> {
     // create url from SPARQL
     const url = wdk.sparqlQuery(sparql);
-
+    
     // get data
     let request = https.get(url, (res) => {
       const {statusCode} = res;
