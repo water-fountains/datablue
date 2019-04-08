@@ -132,6 +132,8 @@ export function essenceOf(fountainCollection) {
     });
     // add id manually, since it does not have the standard property structure
     props.id = f.properties.id;
+    // add photo if it is not google street view
+    props.photo = f.properties.gallery.comments?'':f.properties.gallery.value[0].small;
     
     // create feature
     newCollection.features.push({
