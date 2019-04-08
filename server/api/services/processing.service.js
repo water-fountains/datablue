@@ -56,7 +56,7 @@ export function fillArtistNames(fountainCollection){
     });
     
     Promise.all(promises)
-      .then(resolve(fountainCollection))
+      .then(r=>resolve(r))
       .catch(err=>reject(err));
     
   })

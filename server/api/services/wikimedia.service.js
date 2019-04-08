@@ -7,10 +7,9 @@
 
 import {getStaticStreetView} from "./google.service";
 
-const utf8 = require('utf8');
+
 const _ = require ('lodash');
 const axios = require ('axios');
-const https = require('https');
 const md5 = require('js-md5');
 import l from '../../common/logger';
 import {PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
@@ -199,6 +198,7 @@ class WikimediaService {
   
   getImageUrl(pageTitle, imageSize=640){
     // construct url of thumbnail
+    // let imgName = pageTitle.replace('File:','');
     let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
   
     let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));

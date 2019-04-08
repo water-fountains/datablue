@@ -114,12 +114,10 @@ class WikidataService {
       // l.debug(url);
       // get data
       return axios.get(url).then(d=>{
-          return d.data.entities[qid].labels.en.value;
-        }
-      ).then(name=> {
-        fountain.properties.artist_name.value = name;
+        fountain.properties.artist_name.value = d.data.entities[qid].labels.en.value;
         return fountain;
-      });
+      })
+        .catch(err=>{l.info(`Error collecting artist name: ${err}`); return fountain});
     }else{
       return fountain;
     }
