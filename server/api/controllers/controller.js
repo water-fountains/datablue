@@ -44,18 +44,19 @@ cityCache.on('expired', (key, value)=>{
 export class Controller {
   constructor(){
     // generate location data and save to storage
-    // todo: uncomment when data derivation has been moved to front-end
-    // for (let location of Object.keys(locations)){
-    //   l.info(`Generating data for ${location}`);
-    //   generateLocationData(location)
-    //     .then(r => {
-    //       // save new data to storage
-    //       cityCache.set(location, r, 60 * 60 * 2);
-    //       // create a reduced version of the data as well
-    //       let r_essential = essenceOf(r);
-    //       cityCache.set(location + '_essential', r_essential, 60 * 60 * 2);
-    //     })
-    // }
+    if(process.env.NODE_ENV === 'production') {
+      for (let location of Object.keys(locations)){
+        l.info(`Generating data for ${location}`);
+        generateLocationData(location)
+          .then(r => {
+            // save new data to storage
+            cityCache.set(location, r, 60 * 60 * 2);
+            // create a reduced version of the data as well
+            let r_essential = essenceOf(r);
+            cityCache.set(location + '_essential', r_essential, 60 * 60 * 2);
+          })
+      }
+    }
   }
   
   getSingle(req, res){
