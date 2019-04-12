@@ -165,12 +165,9 @@ class WikimediaService {
             }
         }catch (error){
             l.info(`Error processing metadata. Title: ${pageTitle}`);
-            resolve(
-              {
-                description: 'Error processing image metadata from Wikimedia Commons',
-                url: `https://commons.wikimedia.org/wiki/${pageTitle}`
-              }
-            );
+            newImage.description = 'Error processing image metadata from Wikimedia Commons';
+            newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+            resolve(newImage);
           }
     
       }).catch(error=>{
