@@ -9,8 +9,16 @@ import l from '../../common/logger';
 import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "./constants";
 const https = require('https');
 const axios = require('axios');
+import { cacheAdapterEnhancer } from 'axios-extensions';
 const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
+
+// Set up caching of http requests
+const http = axios.create({
+  headers: { 'Cache-Control': 'no-cahce' },
+  // cache enabled by default
+  adapter: cacheAdapterEnhancer(axios.defaults.adapter)
+});
 
 class WikidataService {
   idsByCenter(lat, lng, radius=10) {
@@ -69,7 +77,7 @@ class WikidataService {
           });
           // l.debug(url);
           // get data
-          httpPromises.push(axios.get(url));
+          httpPromises.push(http.get(url));
         });
         // wait for all http requests to resolve
         Promise.all(httpPromises)
@@ -113,11 +121,62 @@ class WikidataService {
       });
       // l.debug(url);
       // get data
-      return axios.get(url).then(d=>{
+      return http.get(url).then(d=>{
         fountain.properties.artist_name.value = d.data.entities[qid].labels.en.value;
         return fountain;
       })
         .catch(err=>{l.info(`Error collecting artist name: ${err}`); return fountain});
+    }else{
+      return fountain;
+    }
+  }
+  
+  
+  fillOperatorInfo(fountain){
+    // created for proximap/#149
+    if(fountain.properties.operator_name.source === 'wikidata'){
+      // create sparql url
+      let qid = fountain.properties.operator_name.value;
+      const url = wdk.getEntities({
+        ids: [qid],
+        format: 'json',
+        props: ['labels', 'sitelinks', 'claims']
+      });
+      // l.debug(url);
+      // get data
+      return http.get(url)
+        // parse into an easier to read format
+        .then(r=>{
+          return wdk.simplify.entity(
+          r.data.entities[qid],
+          {
+            keepQualifiers: true
+          })
+        })
+        // extract useful data
+        .then(entity=>{
+        // Get label of operator in English
+        fountain.properties.operator_name.value = entity.labels.en;
+        // Try to find a useful link
+        fountain.properties.operator_name.derived = {
+          url: null,
+          qid: qid
+        };
+        // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
+        for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
+          // get the url value if the path exists
+          let url = _.get(entity.claims, [pid, 0, 'value'], false);
+          if(url){
+            fountain.properties.operator_name.derived.url = url;
+            break;
+          }
+        }
+        return fountain;
+      })
+        .catch(err=>{
+          l.info(`Error collecting operator info name: ${err}`);
+          fountain.properties.operator_name.value = fountain.properties.operator_name.value + '(lookup unsuccessful)';
+          return fountain});
     }else{
       return fountain;
     }

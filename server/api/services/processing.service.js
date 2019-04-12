@@ -21,6 +21,7 @@ export function defaultCollectionEnhancement(fountainCollection) {
       .then(r => fillOutNames(r))
       .then(r => fillWikipediaSummaries(r))
       .then(r => fillArtistNames(r))
+      .then(r => fillOperatorInfo(r))
       .then(r => resolve(r))
       .catch(err=>reject(err))
   })
@@ -53,6 +54,24 @@ export function fillArtistNames(fountainCollection){
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
       promises.push(WikidataService.fillArtistName(fountain));
+    });
+    
+    Promise.all(promises)
+      .then(r=>resolve(r))
+      .catch(err=>reject(err));
+    
+  })
+}
+
+// created for proximap #149
+export function fillOperatorInfo(fountainCollection){
+  // takes a collection of fountains and returns the same collection,
+  // enhanced with operator information if that information is available in Wikidata
+  
+  return new Promise((resolve, reject) => {
+    let promises = [];
+    _.forEach(fountainCollection, fountain =>{
+      promises.push(WikidataService.fillOperatorInfo(fountain));
     });
     
     Promise.all(promises)

@@ -771,12 +771,7 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P137'],
-        value_translation: vals => {
-          switch (vals[0].value) {
-            case "Q27229237":
-              return "Wasserversorgung Zürich";
-          }
-        }
+        value_translation: vals => {return vals[0].value}
       },
       osm: {
         src_path: ['properties', 'operator'],
