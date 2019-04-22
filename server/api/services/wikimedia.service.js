@@ -65,7 +65,8 @@ class WikimediaService {
             // fetch information for each image
             _.forEach(category_members, page => {
               // only use photo media, not videos
-              if(page.title.slice(-3).toLowerCase() === 'jpg'){
+              let ext = page.title.slice(-3).toLowerCase();
+              if( ['jpg', 'png', 'gif'].indexOf(ext)>=0){
                 gallery_image_promises.push(this.getImageInfo(page.title));
               }
             });
@@ -89,7 +90,7 @@ class WikimediaService {
           let gallery = r[1];
           
           // if neither gallery nor image, then use google street view
-          if(!main_image && gallery.length === 0){
+          if(!main_image && (gallery.length === 0)){
             fountain.properties.featured_image_name.source = 'Google Street View';
             getStaticStreetView(fountain)
               .then(image=>{
@@ -112,6 +113,9 @@ class WikimediaService {
               }
               // add image at beginning of gallery
               gallery = [main_image].concat(gallery);
+              
+            }else{
+              // if there is no main image, just use the gallery
             }
   
             // add gallery as value of fountain gallery property
@@ -144,40 +148,29 @@ class WikimediaService {
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       axios.get(url, {timeout: 1000})
         .then(response => {
-          try{
-            let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
-            if(data.hasOwnProperty('imageinfo')){
-              newImage.metadata = makeMetadata(data.imageinfo[0]);
-              // if image doesn't have a license url, just use plain text
-              let license = newImage.metadata.license_short;
-              if(newImage.metadata.license_url === null){
-                license = license?(license+' '):"";
-              }else{
-                license = `<a href='${newImage.metadata.license_url}' target='_blank'>${newImage.metadata.license_short}</a> `
-              }
-              // if artist name is a link, then it usually isn't set to open in a new page. Change that
-              let artist = newImage.metadata.artist;
-              artist = artist?artist.replace('href', 'target="_blank" href'):"";
-              // save description
-              newImage.description = `${license}${artist}`;
-              newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
-              resolve(newImage);
-            }
-        }catch (error){
-            l.info(`Error processing metadata. Title: ${pageTitle}`);
-            newImage.description = 'Error processing image metadata from Wikimedia Commons';
-            newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
-            resolve(newImage);
+        let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
+        if(data.hasOwnProperty('imageinfo')){
+          newImage.metadata = makeMetadata(data.imageinfo[0]);
+          // if image doesn't have a license url, just use plain text
+          let license = newImage.metadata.license_short;
+          if(newImage.metadata.license_url === null){
+            license = license?(license+' '):"";
+          }else{
+            license = `<a href='${newImage.metadata.license_url}' target='_blank'>${newImage.metadata.license_short}</a>`
           }
-    
+          // if artist name is a link, then it usually isn't set to open in a new page. Change that
+          let artist = newImage.metadata.artist;
+          artist = artist?artist.replace('href', 'target="_blank" href'):"";
+          // save description
+          newImage.description = `${license}${artist}`;
+          newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+          resolve(newImage);
+        }
       }).catch(error=>{
         l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
-        resolve(
-          {
-            description: 'Timeout while fetching image metadata from Wikimedia Commons',
-            url: `https://commons.wikimedia.org/wiki/${pageTitle}`
-          }
-        );
+        newImage.description = 'Error processing image metadata from Wikimedia Commons';
+        newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+        resolve(newImage);
       });
     });
     
