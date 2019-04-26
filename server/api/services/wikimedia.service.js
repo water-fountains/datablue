@@ -198,7 +198,7 @@ class WikimediaService {
     let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
   
     let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
-    return encodeURI(`https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`);
+    return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
   }
 }
 
