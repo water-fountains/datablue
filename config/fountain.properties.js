@@ -309,10 +309,10 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P571'],
-        value_translation: values => {
+        src_path: ['claims', 'P571', 0, 'value'],
+        value_translation: data => {
           //just keep the first date
-          return parseInt(values[0].value.substring(0, 4));
+          return parseInt(data.substring(0, 4));
         }
       },
       osm: {

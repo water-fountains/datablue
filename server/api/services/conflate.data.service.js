@@ -7,7 +7,13 @@
 
 import l from '../../common/logger';
 import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
-import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
+import {
+  PROP_STATUS_ERROR, PROP_STATUS_FOUNTAIN_NOT_EXIST,
+  PROP_STATUS_INFO,
+  PROP_STATUS_NOT_AVAILABLE,
+  PROP_STATUS_NOT_DEFINED,
+  PROP_STATUS_OK
+} from "../../common/constants";
 
 const _ = require('lodash');
 const haversine = require('haversine');
@@ -38,9 +44,9 @@ export function conflate(ftns) {
     // process remaining fountains that were not matched
     let unmatched = {};
     unmatched.osm = _.map(ftns.osm, f_osm =>{
-      return mergeFountainProperties({osm:f_osm, wikidata:{}}, 'unmatched')});
+      return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched')});
     unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
-      return mergeFountainProperties({osm:{}, wikidata:f_wd}, 'unmatched')});
+      return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched')});
     
     // append the unmatched fountains to the list
     let conflated_fountains_all = _.concat(
@@ -154,6 +160,7 @@ function conflateByCoordinates(ftns) {
 
 function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
   // combines fountain properties from osm and wikidata
+  // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
   let mergedProperties = {};
   // loop through all property metadata
   _.forEach(fountain_property_metadata, (p)=>{
@@ -163,34 +170,80 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
       value: p.value,
       comments: p.comments,
       status: p.status,
-      type: p.type
-    };
-    // loop through preferred sources and look for values
-    for(let src_name of p.src_pref){
-      const cfg = p.src_config[src_name];
-      // Get value of property from source
-      let value = _.get(fountains[src_name], cfg.src_path, null);
-      let useExtra = false;
-      
-      // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
-      if(value === null && cfg.hasOwnProperty('src_path_extra')){
-        value = _.get(fountains[src_name], cfg.src_path_extra, null);
-        useExtra = true;
-      }
-      if(value !== null){
-        // if successful, stop looking for values
-        try{
-          // use one translation or the other
-          temp.value = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
-        }catch(err) {
-          throw `Lost in translation of ${p.name} from ${src_name}: ${err}`
+      type: p.type,
+      sources: {
+        osm: {
+          status: null,
+          raw: null,
+          extracted: null,
+          comments: []
+        },
+        wikidata: {
+          status: null,
+          raw: null,
+          extracted: null,
+          comments: []
         }
-        temp.status = PROP_STATUS_OK;
-        temp.comments = '';
-        temp.source = src_name;
-        break;
+      }
+    };
+    
+    // loop through sources and extract values
+    for(let src_name of ['wikidata', 'osm']){
+      if(p.src_pref.indexOf(src_name)<0){
+        // If property not available, define property as not available for source
+        temp.sources[src_name].status = PROP_STATUS_NOT_AVAILABLE;
+    
+      } else if(! fountains[src_name]){
+        // If fountain doesn't exist
+        temp.sources[src_name].status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
+  
+      }else {
+        // if property is available for source, try to get it
+        // get extraction information
+        const cfg = p.src_config[src_name];
+        
+        // Get value of property from source
+        let value = _.get(fountains[src_name], cfg.src_path, null);
+        let useExtra = false;
+  
+        // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
+        if(value === null && cfg.hasOwnProperty('src_path_extra')){
+          value = _.get(fountains[src_name], cfg.src_path_extra, null);
+          useExtra = true;
+        }
+        
+        // If a value was obtained, try to process it
+        if(value !== null){
+          // save raw value
+          temp.sources[src_name].raw = value;
+          try{
+            // use one translation or the alternative translation
+            temp.sources[src_name].extracted = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
+            temp.sources[src_name].status = PROP_STATUS_OK;
+          }catch(err) {
+            temp.sources[src_name].status = PROP_STATUS_ERROR;
+            let warning = `Lost in translation of ${p.name} from ${src_name}: ${err}`;
+            temp.sources[src_name].comments.push(warning);
+            l.warning(warning);
+          }
+        }else{
+          // If no property data was found, set status to "not defined"
+          temp.sources[src_name].status = PROP_STATUS_NOT_DEFINED;
+        }
       }
     }
+    
+    // Get preferred value to display
+    for(let src_name of p.src_pref){
+      // check if value is available
+      if(temp.sources[src_name].status === PROP_STATUS_OK){
+        temp.value = temp.sources[src_name].extracted;
+        temp.status = PROP_STATUS_OK;
+        temp.source = src_name;
+        break;  // stop looking for data
+      }
+    }
+    
     // Add merged property to object
     mergedProperties[p.name] = temp;
     
