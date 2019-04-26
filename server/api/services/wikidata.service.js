@@ -155,24 +155,30 @@ class WikidataService {
         })
         // extract useful data
         .then(entity=>{
-        // Get label of operator in English
-        fountain.properties.operator_name.value = entity.labels.en;
-        // Try to find a useful link
-        fountain.properties.operator_name.derived = {
-          url: null,
-          qid: qid
-        };
-        // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
-        for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
-          // get the url value if the path exists
-          let url = _.get(entity.claims, [pid, 0, 'value'], false);
-          if(url){
-            fountain.properties.operator_name.derived.url = url;
-            break;
+          // Get label of operator in English
+          let langs = Object.keys(entity.labels);
+          if(langs.indexOf('en') >= 0){
+            fountain.properties.operator_name.value = entity.labels.en;
+          }else{
+            // Or get whatever language shows up first
+            fountain.properties.operator_name.value = entity.labels[langs[0]];
           }
-        }
-        return fountain;
-      })
+          // Try to find a useful link
+          fountain.properties.operator_name.derived = {
+            url: null,
+            qid: qid
+          };
+          // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
+          for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
+            // get the url value if the path exists
+            let url = _.get(entity.claims, [pid, 0, 'value'], false);
+            if(url){
+              fountain.properties.operator_name.derived.url = url;
+              break;
+            }
+          }
+          return fountain;
+        })
         .catch(err=>{
           l.info(`Error collecting operator info name: ${err}`);
           fountain.properties.operator_name.value = fountain.properties.operator_name.value + '(lookup unsuccessful)';
