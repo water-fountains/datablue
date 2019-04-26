@@ -29,7 +29,7 @@ class WikimediaService {
         value: [],
         status: PROP_STATUS_WARNING,
         type: 'object',
-        name: 'gallery',
+        // name: 'gallery',  // don't give it a name so it doesn't appear in the list
         comments: ''
       };
       
@@ -54,7 +54,7 @@ class WikimediaService {
         gallery_image_promise = new Promise((resolve, reject)=>resolve([]));
       }else{
         // if there is a gallery, then fetch all images in category
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=${this.sanitizeTitle(fountain.properties.wiki_commons_name.value)}&prop=imageinfo&format=json`;
+        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(fountain.properties.wiki_commons_name.value)}&prop=imageinfo&format=json`;
         // make array of image promises
         let gallery_image_promises = [];
   

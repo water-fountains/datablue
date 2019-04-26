@@ -41,10 +41,12 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P1476'],
+        src_name: ['Statement', 'title'],
         value_translation: identity
       },
       osm: {
         src_path: ['properties', 'name'],
+        src_name: ['name'],
         value_translation: identity
       }
     }
@@ -67,11 +69,13 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'en'],
+        src_name: ['Label', 'English'],
         value_translation: identity
       },
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:en'],
+        src_name: ['name:en'],
         value_translation: identity
       }
     }
@@ -94,11 +98,13 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'de'],
+        src_name: ['Label', 'German'],
         value_translation: identity
       },
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:de'],
+        src_name: ['name:de'],
         value_translation: identity
       }
     }
@@ -121,11 +127,13 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Label',
         src_path: ['labels', 'fr'],
+        src_name: ['Label', 'French'],
         value_translation: identity
       },
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:fr'],
+        src_name: ['name:fr'],
         value_translation: identity
       }
     }
@@ -148,11 +156,13 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:en'],
+        src_name: ['description:en'],
         value_translation: identity
       },
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'en'],
+        src_name: ['Description', 'English'],
         value_translation: identity
       }
     }
@@ -175,11 +185,13 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:de'],
+        src_name: ['description:de'],
         value_translation: identity
       },
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'de'],
+        src_name: ['Description', 'German'],
         value_translation: identity
       }
     }
@@ -202,11 +214,13 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:fr'],
+        src_name: ['description:fr'],
         value_translation: identity
       },
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Description',
         src_path: ['descriptions', 'fr'],
+        src_name: ['Description', 'French'],
         value_translation: identity
       }
     }
@@ -229,6 +243,8 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Elements',
         src_path: ['properties', 'id'],
+        src_name: ['id'],
+        src_info: 'OpenStreetMap identifier cannot be easily modified in online editor.',
         value_translation: identity
       }
     }
@@ -250,6 +266,8 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P528'],
+        src_name: ['Statement', 'catalog code'],
+        src_info: "The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata.",
         value_translation: catCodes => {
           // loop through all catalog codes to find the right one
           for(let code of catCodes){
@@ -263,6 +281,8 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'ref'],
+        src_name: ['ref'],
+        src_info: 'This attribute could also be used for other purposes.',
         value_translation: identity
       }
     }
@@ -285,10 +305,13 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Wikidata:Identifiers',
         src_path: ['id'],
+        src_name: ['-'],
+        src_info: 'The Wikidata identifier cannot be modified. It uniquely identifies a Wikidata entity.',
         value_translation: identity
       },
       osm: {
         src_path: ['properties', 'wikidata'],
+        src_name: ['wikidata'],
         value_translation: identity
       }
     }
@@ -309,14 +332,17 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P571', 0, 'value'],
-        value_translation: data => {
+        src_path: ['claims', 'P571'],
+        src_name: ['Statement', 'inception'],
+        extraction_info: 'Only the first value returned by wikidata is kept.',
+        value_translation: values => {
           //just keep the first date
-          return parseInt(data.substring(0, 4));
+          return parseInt(values[0].value.substring(0, 4));
         }
       },
       osm: {
         src_path: ['properties', 'start_date'],
+        src_name: ['start_date'],
         value_translation: identity
       }
     }
@@ -338,6 +364,8 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P170'],
+        src_name: ['Statement', 'creator'],
+        extraction_info: 'Only the first value returned by wikidata is kept.',
         value_translation: values => {
           //just keep the first name
           return values[0].value;
@@ -345,6 +373,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'artist_name'],
+        src_name: ['artist_name'],
         value_translation: identity
       }
     }
@@ -366,6 +395,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'opening_hours'],
+        src_name: ['opening_hours'],
         value_translation: identity
       }
     }
@@ -387,6 +417,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'level'],
+        src_name: ['level'],
         value_translation: identity
       }
     }
@@ -408,6 +439,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'fixme'],
+        src_name: ['fixme'],
         value_translation: identity
       }
     }
@@ -428,8 +460,13 @@ let fountain_properties = {
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P2795', 0, 'value'],
-        value_translation: identity
+        src_path: ['claims', 'P2795'],
+        src_name: ['Statement', 'directions'],
+        src_info: 'Only first value returned by Wikidata is kept.',
+        value_translation: values => {
+          //just keep the first name
+          return values[0].value;
+        }
       }
     }
   },
@@ -442,14 +479,16 @@ let fountain_properties = {
     essential: false,
     type: 'object',
     descriptions: {
-      en:'URLs to street-level views of the fountain. The source of the imagery is determined automatically on the basis of the domain name.',
-      de: 'URLs zu Straßenansichten des Brunnens. Die Quelle der Bilder wird automatisch anhand des Domainnamens ermittelt.',
-      fr: 'URLs vers les images de la fontaine au niveau de la rue. La source de l\'imagerie est déterminée automatiquement en fonction du nom de domaine.'
+      en:'URLs to street-level views of the fountain.',
+      de: 'URLs zu Straßenansichten des Brunnens.',
+      fr: 'URLs vers les images de la fontaine au niveau de la rue.'
     },
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
         src_path: ['claims', 'P5282'],
+        src_name: ['Statement', 'ground level 360 degree view'],
+        extraction_info: 'The source of the imagery is determined automatically on the basis of the url.',
         value_translation: (list)=>{
           return _.map(list, el=>{
             let url = el.value;
@@ -487,8 +526,13 @@ let fountain_properties = {
     src_pref: ['wikidata'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P18', 0, 'value'],
-        value_translation: identity
+        src_path: ['claims', 'P18'],
+        src_name: ['image'],
+        extraction_info: 'Only the first value returned by Wikidata is kept.',
+        value_translation: values => {
+          //just keep the first value
+          return values[0].value;
+        }
       }
     }
   },
@@ -509,6 +553,8 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P625'],
+        src_name: ['Statement', 'coodinate location'],
+        extraction_info: 'The order of coordinates is reversed to match the longitude-latitude format.',
         value_translation: coordList => {
           // return coords in lng lat format !! reverse will mutate array
           return coordList[0].value.slice().reverse()
@@ -517,6 +563,8 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Elements',
         src_path: ['geometry', 'coordinates'],
+        src_name: ['-'],
+        src_info: 'Fountain coordinates in OpenStreetMap can be changed by dragging the fountain in the map editor.',
         value_translation: identity
       }
     }
@@ -538,6 +586,8 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P5623'],
+        src_name: ['Statement', 'type of water supply'],
+        extraction_info: 'The Wikidata QIDs of the water quality are directly translated into keyword values.',
         value_translation: vals => {
           switch (vals[0].value) {
             case "Q53633635":
@@ -554,7 +604,10 @@ let fountain_properties = {
         }
       },
       osm: {
-        src_path: ['properties', 'water_type'],
+        src_path: ['properties', 'drinking_water:description'],
+        src_name: ['drinking_water:description'],
+        src_info: 'This attribute can also be used for other purposes.',
+        extraction_info: 'The values known to occur in OpenStreetMap are translated into keyword values.',
         value_translation: vals => {
           switch (vals[0].value) {
             case "Leitungswasser":
@@ -589,14 +642,18 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P373'],
+        src_name: ['Statement', 'Commons category'],
+        src_info: 'This property can also be defined as a Sitelink, but the Statement value will be used first',
         src_path_extra: ['sitelinks', 'commonswiki'],
+        extraction_info: 'Only the first value returned is used.',
         value_translation: commons => {
-          return `Category:${commons[0].value}`;
+          return commons[0].value;
         },
         value_translation_extra: identity
       },
       osm: {
         src_path: ['properties', 'wikimedia_commons'],
+        src_name: ['wikimedia_commons'],
         value_translation: identity
       }
     }
@@ -619,12 +676,16 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'enwiki'],
+        src_name: ['Wikipedia', 'en'],
         value_translation: name => {
           return `https://en.wikipedia.org/wiki/${name}`
         }
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
+        src_name: ['wikipedia'],
+        src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+        extraction_info: 'Only values with language locale code "en" are retained and turned into a URL.',
         value_translation: val => {
           let parts = val.split(':');
           if (parts[0] === 'en') {
@@ -670,12 +731,16 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'dewiki'],
+        src_name: ['Wikipedia', 'de'],
         value_translation: name => {
           return `https://de.wikipedia.org/wiki/${name}`
         }
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
+        src_name: ['wikipedia'],
+        src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+        extraction_info: 'Only values with language locale code "de" are retained and turned into a URL.',
         value_translation: val => {
           let parts = val.split(':');
           if (parts[0] === 'de') {
@@ -721,12 +786,16 @@ let fountain_properties = {
       wikidata: {
         help: 'https://www.wikidata.org/wiki/Help:Sitelinks',
         src_path: ['sitelinks', 'frwiki'],
+        src_name: ['Wikipedia', 'fr'],
         value_translation: name => {
           return `https://fr.wikipedia.org/wiki/${name}`
         }
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
+        src_name: ['wikipedia'],
+        src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+        extraction_info: 'Only values with language locale code "fr" are retained and turned into a URL.',
         value_translation: val => {
           let parts = val.split(':');
           if (parts[0] === 'fr') {
@@ -771,10 +840,14 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P137'],
+        src_name: ['operator'],
+        extraction_info: 'Only the First value returned by Wikidata is kept.',
         value_translation: vals => {return vals[0].value}
       },
       osm: {
         src_path: ['properties', 'operator'],
+        src_name: ['operator'],
+        extraction_info: 'Known OpenStreetMap values are translated into "official names".',
         value_translation: value => {
           switch (value) {
             case "WVZ":
@@ -784,22 +857,22 @@ let fountain_properties = {
       }
     }
   },
-  gallery: {
-    i18n:{
-      en: 'image gallery',
-      de: 'Bildergallerie',
-      fr: 'galerie d\'images'
-    },
-    essential: false,
-    type: 'object',
-    descriptions: {
-      en:'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
-      de: 'Sammlung von Bildern, die aus der Kategorie Wikimedia Commons erstellt wurden, um sie in der Brunnengalerie anzuzeigen.',
-      fr: 'Collection d\'images créées à partir de la catégorie Wikimedia Commons, à afficher dans la galerie de fontaines.'
-    },
-    src_pref: [],
-    src_config: {}
-  },
+  // gallery: {
+  //   i18n:{
+  //     en: 'image gallery',
+  //     de: 'Bildergallerie',
+  //     fr: 'galerie d\'images'
+  //   },
+  //   essential: false,
+  //   type: 'object',
+  //   descriptions: {
+  //     en:'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
+  //     de: 'Sammlung von Bildern, die aus der Kategorie Wikimedia Commons erstellt wurden, um sie in der Brunnengalerie anzuzeigen.',
+  //     fr: 'Collection d\'images créées à partir de la catégorie Wikimedia Commons, à afficher dans la galerie de fontaines.'
+  //   },
+  //   src_pref: [],
+  //   src_config: {}
+  // },
   access_pet: {
     i18n:{
       en: 'pet bowl',
@@ -817,6 +890,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'dog'],
+        src_name: ['dog'],
         value_translation: identity
       }
     }
@@ -838,6 +912,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'bottle'],
+        src_name: ['bottle'],
         value_translation: identity
       }
     }
@@ -859,6 +934,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'wheelchair'],
+        src_name: ['wheelchair'],
         value_translation: identity
       }
     }
@@ -880,6 +956,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'drinking_water'],
+        src_name: ['drinking_water'],
         value_translation: identity
       }
     }
@@ -901,6 +978,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'drinking_water:legal'],
+        src_name: ['drinking_water:legal'],
         value_translation: str2bool
       }
     }
@@ -922,6 +1000,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'flow_rate'],
+        src_name: ['flow_rate'],
         value_translation: identity
       }
     }
@@ -944,6 +1023,9 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P31'],
+        src_name: ['Statement', 'instance of'],
+        src_info: 'Fountain can be marked as an instance of "swimming pool" or "swimming place".',
+        extraction_info: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q17456505)',
         value_translation: parents => {
           // loop through all instances to see if swimming pool or swimming place is among them
           for(let code of parents){
@@ -975,6 +1057,8 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P973'],
+        src_name: ['Statement', 'described at URL'],
+        extraction_info: 'All defined URLs are returned.',
         value_translation: (urls)=>{
           return _.map(urls, 'value');
         }
@@ -998,7 +1082,11 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P1651'],
-        value_translation: identity
+        src_name: ['Statement', 'YouTube video ID'],
+        extraction_info: 'All defined IDs are returned.',
+        value_translation: (ids)=>{
+          return _.map(ids, 'value');
+        }
       }
     }
   }
