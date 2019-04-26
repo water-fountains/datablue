@@ -185,7 +185,6 @@ class WikimediaService {
   sanitizeTitle(title){
     // this doesn't cover all situations, but the following doesn't work either
     // return encodeURI(title.replace(/ /g, '_'));
-    // return encodeURIComponent(title);
     return title
       .replace(/ /g, '_')
       .replace(/,/g, '%2C')
@@ -199,7 +198,7 @@ class WikimediaService {
     let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
   
     let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
-    return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
+    return encodeURI(`https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`);
   }
 }
 
