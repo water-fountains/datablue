@@ -88,21 +88,17 @@ export function fillWikipediaSummaries(fountainCollection){
     // loop through fountains
     _.forEach(fountainCollection, fountain =>{
       // check English and German
-      _.forEach(['en', 'de'], lang =>{
+      _.forEach(['en', 'de', 'fr'], lang =>{
         let urlParam = `wikipedia_${lang}_url`;
-        let summaryParam = `wikipedia_${lang}_summary`;
         if(!_.isNull(fountain.properties[urlParam].value)){
           // if not Null, get summary and create new property
           promises.push(new Promise((resolve, reject) => {
             WikipediaService.getSummary(fountain.properties[urlParam].value)
               .then(summary => {
-                fountain.properties[summaryParam].value = summary;
-                fountain.properties[summaryParam].type = 'string';
-                fountain.properties[summaryParam].source_name = 'wikipedia';
-                fountain.properties[summaryParam].source_url = fountain.properties[urlParam].value;
-                if(summary.length > 0){
-                  fountain.properties[summaryParam].status = PROP_STATUS_OK;
-                }
+                // add suumary as derived information to url
+                fountain.properties[urlParam].derived = {
+                  summary: summary
+                };
                 resolve();
               })
               .catch(error=>{

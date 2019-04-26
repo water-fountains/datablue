@@ -697,22 +697,6 @@ let fountain_properties = {
       }
     }
   },
-  wikipedia_en_summary: {
-    i18n:{
-      en: 'Wikipedia extract in English',
-      de: 'Auszug Wikipedia auf Englisch',
-      fr: 'extrait Wikipedia en anglais'
-    },
-    essential: false,
-    type: 'string',
-    descriptions: {
-      en:'Summary extracted from the fountain Wikipedia page in English.',
-      de: 'Zusammenfassung aus der Wikipedia-Seite des Springbrunnens auf Englisch.',
-      fr: 'Résumé extrait de la page de la fontaine Wikipedia en anglais.'
-    },
-    src_pref: [],
-    src_config: {}
-  },
   wikipedia_de_url: {
     i18n:{
       en: 'Wikipedia page in German',
@@ -752,22 +736,6 @@ let fountain_properties = {
       }
     }
   },
-  wikipedia_de_summary: {
-    i18n:{
-      en: 'Wikipedia extract in German',
-      de: 'Auszug Wikipedia auf Deutsch',
-      fr: 'extrait Wikipedia en allemand'
-    },
-    essential: false,
-    type: 'string',
-    descriptions: {
-      en:'Summary extracted from the fountain Wikipedia page in German.',
-      de: 'Zusammenfassung aus der Wikipedia-Seite des Springbrunnens auf Deutsch.',
-      fr: 'Résumé extrait de la page de la fontaine Wikipedia en allemand.'
-    },
-    src_pref: [],
-    src_config: {}
-  },
   wikipedia_fr_url: {
     i18n:{
       en: 'Wikipedia page in French',
@@ -806,22 +774,6 @@ let fountain_properties = {
         }
       }
     }
-  },
-  wikipedia_fr_summary: {
-    i18n:{
-      en: 'Wikipedia extract in French',
-      de: 'Auszug Wikipedia auf Französisch',
-      fr: 'extrait Wikipedia en français'
-    },
-    essential: false,
-    type: 'string',
-    descriptions: {
-      en:'Summary extracted from the fountain Wikipedia page in French.',
-      de: 'Zusammenfassung aus der Wikipedia-Seite des Springbrunnens auf Französisch.',
-      fr: 'Résumé extrait de la page de la fontaine Wikipedia en français.'
-    },
-    src_pref: [],
-    src_config: {}
   },
   operator_name: {
     i18n:{

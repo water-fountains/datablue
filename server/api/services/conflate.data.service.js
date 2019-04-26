@@ -219,7 +219,10 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
           try{
             // use one translation or the alternative translation
             temp.sources[src_name].extracted = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
-            temp.sources[src_name].status = PROP_STATUS_OK;
+            // if extracted value is not null, change status
+            if(temp.sources[src_name].extracted !== null){
+              temp.sources[src_name].status = PROP_STATUS_OK;
+            }
           }catch(err) {
             temp.sources[src_name].status = PROP_STATUS_ERROR;
             let warning = `Lost in translation of ${p.name} from ${src_name}: ${err}`;
