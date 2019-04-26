@@ -166,6 +166,12 @@ class WikimediaService {
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
+        else{
+          l.info(`http request when getting metadata for ${pageTitle} did not return useful data. Url: ${url}`);
+          newImage.description = 'Error processing image metadata from Wikimedia Commons';
+          newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+          resolve(newImage);
+        }
       }).catch(error=>{
         l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
         newImage.description = 'Error processing image metadata from Wikimedia Commons';
