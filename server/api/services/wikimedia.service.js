@@ -145,7 +145,7 @@ class WikimediaService {
       newImage.big = this.getImageUrl(pageTitle, 1200);
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
-      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${this.sanitizeTitle(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
+      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       axios.get(url, {timeout: 1000})
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
@@ -179,6 +179,7 @@ class WikimediaService {
   sanitizeTitle(title){
     // this doesn't cover all situations, but the following doesn't work either
     // return encodeURI(title.replace(/ /g, '_'));
+    // return encodeURIComponent(title);
     return title
       .replace(/ /g, '_')
       .replace(/,/g, '%2C')
