@@ -608,8 +608,8 @@ let fountain_properties = {
         src_name: ['drinking_water:description'],
         src_info: 'This attribute can also be used for other purposes.',
         extraction_info: 'The values known to occur in OpenStreetMap are translated into keyword values.',
-        value_translation: vals => {
-          switch (vals[0].value) {
+        value_translation: value => {
+          switch (value) {
             case "Leitungswasser":
               return "tapwater";
             case "Quellwasser":
@@ -619,7 +619,7 @@ let fountain_properties = {
             case "Grundwasser":
               return "groundwater";
             default:
-              return "other: "+vals[0].value;
+              return "other: " + value;
           }
         }
       }
