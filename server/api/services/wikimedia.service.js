@@ -146,7 +146,7 @@ class WikimediaService {
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      axios.get(url, {timeout: 1000})
+      axios.get(url, {timeout: 2000})
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
         if(data.hasOwnProperty('imageinfo')){
@@ -168,13 +168,13 @@ class WikimediaService {
         }
         else{
           l.info(`http request when getting metadata for ${pageTitle} did not return useful data. Url: ${url}`);
-          newImage.description = 'Error processing image metadata from Wikimedia Commons';
+          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information Url: ${url}`;
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}`);
-        newImage.description = 'Error processing image metadata from Wikimedia Commons';
+        l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}. Error message: ${error}`);
+        newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Url: ${url}. Error message: ${error}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);
       });
