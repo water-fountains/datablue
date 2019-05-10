@@ -22,7 +22,7 @@ export const locations = {
         "latMax": 46.29001987172955,
         "lngMax": 6.273880004882812
       },
-      "operator_qid": 'null'
+      "operator_qid": 'undefined'
     },
     "basel": {
       "bounding_box": {
@@ -31,7 +31,7 @@ export const locations = {
         "latMax": 47.60477416894759,
         "lngMax": 7.676696777343749
       },
-      "operator_qid": 'null'
+      "operator_qid": 'undefined'
     },
   "lucerne": {
     "bounding_box": {
@@ -40,6 +40,6 @@ export const locations = {
       "latMax": 47.068718776878946,
       "lngMax": 8.33810806274414
     },
-    "operator_qid": 'null'
+    "operator_qid": 'undefined'
   }
   };

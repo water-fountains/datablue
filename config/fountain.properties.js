@@ -46,7 +46,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'name'],
-        src_name: ['name'],
+        src_name: ['tag', 'name'],
         value_translation: identity
       }
     }
@@ -75,7 +75,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:en'],
-        src_name: ['name:en'],
+        src_name: ['tag', 'name:en'],
         value_translation: identity
       }
     }
@@ -104,7 +104,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:de'],
-        src_name: ['name:de'],
+        src_name: ['tag', 'name:de'],
         value_translation: identity
       }
     }
@@ -133,7 +133,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Multilingual_names',
         src_path: ['properties', 'name:fr'],
-        src_name: ['name:fr'],
+        src_name: ['tag', 'name:fr'],
         value_translation: identity
       }
     }
@@ -156,7 +156,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:en'],
-        src_name: ['description:en'],
+        src_name: ['tag', 'description:en'],
         value_translation: identity
       },
       wikidata: {
@@ -185,7 +185,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:de'],
-        src_name: ['description:de'],
+        src_name: ['tag', 'description:de'],
         value_translation: identity
       },
       wikidata: {
@@ -214,7 +214,7 @@ let fountain_properties = {
       osm: {
         help: 'https://wiki.openstreetmap.org/wiki/Key:description',
         src_path: ['properties', 'description:fr'],
-        src_name: ['description:fr'],
+        src_name: ['tag', 'description:fr'],
         value_translation: identity
       },
       wikidata: {
@@ -267,7 +267,7 @@ let fountain_properties = {
       wikidata: {
         src_path: ['claims', 'P528'],
         src_name: ['Statement', 'catalog code'],
-        src_info: "The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata.",
+        src_info: `The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${_.map(locations, (l,name)=>{return `${name}: ${l.operator_qid}`}).join(', ')})`,
         value_translation: catCodes => {
           // loop through all catalog codes to find the right one
           for(let code of catCodes){
@@ -281,8 +281,8 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'ref'],
-        src_name: ['ref'],
-        src_info: 'This attribute could also be used for other purposes.',
+        src_name: ['tag', 'ref'],
+        src_info: 'This tag could also be used for other purposes. We therefore recommend using Wikidata to store this information.',
         value_translation: identity
       }
     }
@@ -311,7 +311,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'wikidata'],
-        src_name: ['wikidata'],
+        src_name: ['tag', 'wikidata'],
         value_translation: identity
       }
     }
@@ -342,7 +342,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'start_date'],
-        src_name: ['start_date'],
+        src_name: ['tag', 'start_date'],
         value_translation: identity
       }
     }
@@ -373,7 +373,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'artist_name'],
-        src_name: ['artist_name'],
+        src_name: ['tag', 'artist_name'],
         value_translation: identity
       }
     }
@@ -395,7 +395,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'opening_hours'],
-        src_name: ['opening_hours'],
+        src_name: ['tag', 'opening_hours'],
         value_translation: identity
       }
     }
@@ -417,7 +417,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'level'],
-        src_name: ['level'],
+        src_name: ['tag', 'level'],
         value_translation: identity
       }
     }
@@ -439,7 +439,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'fixme'],
-        src_name: ['fixme'],
+        src_name: ['tag', 'fixme'],
         value_translation: identity
       }
     }
@@ -527,7 +527,7 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P18'],
-        src_name: ['image'],
+        src_name: ['Statement', 'image'],
         extraction_info: 'Only the first value returned by Wikidata is kept.',
         value_translation: values => {
           //just keep the first value
@@ -605,7 +605,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'drinking_water:description'],
-        src_name: ['drinking_water:description'],
+        src_name: ['tag', 'drinking_water:description'],
         src_info: 'This attribute can also be used for other purposes.',
         extraction_info: 'The values known to occur in OpenStreetMap are translated into keyword values.',
         value_translation: value => {
@@ -653,7 +653,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'wikimedia_commons'],
-        src_name: ['wikimedia_commons'],
+        src_name: ['tag', 'wikimedia_commons'],
         value_translation: identity
       }
     }
@@ -683,7 +683,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
-        src_name: ['wikipedia'],
+        src_name: ['tag', 'wikipedia'],
         src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
         extraction_info: 'Only values with language locale code "en" are retained and turned into a URL.',
         value_translation: val => {
@@ -722,7 +722,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
-        src_name: ['wikipedia'],
+        src_name: ['tag', 'wikipedia'],
         src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
         extraction_info: 'Only values with language locale code "de" are retained and turned into a URL.',
         value_translation: val => {
@@ -761,7 +761,7 @@ let fountain_properties = {
       },
       osm: {
         src_path: ['properties', 'wikipedia'],
-        src_name: ['wikipedia'],
+        src_name: ['tag', 'wikipedia'],
         src_info: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
         extraction_info: 'Only values with language locale code "fr" are retained and turned into a URL.',
         value_translation: val => {
@@ -792,13 +792,13 @@ let fountain_properties = {
     src_config: {
       wikidata: {
         src_path: ['claims', 'P137'],
-        src_name: ['operator'],
+        src_name: ['Statement', 'operator'],
         extraction_info: 'Only the First value returned by Wikidata is kept.',
         value_translation: vals => {return vals[0].value}
       },
       osm: {
         src_path: ['properties', 'operator'],
-        src_name: ['operator'],
+        src_name: ['tag', 'operator'],
         extraction_info: 'Known OpenStreetMap values are translated into "official names".',
         value_translation: value => {
           switch (value) {
@@ -842,7 +842,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'dog'],
-        src_name: ['dog'],
+        src_name: ['tag', 'dog'],
         value_translation: identity
       }
     }
@@ -864,7 +864,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'bottle'],
-        src_name: ['bottle'],
+        src_name: ['tag', 'bottle'],
         value_translation: identity
       }
     }
@@ -886,7 +886,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'wheelchair'],
-        src_name: ['wheelchair'],
+        src_name: ['tag', 'wheelchair'],
         value_translation: identity
       }
     }
@@ -908,7 +908,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'drinking_water'],
-        src_name: ['drinking_water'],
+        src_name: ['tag', 'drinking_water'],
         value_translation: identity
       }
     }
@@ -930,7 +930,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'drinking_water:legal'],
-        src_name: ['drinking_water:legal'],
+        src_name: ['tag', 'drinking_water:legal'],
         value_translation: str2bool
       }
     }
@@ -952,7 +952,7 @@ let fountain_properties = {
     src_config: {
       osm: {
         src_path: ['properties', 'flow_rate'],
-        src_name: ['flow_rate'],
+        src_name: ['tag', 'flow_rate'],
         value_translation: identity
       }
     }
