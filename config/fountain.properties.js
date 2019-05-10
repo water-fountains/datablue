@@ -365,10 +365,15 @@ let fountain_properties = {
       wikidata: {
         src_path: ['claims', 'P170'],
         src_name: ['Statement', 'creator'],
-        extraction_info: 'Only the first value returned by wikidata is kept.',
+        extraction_info: 'Only the first value returned by Wikidata is kept. If the QID corresponds to that of "anonymous" (Q4233718), return null.',
         value_translation: values => {
-          //just keep the first name
-          return values[0].value;
+          //just keep the first value
+          if(values[0].value !== 'Q4233718'){
+            return values[0].value;
+          }else{
+            // fix for https://github.com/water-fountains/proximap/issues/129
+            return null;
+          };
         }
       },
       osm: {
