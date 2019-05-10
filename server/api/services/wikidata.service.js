@@ -117,15 +117,54 @@ class WikidataService {
       const url = wdk.getEntities({
         ids: [qid],
         format: 'json',
-        props: ['labels']
+        props: ['labels', 'sitelinks', 'claims']
       });
       // l.debug(url);
       // get data
-      return http.get(url).then(d=>{
-        fountain.properties.artist_name.value = d.data.entities[qid].labels.en.value;
-        return fountain;
-      })
-        .catch(err=>{l.info(`Error collecting artist name: ${err}`); return fountain});
+      return http.get(url)
+      // parse into an easier to read format
+        .then(r=>{
+          return wdk.simplify.entity(
+            r.data.entities[qid],
+            {
+              keepQualifiers: true
+            })
+        })
+        // extract useful data for https://github.com/water-fountains/proximap/issues/163
+        .then(entity=>{
+          // Get label of artist in English
+          let langs = Object.keys(entity.labels);
+          if(langs.indexOf('en') >= 0){
+            fountain.properties.artist_name.value = entity.labels.en;
+          }else{
+            // Or get whatever language shows up first
+            fountain.properties.artist_name.value = entity.labels[langs[0]];
+          }
+          // Try to find a useful link
+          fountain.properties.artist_name.derived = {
+            url: null,
+            qid: qid
+          };
+          // Look for Wikipedia entry in English, French, or German
+          for(let lang of ['en', 'fr', 'de']){
+            if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
+              fountain.properties.artist_name.derived.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
+              return fountain;
+            }
+          }
+          
+          // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
+          for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
+            // get the url value if the path exists
+            let url = _.get(entity.claims, [pid, 0, 'value'], false);
+            if(url){
+              fountain.properties.artist_name.derived.url = url;
+              return fountain;
+            }
+          }
+          return fountain;
+        })
+        .catch(err=>{l.info(`Error collecting artist name and url from wikidata: ${err}`); return fountain});
     }else{
       return fountain;
     }
