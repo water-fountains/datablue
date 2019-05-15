@@ -190,7 +190,6 @@ function byCoords(req, res) {
       osm: r[0],
       wikidata: r[1]
     }))
-    .then(r => defaultCollectionEnhancement(r))
     // return the closest fountain in the list
     .then(r => {
       let distances = _.map(r, f=>{
@@ -201,9 +200,14 @@ function byCoords(req, res) {
           });
       });
       let closest = r[_.indexOf(distances, _.min(distances))];
-      closest = updateCacheWithFountain(cityCache, closest, req.query.city);
-      res.json(closest);
+      return [closest];
     })
+     // fetch more information about fountains
+    .then(r => defaultCollectionEnhancement(r))
+    .then(r=>{
+    closest = updateCacheWithFountain(cityCache, r[0], req.query.city);
+    res.json(closest);
+  })
     .catch(e=>{
       l.error(`Error collecting data: ${e}`);
       res.sendStatus(500);
