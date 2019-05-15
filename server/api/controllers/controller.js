@@ -205,8 +205,8 @@ function byCoords(req, res) {
      // fetch more information about fountains
     .then(r => defaultCollectionEnhancement(r))
     .then(r=>{
-    closest = updateCacheWithFountain(cityCache, r[0], req.query.city);
-    res.json(closest);
+      let closest = updateCacheWithFountain(cityCache, r[0], req.query.city);
+      res.json(closest);
   })
     .catch(e=>{
       l.error(`Error collecting data: ${e}`);
