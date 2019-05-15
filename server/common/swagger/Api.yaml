@@ -90,7 +90,7 @@ paths:
           in: query
           schema:
             type: float
-          default: 10.0
+          default: 50.0
           description: radius in meters in which fountains should be searched
       responses:
         200:
