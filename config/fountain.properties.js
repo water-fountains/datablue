@@ -246,7 +246,8 @@ let fountain_properties = {
         src_name: ['id'],
         src_info: 'OpenStreetMap identifier cannot be easily modified in online editor.',
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   id_operator: {
@@ -402,7 +403,8 @@ let fountain_properties = {
         src_path: ['properties', 'opening_hours'],
         src_name: ['tag', 'opening_hours'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   floor_level: {
@@ -424,7 +426,8 @@ let fountain_properties = {
         src_path: ['properties', 'level'],
         src_name: ['tag', 'level'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   fixme: {
@@ -446,7 +449,8 @@ let fountain_properties = {
         src_path: ['properties', 'fixme'],
         src_name: ['tag', 'fixme'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   directions: {
@@ -464,6 +468,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P2795'],
         src_name: ['Statement', 'directions'],
@@ -490,6 +495,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P5282'],
         src_name: ['Statement', 'ground level 360 degree view'],
@@ -530,6 +536,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P18'],
         src_name: ['Statement', 'image'],
@@ -814,22 +821,6 @@ let fountain_properties = {
       }
     }
   },
-  // gallery: {
-  //   i18n:{
-  //     en: 'image gallery',
-  //     de: 'Bildergallerie',
-  //     fr: 'galerie d\'images'
-  //   },
-  //   essential: false,
-  //   type: 'object',
-  //   descriptions: {
-  //     en:'Collection of images created from the Wikimedia Commons category, to display in the fountain gallery.',
-  //     de: 'Sammlung von Bildern, die aus der Kategorie Wikimedia Commons erstellt wurden, um sie in der Brunnengalerie anzuzeigen.',
-  //     fr: 'Collection d\'images créées à partir de la catégorie Wikimedia Commons, à afficher dans la galerie de fontaines.'
-  //   },
-  //   src_pref: [],
-  //   src_config: {}
-  // },
   access_pet: {
     i18n:{
       en: 'pet bowl',
@@ -849,7 +840,8 @@ let fountain_properties = {
         src_path: ['properties', 'dog'],
         src_name: ['tag', 'dog'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   access_bottle: {
@@ -871,7 +863,8 @@ let fountain_properties = {
         src_path: ['properties', 'bottle'],
         src_name: ['tag', 'bottle'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   access_wheelchair: {
@@ -893,7 +886,8 @@ let fountain_properties = {
         src_path: ['properties', 'wheelchair'],
         src_name: ['tag', 'wheelchair'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   potable: {
@@ -915,7 +909,8 @@ let fountain_properties = {
         src_path: ['properties', 'drinking_water'],
         src_name: ['tag', 'drinking_water'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   potable_controlled: {
@@ -937,7 +932,8 @@ let fountain_properties = {
         src_path: ['properties', 'drinking_water:legal'],
         src_name: ['tag', 'drinking_water:legal'],
         value_translation: str2bool
-      }
+      },
+      wikidata: null
     }
   },
   water_flow: {
@@ -959,7 +955,8 @@ let fountain_properties = {
         src_path: ['properties', 'flow_rate'],
         src_name: ['tag', 'flow_rate'],
         value_translation: identity
-      }
+      },
+      wikidata: null
     }
   },
   // add property for #132
@@ -978,6 +975,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P31'],
         src_name: ['Statement', 'instance of'],
@@ -1012,6 +1010,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P973'],
         src_name: ['Statement', 'described at URL'],
@@ -1037,6 +1036,7 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
+      osm: null,
       wikidata: {
         src_path: ['claims', 'P1651'],
         src_name: ['Statement', 'YouTube video ID'],

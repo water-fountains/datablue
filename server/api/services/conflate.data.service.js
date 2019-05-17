@@ -189,7 +189,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
     
     // loop through sources and extract values
     for(let src_name of ['wikidata', 'osm']){
-      if(p.src_pref.indexOf(src_name)<0){
+      if(p.src_config[src_name] === null){
         // If property not available, define property as not available for source
         temp.sources[src_name].status = PROP_STATUS_NOT_AVAILABLE;
     
