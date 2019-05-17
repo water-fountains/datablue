@@ -25,7 +25,7 @@ function identity(val){return val}
 
 let fountain_properties = {
   name: {
-    i18n:{
+    name:{
       en: 'title',
       de: 'Titel',
       fr: 'titre'
@@ -52,7 +52,7 @@ let fountain_properties = {
     }
   },
   name_en: {
-    i18n:{
+    name:{
       en: 'name (en)',
       de: 'Name (en)',
       fr: 'nom (en)'
@@ -81,7 +81,7 @@ let fountain_properties = {
     }
   },
   name_de: {
-    i18n:{
+    name:{
       en: 'name (de)',
       de: 'Name (de)',
       fr: 'nom (de)'
@@ -110,7 +110,7 @@ let fountain_properties = {
     }
   },
   name_fr: {
-    i18n:{
+    name:{
       en: 'name (fr)',
       de: 'Name (fr)',
       fr: 'nom (fr)'
@@ -139,7 +139,7 @@ let fountain_properties = {
     }
   },
   description_short_en: {
-    i18n:{
+    name:{
       en: 'description (en)',
       de: 'Beschreibung (en)',
       fr: 'description (en)'
@@ -168,7 +168,7 @@ let fountain_properties = {
     }
   },
   description_short_de: {
-    i18n:{
+    name:{
       en: 'description (de)',
       de: 'Beschreibung (de)',
       fr: 'description (de)'
@@ -197,7 +197,7 @@ let fountain_properties = {
     }
   },
   description_short_fr: {
-    i18n:{
+    name:{
       en: 'description (fr)',
       de: 'Beschreibung (fr)',
       fr: 'description (fr)'
@@ -226,7 +226,7 @@ let fountain_properties = {
     }
   },
   id_osm: {
-    i18n:{
+    name:{
       en: 'ID (OpenStreetMap)',
       de: 'ID (OpenStreetMap)',
       fr: 'ID (OpenStreetMap)'
@@ -251,7 +251,7 @@ let fountain_properties = {
     }
   },
   id_operator: {
-    i18n:{
+    name:{
       en: 'ID (operator)',
       de: 'ID (Betreiber)',
       fr: 'ID (opérateur)'
@@ -289,7 +289,7 @@ let fountain_properties = {
     }
   },
   id_wikidata: {
-    i18n:{
+    name:{
       en: 'ID (Wikidata)',
       de: 'ID (Wikidata)',
       fr: 'ID (Wikidata)'
@@ -318,7 +318,7 @@ let fountain_properties = {
     }
   },
   construction_date: {
-    i18n:{
+    name:{
       en: 'construction date',
       de: 'Baujahr',
       fr: 'date de construction'
@@ -349,7 +349,7 @@ let fountain_properties = {
     }
   },
   artist_name: {
-    i18n:{
+    name:{
       en: 'artist name',
       de: 'Name des Künstlers',
       fr: 'nom de l\'artiste'
@@ -385,7 +385,7 @@ let fountain_properties = {
     }
   },
   availability: {
-    i18n:{
+    name:{
       en: 'availability',
       de: 'aktiver Zeitraum',
       fr: 'disponibilité'
@@ -408,7 +408,7 @@ let fountain_properties = {
     }
   },
   floor_level: {
-    i18n:{
+    name:{
       en: 'floor',
       de: 'Stockwerk',
       fr: 'niveau'
@@ -431,7 +431,7 @@ let fountain_properties = {
     }
   },
   fixme: {
-    i18n:{
+    name:{
       en: 'data errors',
       de: 'Datenfehler',
       fr: 'erreurs de données'
@@ -454,7 +454,7 @@ let fountain_properties = {
     }
   },
   directions: {
-    i18n:{
+    name:{
       en: 'location',
       de: 'Lage',
       fr: 'emplacement'
@@ -481,7 +481,7 @@ let fountain_properties = {
     }
   },
   pano_url: {
-    i18n:{
+    name:{
       en: 'panorama URLs',
       de: 'Panorama-URLs',
       fr: 'URL des panoramas'
@@ -522,7 +522,7 @@ let fountain_properties = {
     }
   },
   featured_image_name: {
-    i18n:{
+    name:{
       en: 'featured image',
       de: 'Hauptbild',
       fr: 'image principal'
@@ -549,7 +549,7 @@ let fountain_properties = {
     }
   },
   coords: {
-    i18n:{
+    name:{
       en: 'coordinates',
       de: 'Koordinaten',
       fr: 'coordonnées'
@@ -582,7 +582,7 @@ let fountain_properties = {
     }
   },
   water_type: {
-    i18n:{
+    name:{
       en: 'water type',
       de: 'Wasserart',
       fr: 'type d\'eau'
@@ -638,7 +638,7 @@ let fountain_properties = {
     }
   },
   wiki_commons_name: {
-    i18n:{
+    name:{
       en: 'Wikimedia Commons category',
       de: 'Wikicommons-Kategorie',
       fr: 'catégorie Wikimedia Commons'
@@ -671,7 +671,7 @@ let fountain_properties = {
     }
   },
   wikipedia_en_url: {
-    i18n:{
+    name:{
       en: 'Wikipedia page in English',
       de: 'Wikipediaseite auf Englisch',
       fr: 'page Wikipedia en anglais'
@@ -710,7 +710,7 @@ let fountain_properties = {
     }
   },
   wikipedia_de_url: {
-    i18n:{
+    name:{
       en: 'Wikipedia page in German',
       de: 'Wikipediaseite auf Deutsch',
       fr: 'page Wikipedia en allemand'
@@ -749,7 +749,7 @@ let fountain_properties = {
     }
   },
   wikipedia_fr_url: {
-    i18n:{
+    name:{
       en: 'Wikipedia page in French',
       de: 'Wikipediaseite auf Französisch',
       fr: 'page Wikipedia en français'
@@ -788,7 +788,7 @@ let fountain_properties = {
     }
   },
   operator_name: {
-    i18n:{
+    name:{
       en: 'operator name',
       de: 'Betreiber-Name',
       fr: 'nom de l\'opérateur',
@@ -822,7 +822,7 @@ let fountain_properties = {
     }
   },
   access_pet: {
-    i18n:{
+    name:{
       en: 'pet bowl',
       de: 'Hundetrog',
       fr: 'bol pour chiens'
@@ -845,7 +845,7 @@ let fountain_properties = {
     }
   },
   access_bottle: {
-    i18n:{
+    name:{
       en: 'bottle refill',
       de: 'Flaschenfüllung',
       fr: 'remplissage de bouteille'
@@ -868,7 +868,7 @@ let fountain_properties = {
     }
   },
   access_wheelchair: {
-    i18n:{
+    name:{
       en: 'wheelchair accessible',
       de: 'Rollstuhlgerecht',
       fr: 'accès pour handicapés'
@@ -891,7 +891,7 @@ let fountain_properties = {
     }
   },
   potable: {
-    i18n:{
+    name:{
       en: 'potable',
       de: 'trinkbar',
       fr: 'potable'
@@ -914,7 +914,7 @@ let fountain_properties = {
     }
   },
   potable_controlled: {
-    i18n:{
+    name:{
       en: 'controlled',
       de: 'kontrollierte',
       fr: 'contrôlée'
@@ -937,7 +937,7 @@ let fountain_properties = {
     }
   },
   water_flow: {
-    i18n:{
+    name:{
       en: 'water flow',
       de: 'Wasserfluss',
       fr: 'débit'
@@ -961,7 +961,7 @@ let fountain_properties = {
   },
   // add property for #132
   swimming_place: {
-    i18n:{
+    name:{
       en: 'swimming place',
       de: 'Badeanlage',
       fr: 'lieu de baignade'
@@ -996,7 +996,7 @@ let fountain_properties = {
     }
   },
   described_at_url: {
-    i18n:{
+    name:{
       en: 'described at URL',
       de: 'wird Beschrieben in URL',
       fr: 'décrit à l\'URL'
@@ -1022,7 +1022,7 @@ let fountain_properties = {
     }
   },
   youtube_video_id: {
-    i18n:{
+    name:{
       en: 'Youtube video IDs',
       de: 'YouTube-Video-Kennungen',
       fr: 'identifiants de vidéos YouTube'
