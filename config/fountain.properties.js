@@ -680,7 +680,25 @@ let fountain_properties = {
     },
     src_pref: ['wikidata'],
     src_config: {
-      osm: null,
+      osm: {
+        src_info: {
+          en: 'Value is only taken if it contains "File:".',
+          de: 'Wert wird nur genommen wenn es "File:" beinhaltet.',
+          fr: 'La valeur est seulement acceptée si elle contient "File:" pour indiquer qu\'il s\'agit d\'un fichier.'
+        },
+        src_path: ['properties', 'wikimedia_commons'],
+        src_instructions: {
+          en: ['tag', 'wikimedia_commons'],
+          de: ['Attribut', 'wikimedia_commons'],
+          fr: ['Attribut', 'wikimedia_commons']
+        },
+        value_translation: text=>{
+          if(text.includes('File:')){
+            return text.replace('File:', '')
+          }else{
+            return null;
+          }}
+      },
       wikidata: {
         src_path: ['claims', 'P18'],
         src_instructions: {
@@ -861,17 +879,29 @@ let fountain_properties = {
         value_translation: commons => {
           return commons[0].value;
         },
-        value_translation_extra: identity
+        value_translation_extra: text=>{
+          return text.replace('Category:', '')
+        }
       },
       osm: {
+        src_info: {
+          en: 'Value is only taken if it contains "Category:".',
+          de: 'Wert wird nur genommen wenn es "Category:" beinhaltet.',
+          fr: 'La valeur est seulement acceptée si elle contient "Category:" pour indiquer qu\'il s\'agit d\'une catégorie.'
+        },
         src_path: ['properties', 'wikimedia_commons'],
         src_instructions: {
           en: ['tag', 'wikimedia_commons'],
           de: ['Attribut', 'wikimedia_commons'],
           fr: ['Attribut', 'wikimedia_commons']
         },
-        value_translation: identity
-      }
+        value_translation: text=>{
+          if(text.includes('Category:')){
+            return text.replace('Category:', '')
+          }else{
+            return null;
+          }}
+        }
     }
   },
   wikipedia_en_url: {
