@@ -1049,7 +1049,7 @@ let fountain_properties = {
   }
 };
 _.forEach(fountain_properties, function (property, key) {
-  property.name = key;
+  property.id = key;
   property.value = null;
   property.comments = '';
   property.status = PROP_STATUS_WARNING;

@@ -166,7 +166,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
   _.forEach(fountain_property_metadata, (p)=>{
     // copy default values
     let temp = {
-      name: p.name,
+      id: p.id,
       value: p.value,
       comments: p.comments,
       status: p.status,
@@ -225,7 +225,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
             }
           }catch(err) {
             temp.sources[src_name].status = PROP_STATUS_ERROR;
-            let warning = `Lost in translation of ${p.name} from ${src_name}: ${err}`;
+            let warning = `Lost in translation of ${p.id} from ${src_name}: ${err}`;
             temp.sources[src_name].comments.push(warning);
             l.warning(warning);
           }
@@ -248,7 +248,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
     }
     
     // Add merged property to object
-    mergedProperties[p.name] = temp;
+    mergedProperties[p.id] = temp;
     
   });
   // process panorama and image url
