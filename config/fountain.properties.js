@@ -480,13 +480,15 @@ let fountain_properties = {
           fr: 'Seule la première valeur retournée par Wikidata est conservée. Si le QID correspond à celui de "anonyme" (Q4233718), la valeur retournée est "null".'
         },
         value_translation: values => {
-          //just keep the first value
-          if(values[0].value !== 'Q4233718'){
-            return values[0].value;
-          }else{
-            // fix for https://github.com/water-fountains/proximap/issues/129
-            return null;
-          };
+          //just return the first value that is not anonymous.
+          for (let value of values){
+            if(value.value !== 'Q4233718'){
+              return value.value;
+            }
+          }
+          // fix for https://github.com/water-fountains/proximap/issues/129
+          return null;
+          
         }
       },
       osm: {
@@ -496,7 +498,14 @@ let fountain_properties = {
           de: ['Attribut', 'artist_name'],
           fr: ['Attribut', 'artist_name']
         },
-        value_translation: identity
+        extraction_info: {
+          en: 'Only the first value is kept.',
+          de: 'Nur der erste Wert, der zurückgegeben wird, bleibt erhalten.',
+          fr: 'Seule la première valeur retournée est conservée.'
+        },
+        value_translation: text=>{
+          return text.split(';')[0]
+        }
       }
     }
   },

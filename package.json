@@ -27,6 +27,7 @@
   "dependencies": {
     "@timberio/node": "^0.33.0",
     "axios": "^0.18.0",
+    "axios-concurrency": "^1.0.1",
     "axios-extensions": "^3.0.5",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",

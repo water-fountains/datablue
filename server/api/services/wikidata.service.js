@@ -97,7 +97,6 @@ class WikidataService {
             resolve(dataAll);
           })
           .catch(e=>{
-            
             reject(e)
           });
       }catch (error){
@@ -164,7 +163,7 @@ class WikidataService {
           }
           return fountain;
         })
-        .catch(err=>{l.info(`Error collecting artist name and url from wikidata: ${err}`); return fountain});
+        .catch(err=>{l.error(`Error collecting artist name and url from wikidata: ${err}`); return fountain});
     }else{
       return fountain;
     }
@@ -219,7 +218,7 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
-          l.info(`Error collecting operator info name: ${err}`);
+          l.error(`Error collecting operator info name: ${err}`);
           fountain.properties.operator_name.value = fountain.properties.operator_name.value + '(lookup unsuccessful)';
           return fountain});
     }else{

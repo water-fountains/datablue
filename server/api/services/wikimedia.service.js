@@ -10,9 +10,18 @@ import {getStaticStreetView} from "./google.service";
 
 const _ = require ('lodash');
 const axios = require ('axios');
+const { ConcurrencyManager } = require("axios-concurrency");
 const md5 = require('js-md5');
 import l from '../../common/logger';
 import {PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
+
+let api = axios.create({});
+
+// a concurrency parameter of 1 makes all api requests secuential
+const MAX_CONCURRENT_REQUESTS = 200;
+
+// init your manager.
+const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 
 class WikimediaService {
@@ -58,7 +67,7 @@ class WikimediaService {
         // make array of image promises
         let gallery_image_promises = [];
   
-        gallery_image_promise = axios.get(url, {timeout: 5000})
+        gallery_image_promise = api.get(url, {timeout: 5000})
           .then(r => {
             let category_members = r.data.query['categorymembers'];
         
@@ -146,7 +155,7 @@ class WikimediaService {
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      axios.get(url, {timeout: 2000})
+      api.get(url, {timeout: 2000})
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
         if(data.hasOwnProperty('imageinfo')){

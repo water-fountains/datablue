@@ -110,6 +110,7 @@ export class Controller {
 export default new Controller();
 
 function generateLocationData(locationName){
+  l.info(`processing all fountains from ${locationName}`);
   return new Promise((resolve, reject)=>{
     // get bounding box of location
     if(!locations.hasOwnProperty(locationName)){
@@ -142,12 +143,13 @@ function generateLocationData(locationName){
       }))
       .then(r => defaultCollectionEnhancement(r))
       .then(r => createUniqueIds(r))
-      .then(r => resolve(
-        {
+      .then(r => {
+        l.info(`successfully processed all fountains from ${locationName}`);
+        resolve({
           type: 'FeatureCollection',
           features: r
-        }
-      ))
+        })
+      })
       .catch(error => {
         l.error(`Error conflating or processing data: ${error}`);
         reject(error);
@@ -166,6 +168,8 @@ function byId(req, res){
 }
 
 function byCoords(req, res) {
+  
+  l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lat}`);
   
   // OSM promise
   let osmPromise = OsmService

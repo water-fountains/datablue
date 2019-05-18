@@ -227,7 +227,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
             temp.sources[src_name].status = PROP_STATUS_ERROR;
             let warning = `Lost in translation of ${p.id} from ${src_name}: ${err}`;
             temp.sources[src_name].comments.push(warning);
-            l.warning(warning);
+            l.error(warning);
           }
         }else{
           // If no property data was found, set status to "not defined"
