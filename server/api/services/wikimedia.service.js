@@ -167,14 +167,14 @@ class WikimediaService {
           resolve(newImage);
         }
         else{
-          l.info(`http request when getting metadata for ${pageTitle} did not return useful data. Url: ${url}`);
-          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information Url: ${url}`;
+          l.warn(`http request when getting metadata for ${pageTitle} did not return useful data. Url: ${url}`);
+          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.info(`http request when getting metadata for ${pageTitle} timed out or failed. Url: ${url}. Error message: ${error}`);
-        newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Url: ${url}. Error message: ${error}`;
+        l.warn(`http request when getting metadata for ${pageTitle} timed out or failed. Error message: ${error}. Url: ${url}`);
+        newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Error message: ${error}. Url: ${url}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);
       });
