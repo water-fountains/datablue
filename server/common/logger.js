@@ -6,10 +6,18 @@
  */
 
 import pino from 'pino';
+import { Timber } from "@timberio/node";
 
-const l = pino({
-  name: process.env.APP_ID,
-  level: process.env.LOG_LEVEL,
-});
-
+let logger;
+// Use timber if information is provided
+if(process.env.TIMBER_KEY && process.env.TIMBER_SOURCE_ID){
+    logger = new Timber(process.env.TIMBER_KEY, process.env.TIMBER_SOURCE_ID);
+  
+}else{
+  logger = pino({
+    name: process.env.APP_ID,
+    level: process.env.LOG_LEVEL,
+  });
+}
+const l = logger;
 export default l;

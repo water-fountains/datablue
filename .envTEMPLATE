@@ -6,5 +6,9 @@ GOOGLE_API_KEY=mykey
 SESSION_SECRET=mySecret
 NODE_ENV=development
 
+#logging Keys
+TIMBER_KEY=
+TIMBER_SOURCE_ID=
+
 #Swagger
 SWAGGER_API_SPEC=/spec
