@@ -18,6 +18,7 @@ import swaggerify from './swagger';
 import l from './logger';
 import fs from 'fs';
 import buildInfo from './build.info';
+import logIncomingRequests from "../middleware/log.incoming";
 
 let privateKey = '';
 let certificate = '';
@@ -41,6 +42,7 @@ export default class ExpressServer {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(cookieParser(process.env.SESSION_SECRET));
+    app.use(logIncomingRequests(l));
     app.use(Express.static(`${root}/public`));
     
   }
