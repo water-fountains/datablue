@@ -14,14 +14,16 @@ export function updateCacheWithFountain(cache, fountain, cityname) {
   // updates cache and returns fountain with datablue id
   // get city data from cache
   let fountains = cache.get(cityname);
-  // replace fountain
-  [fountains, fountain] = replaceFountain(fountains, fountain);
-  // send to cache
-  cache.set(cityname, fountains, 60*60*2);
-  // create a reduced version of the data as well
-  let r_essential = essenceOf(fountains);
-  cache.set(cityname + '_essential', r_essential, 60*60*2);
-  return fountain;
+  if(fountains){
+    // replace fountain
+    [fountains, fountain] = replaceFountain(fountains, fountain);
+    // send to cache
+    cache.set(cityname, fountains, 60*60*2);
+    // create a reduced version of the data as well
+    let r_essential = essenceOf(fountains);
+    cache.set(cityname + '_essential', r_essential, 60*60*2);
+    return fountain;
+  }
 }
 
 function replaceFountain(fountains, fountain) {

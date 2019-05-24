@@ -159,12 +159,17 @@ function generateLocationData(locationName){
 }
 
 function byId(req, res){
-  let fountain = _.find(
-    cityCache.get(req.query.city).features,
-    f=>{
-      return f.properties['id_'+req.query.database].value === req.query.idval
-    });
-  res.json(fountain)
+  try{
+      let fountain = _.find(
+        cityCache.get(req.query.city).features,
+        f=>{
+          return f.properties['id_'+req.query.database].value === req.query.idval
+        });
+      res.json(fountain)
+  }catch (e) {
+    l.error(`Error finding fountain in preprocessed data: ${e}`);
+  }
+  
 }
 
 function byCoords(req, res) {
