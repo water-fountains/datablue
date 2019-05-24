@@ -518,9 +518,9 @@ let fountain_properties = {
     essential: false,
     type: 'string',
     descriptions: {
-      en:'Times of the year during which the fountain is running. [example: March-November]',
-      de: 'Zeiten des Jahres, in denen der Brunnen läuft. [Beispiel: März-November]',
-      fr: 'Périodes de l\'année durant lesquelles la fontaine fonctionne. [exemple : mars-novembre]'
+      en:'Times of the year during which the fountain is running.',
+      de: 'Zeiten des Jahres, in denen der Brunnen läuft.',
+      fr: 'Périodes de l\'année durant lesquelles la fontaine fonctionne.'
     },
     src_pref: ['osm'],
     src_config: {
@@ -530,6 +530,11 @@ let fountain_properties = {
           en: ['tag', 'opening_hours'],
           de: ['Attribut', 'opening_hours'],
           fr: ['Attribut', 'opening_hours']
+        },
+        src_info: {
+          en: 'Date range must be in English. Example: "March-November"',
+          de: 'Muss auf Englisch sein. Beispiel: "March-November"',
+          fr: 'Doit être en anglais. Exemple: "March-November"'
         },
         value_translation: identity
       },
@@ -613,7 +618,7 @@ let fountain_properties = {
           de: ['Aussage', 'Wegbeschreibung'],
           fr: ['Déclaration', 'instructions pour s\'y rendre']
         },
-        src_info: {
+        extraction_info: {
           en:'Only first value returned by Wikidata is kept.',
           de: 'Nur der erste Wert, der von Wikidata zurückgegeben wird, bleibt erhalten.',
           fr: 'Seule la première valeur retournée par Wikidata est conservée.'
