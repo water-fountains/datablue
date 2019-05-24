@@ -300,9 +300,9 @@ let fountain_properties = {
         help: 'https://wiki.openstreetmap.org/wiki/Elements',
         src_path: ['properties', 'id'],
         src_instructions: {
-          en: ['id'],
-          de: ['id'],
-          fr: ['id']
+          en: ['-'],
+          de: ['-'],
+          fr: ['-']
         },
         src_info: {
           en:'OpenStreetMap identifier cannot be easily modified in online editor',
@@ -753,6 +753,11 @@ let fountain_properties = {
           en: ['Statement', 'coodinate location'],
           de: ['Aussage', 'geographische Koordinaten'],
           fr: ['Déclaration', 'coordonnées géographiques']
+        },
+        src_info: {
+          en:'Geographical coordinates are to be expressed as an array of longitude and latitude (in that order).',
+          de: 'Geographische Koordinaten müssen eingetragen werden als eine Liste von Längen- und Breitengrad (in dieser Reihenfolge).',
+          fr: 'Les coordonnées géographiques doivent être exprimées sous la forme d\'une liste contenant la longitude et la latitude (dans cet ordre).'
         },
         extraction_info: {
           en: 'The order of coordinates is reversed to match the longitude-latitude format.',
