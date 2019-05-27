@@ -766,7 +766,12 @@ let fountain_properties = {
         },
         value_translation: coordList => {
           // return coords in lng lat format !! reverse will mutate array
-          return coordList[0].value.slice().reverse()
+          try{
+            // for #212, sometimes no coords exist
+            return coordList[0].value.slice().reverse();
+          }catch (e) {
+            return null;
+          }
         }
       },
       osm: {

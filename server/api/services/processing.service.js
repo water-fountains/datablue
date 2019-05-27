@@ -204,3 +204,30 @@ export function fillOutNames(fountainCollection) {
     resolve(fountainCollection)
   });
 }
+
+export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains){
+  // Created for #212. This function should run before conflation. It checks if all Wikidata
+  // fountains referenced in OSM have been fetched, and fetches any missing wikidata fountains.
+  // It returns the original OSM fountain collection and the completed Wikidata fountain collection.
+  
+  return new Promise((resolve, reject)=>{
+    // Get list of all Wikidata fountain qids referenced by OSM
+    let qid_from_osm = _.compact(_.map(osm_fountains, f=>_.get(f,['properties', 'wikidata'])));
+  
+    // Get list of all Wikidata fountain qids collected
+    let qid_from_wikidata = _.map(wikidata_fountains, 'id');
+  
+    // Get qids not included in wikidata collection
+    let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
+  
+    // Fetch fountains for missing qids
+    WikidataService.byIds(missing_qids)
+      .then(missing_wikidata_fountains=>{
+        resolve({
+          osm: osm_fountains,
+          wikidata: missing_wikidata_fountains.concat(wikidata_fountains)
+        })
+      })
+  });
+  
+}

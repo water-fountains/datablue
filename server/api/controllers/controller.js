@@ -15,7 +15,7 @@ import {fountain_property_metadata} from "../../../config/fountain.properties";
 const NodeCache = require( "node-cache" );
 import {conflate} from "../services/conflate.data.service";
 import {
-  createUniqueIds, essenceOf, defaultCollectionEnhancement
+  createUniqueIds, essenceOf, defaultCollectionEnhancement, fillInMissingWikidataFountains
 } from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
 const haversine = require("haversine");
@@ -137,9 +137,11 @@ function generateLocationData(locationName){
     
     // conflate
     Promise.all([osmPromise, wikidataPromise])
+    // get any missing wikidata fountains for #212
+      .then(r=>fillInMissingWikidataFountains(r[0], r[1]))
       .then(r => conflate({
-        osm: r[0],
-        wikidata: r[1]
+        osm: r.osm,
+        wikidata: r.wikidata
       }))
       .then(r => defaultCollectionEnhancement(r))
       .then(r => createUniqueIds(r))
@@ -195,9 +197,11 @@ function byCoords(req, res) {
   
   // conflate
   Promise.all([osmPromise, wikidataPromise])
+    // get any missing wikidata fountains for #212
+    .then(r=>fillInMissingWikidataFountains(r[0], r[1]))
     .then(r => conflate({
-      osm: r[0],
-      wikidata: r[1]
+      osm: r.osm,
+      wikidata: r.wikidata
     }))
     // return the closest fountain in the list
     .then(r => {

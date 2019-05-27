@@ -78,12 +78,17 @@ function conflateByWikidata(ftns) {
     // if a match was found
     if (idx_wd >= 0) {
       // compute distance between fountains
-      let d = haversine(
-        get_prop(ftns.osm[idx_osm], 'osm', 'coords'),
-        get_prop(ftns.wikidata[idx_wd], 'wikidata', 'coords'), {
-          unit: 'meter',
-          format: '[lon,lat]'
-        });
+      let d = null;
+      try{
+        d = haversine(
+          get_prop(ftns.osm[idx_osm], 'osm', 'coords'),
+          get_prop(ftns.wikidata[idx_wd], 'wikidata', 'coords'), {
+            unit: 'meter',
+            format: '[lon,lat]'
+          });
+      }catch (e) {
+        // some wikidata fountains have no coordinates, so distance cannot be calculated
+      }
       // conflate the two fountains
       conflated_fountains.push(
         mergeFountainProperties(
