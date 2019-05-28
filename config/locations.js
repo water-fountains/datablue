@@ -6,7 +6,8 @@
  */
 
 export const locations = {
-    "zurich": {
+    "ch-zh": {
+      name: 'Zurich',
       "bounding_box": {
         "latMin": 47.3229261255644,
         "lngMin": 8.45960259979614,
@@ -15,7 +16,8 @@ export const locations = {
       },
       "operator_qid": 'Q53629101'
     },
-    "geneva": {
+    "ch-ge": {
+      name: 'Geneva',
       "bounding_box": {
         "latMin": 46.113705723112744,
         "lngMin": 6.0129547119140625,
@@ -24,7 +26,8 @@ export const locations = {
       },
       "operator_qid": 'undefined'
     },
-    "basel": {
+    "ch-bl": {
+      name: 'Basel',
       "bounding_box": {
         "latMin": 47.517200697839414,
         "lngMin": 7.544174194335937,
@@ -33,7 +36,8 @@ export const locations = {
       },
       "operator_qid": 'undefined'
     },
-  "lucerne": {
+  "ch-lz": {
+    name: 'Lucerne',
     "bounding_box": {
       "latMin": 47.03608752310776,
       "lngMin": 8.282318115234375,
