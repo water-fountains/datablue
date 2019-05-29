@@ -45,5 +45,15 @@ export const locations = {
       "lngMax": 8.33810806274414
     },
     "operator_qid": 'undefined'
+  },
+  "us-nyc": {
+    name: 'New York',
+    "bounding_box": {
+      "latMin": 40.643135583312805,
+      "lngMin": -74.13848876953125,
+      "latMax": 40.852254338121625,
+      "lngMax": -73.81988525390624
+    },
+    "operator_qid": 'undefined'
   }
   };
