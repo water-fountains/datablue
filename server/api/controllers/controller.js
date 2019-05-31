@@ -60,8 +60,9 @@ export class Controller {
             // save new data to storage
             cityCache.set(location, r, 60 * 60 * 2);
             // create a reduced version of the data as well
-            let r_essential = essenceOf(r);
-            cityCache.set(location + '_essential', r_essential, 60 * 60 * 2);
+            cityCache.set(location + '_essential', essenceOf(r));
+            // also create list of processing errors (for proximap#206)
+            cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
           })
       }
     }
@@ -127,12 +128,10 @@ export class Controller {
     let key = req.query.city + '_errors';
     
     if(cityCache.keys().indexOf(key)<0) {
-      // if data not in cache, send error
-      res.statusMessage = 'Error list is not in cache';
-      res.status(500).end();
-      return;
+      // if data not in cache, create error list
+      cityCache.set(key, extractProcessingErrors(cityCache.get(req.query.city)));
     }
-    cityCache.get(req.query.city + '_errors', (err, value) => {
+    cityCache.get(key, (err, value) => {
       if (!err) {
         res.json(value)
       } else {
