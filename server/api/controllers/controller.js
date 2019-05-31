@@ -18,6 +18,7 @@ import {
   createUniqueIds, essenceOf, defaultCollectionEnhancement, fillInMissingWikidataFountains
 } from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
+import {extractProcessingErrors} from "./processing-errors.controller";
 const haversine = require("haversine");
 const _ = require('lodash');
 
@@ -30,11 +31,18 @@ const cityCache = new NodeCache( {
 
 // when cache expires, regenerate it (ignore non-essential)
 cityCache.on('expired', (key, value)=>{
+  l.log(`Automatic cache refresh of ${key}`);
   if(!key.includes('_essential')){
     generateLocationData(key)
-      .then(r=>{
+      .then(fountainCollection=>{
         // save new data to storage
-        cityCache.set(key, r, 60*60*2);
+        cityCache.set(key, fountainCollection, 60*60*2);
+  
+        // create a reduced version of the data as well
+        cityCache.set(key + '_essential', essenceOf(fountainCollection));
+  
+        // also create list of processing errors (for proximap#206)
+        cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
       }).catch(error =>{
       l.error(`unable to set Cache. Error: ${error}`)
     })
@@ -71,17 +79,23 @@ export class Controller {
     // if an update is requested or if no data is in storage, then regenerate the data
     if(req.query.refresh || cityCache.keys().indexOf(req.query.city) === -1){
       generateLocationData(req.query.city)
-        .then(r => {
+        .then(fountainCollection => {
         // save new data to storage
-        cityCache.set(req.query.city, r, 60*60*2);
+        cityCache.set(req.query.city, fountainCollection, 60*60*2);
+        
         // create a reduced version of the data as well
-        let r_essential = essenceOf(r);
+        let r_essential = essenceOf(fountainCollection);
         cityCache.set(req.query.city + '_essential', r_essential, 60*60*2);
+        
+        // return either the full or reduced version
         if(req.query.essential){
           res.json(r_essential);
         }else{
-          res.json(r);
+          res.json(fountainCollection);
         }
+        
+        // also create list of processing errors (for proximap#206)
+        cityCache.set(req.query.city + '_errors', extractProcessingErrors(fountainCollection));
       })
         .catch(error =>{
           l.error(`Error: ${error}`);
@@ -105,6 +119,27 @@ export class Controller {
   
   getLocationMetadata(req, res) {
     res.json(locations);
+  }
+  
+  getProcessingErrors(req, res){
+    // returns all processing errors for a given location
+    // made for #206
+    let key = req.query.city + '_errors';
+    
+    if(cityCache.keys().indexOf(key)<0) {
+      // if data not in cache, send error
+      res.statusMessage = 'Error list is not in cache';
+      res.status(500).end();
+      return;
+    }
+    cityCache.get(req.query.city + '_errors', (err, value) => {
+      if (!err) {
+        res.json(value)
+      } else {
+        res.statusMessage = 'Error with cache: ' + err;
+        res.status(500).end();
+      }
+    });
   }
 }
 export default new Controller();

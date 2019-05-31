@@ -13,7 +13,7 @@ const axios = require ('axios');
 const { ConcurrencyManager } = require("axios-concurrency");
 const md5 = require('js-md5');
 import l from '../../common/logger';
-import {PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
+import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
 
 let api = axios.create({});
 
@@ -36,6 +36,7 @@ class WikimediaService {
       // }, 1000);
       fountain.properties.gallery = {
         value: [],
+        issues: [],
         status: PROP_STATUS_WARNING,
         type: 'object',
         // name: 'gallery',  // don't give it a name so it doesn't appear in the list
@@ -86,8 +87,14 @@ class WikimediaService {
             
           })
           .catch(err => {
-            l.error(`Failed to create gallery for fountain. Url: ${url}`);
-            reject(err)
+            // If there is an error getting the category members, then reject with error
+            l.error(`Failed to fetch category members. Url: ${url}`);
+            // add gallery as value of fountain gallery property
+            fountain.properties.gallery.issues.push({
+              type: 'data_processing',
+              level: 'error',
+              message: `Failed to fetch category members from Wikimedia Commons. Url: ${url}`,
+            });
           })
       }
       

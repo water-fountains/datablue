@@ -176,6 +176,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
       comments: p.comments,
       status: p.status,
       type: p.type,
+      issues: [],
       sources: {
         osm: {
           status: null,

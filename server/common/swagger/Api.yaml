@@ -127,6 +127,21 @@ paths:
           description: No fountains found at location.
         500:
           description: internal server error.
+  /processing-errors:
+    get:
+      description: Fetch list of processing errors for given location
+      parameters:
+        - name: city
+          in: query
+          type: string
+          example: ch-zh
+          required: true
+          description: name of location for which fountain processing errors are to be served
+      responses:
+        200:
+          description: Returns a collection of processing errors.
+        500:
+          description: internal server error.
 
   /spec:
     get:
