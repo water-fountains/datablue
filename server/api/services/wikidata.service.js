@@ -15,7 +15,7 @@ const wdk = require('wikidata-sdk');
 
 // Set up caching of http requests
 const http = axios.create({
-  headers: { 'Cache-Control': 'no-cahce' },
+  headers: { 'Cache-Control': 'no-cache' },
   // cache enabled by default
   adapter: cacheAdapterEnhancer(axios.defaults.adapter)
 });
