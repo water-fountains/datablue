@@ -94,6 +94,7 @@ class WikimediaService {
               type: 'data_processing',
               level: 'error',
               message: `Failed to fetch category members from Wikimedia Commons. Url: ${url}`,
+              error_data: err
             });
           })
       }
