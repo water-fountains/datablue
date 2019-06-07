@@ -1,3 +1,5 @@
 node_modules
 build
+server/common/build.info.js
 .env
+.idea
