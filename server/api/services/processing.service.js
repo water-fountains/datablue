@@ -135,6 +135,11 @@ export function essenceOf(fountainCollection) {
   // returns a version of the fountain data with only the essential data
   let newCollection = {
     type: 'FeatureCollection',
+    properties:
+      {
+        // Add last scan time info for https://github.com/water-fountains/proximap/issues/188
+        last_scan: new Date()
+      },
     features: []
   };
   
