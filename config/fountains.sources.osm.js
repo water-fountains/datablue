@@ -5,6 +5,8 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
+// This file dictates which elements should be queried from OSM, and which properties are implied by their tags
+
 const osm_fountain_config = {
     "sub_sources":[
       {
