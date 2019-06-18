@@ -1,0 +1,23 @@
+language: node_js
+node_js: '9'
+dist: trusty
+sudo: required
+cache:
+  directories:
+  - node_modules
+before_install:
+- openssl aes-256-cbc -K $encrypted_c9912c5960a5_key -iv $encrypted_c9912c5960a5_iv
+  -in deploy_rsa.enc -out deploy_rsa -d
+- chmod 400 deploy_rsa
+before_script:
+- node git.version.js
+script:
+- npm install
+- npm run build
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: ssh -i deploy_rsa root@water-fountains.org -o "StrictHostKeyChecking no" "cd /var/www/datablue && git stash && git pull origin develop && npm install && npm run compile && pm2 delete datablue_$TRAVIS_BRANCH && pm2 start build/main.js --name \"datablue_$TRAVIS_BRANCH\""
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^stable|develop$
