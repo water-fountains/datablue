@@ -1,3 +1,10 @@
+/*
+ * @license
+ * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
+ * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
+ */
+
 import l from '../../common/logger';
 import {NO_FOUNTAIN_AT_LOCATION} from "./constants";
 import osm_fountain_config from "../../../config/fountains.sources.osm";
@@ -43,18 +50,20 @@ class OsmService {
 
 function queryBuilderCenter(lat, lng, radius=10) {
   let query = `
-    (${osm_fountain_config.sub_sources.map((item, i)=>
-    `node[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')}
-    );out;
+    (${['node', 'way'].map(e=>
+      osm_fountain_config.sub_sources.map((item, i)=>
+        `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')).join('')}
+    );out center;
   `;
   return query;
 }
 
 function queryBuilderBox(latMin, lngMin, latMax, lngMax) {
   let query = `
-    (${osm_fountain_config.sub_sources.map((item, i)=>
-    `node[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`).join('')}
-    );out;
+    (${['node', 'way'].map(e=>
+      osm_fountain_config.sub_sources.map((item, i)=>
+    `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`).join('')).join('')}
+    );out center;
   `;
   return query;
 }

@@ -31,9 +31,23 @@ definitions:
         example: no_stress
 
 paths:
+  /metadata/fountain_properties:
+    get:
+      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information."
+      responses:
+        200:
+          description: Returns property metadata.
+
+  /metadata/locations:
+    get:
+      description: "Fetch general metadata for locations, including bounds and official operator information."
+      responses:
+        200:
+          description: Returns location metadata.
+
   /fountain:
     get:
-      description: Fetch fountain information based on coordinates
+      description: Fetch detailed fountain information based on coordinates or identifier
       parameters:
         - name: queryType
           in: query
@@ -47,11 +61,19 @@ paths:
           type: string
           enum: [datablue, operator, wikidata, osm]
           example: wikidata
-          description: database for which the id is valid
+          description: database for which the provided identifier is valid
+        - name: city
+          in: query
+          type: string
+          enum: [ch-zh, ch-ge, ch-bl, ch-lz, us-nyc]
+          example: ch-zh
+          required: false
+          description: name of city for which fountains are to be served
         - name: idval
           in: query
           type: string
           example: Q27229889
+          description: identifier used for fountain
         - name: lat
           in: query
           schema:
@@ -68,7 +90,7 @@ paths:
           in: query
           schema:
             type: float
-          default: 10.0
+          default: 50.0
           description: radius in meters in which fountains should be searched
       responses:
         200:
@@ -84,20 +106,18 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [zurich, zurich_old_town]
-          example: zurich_old_town
+          enum: [ch-zh, ch-ge, ch-bl, ch-lz, us-nyc]
+          example: ch-zh
           required: true
           description: name of city for which fountains are to be served
         - name: refresh
           in: query
-          schema:
-            type: boolean
+          type: boolean
           default: false
           description: indicates whether to force a refresh of the dataset
         - name: essential
           in: query
-          schema:
-            type: boolean
+          type: boolean
           default: true
           description: indicates whether to return only the essential data
       responses:
@@ -105,6 +125,21 @@ paths:
           description: Returns a collection of fountains with metadata collected from OSM and Wikidata.
         204:
           description: No fountains found at location.
+        500:
+          description: internal server error.
+  /processing-errors:
+    get:
+      description: Fetch list of processing errors for given location
+      parameters:
+        - name: city
+          in: query
+          type: string
+          example: ch-zh
+          required: true
+          description: name of location for which fountain processing errors are to be served
+      responses:
+        200:
+          description: Returns a collection of processing errors.
         500:
           description: internal server error.
 

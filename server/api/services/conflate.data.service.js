@@ -1,139 +1,290 @@
+/*
+ * @license
+ * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
+ * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
+ */
+
 import l from '../../common/logger';
-import {default_fountain} from "../../../config/default.fountain.object";
+import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
+import {
+  PROP_STATUS_ERROR, PROP_STATUS_FOUNTAIN_NOT_EXIST,
+  PROP_STATUS_INFO,
+  PROP_STATUS_NOT_AVAILABLE,
+  PROP_STATUS_NOT_DEFINED,
+  PROP_STATUS_OK
+} from "../../common/constants";
 
 const _ = require('lodash');
-const turf = require('@turf/distance');
+const haversine = require('haversine');
 const md5 = require('js-md5');
 
-// This service combines data from osm and wikidata
-export function conflate(r) {
+
+// wikidata property paths
+const idwd_path_wd = fountain_property_metadata.id_wikidata.src_config.wikidata.src_path;
+const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_path;
+
+// This service finds matching fountains from osm and wikidata
+// and merges their properties
+
+export function conflate(ftns) {
   return new Promise((resolve, reject)=>{
-    let conflated_fountains = [];
-    let matched_idx_1 = [];
-    let matched_idx_2 = [];
-  
-    // try to match based on wikidata id, if possible
-    if(_.min([r[0].length, r[1].length])>0) {
-      for(const [idx_1, f1] of r[0].entries()){
-        if (f1.hasOwnProperty('id_wikidata')) {
-          let idx_2 = _.findIndex(r[1], (f2) => {
-            if (f2.hasOwnProperty('id_wikidata')) {
-              return f1.id_wikidata.value === f2.id_wikidata.value;
-            } else {
-              return false;
-            }
-          });
-          // if a match was found
-          if (idx_2 >= 0) {
-            // compute distance between fountains
-            let d = turf.default(r[0][idx_1].coords.value, r[1][idx_2].coords.value);
-            // conlfate the two fountains
-            conflated_fountains.push(mergeFountains(
-              [r[0][idx_1], r[1][idx_2]], 'merged by wikidata id', d));
-            // document the indexes for removal
-            matched_idx_1.push(idx_1);
-            matched_idx_2.push(idx_2);
-          }
-        }
-      }
-  
-      // remove matched fountains (reverse order to not mess up indexes)
-      // sort indexes in matched_idx_2, otherwise indexes will be messed up
-      matched_idx_2 = _.orderBy(matched_idx_2);
-      for (let i = matched_idx_1.length -1; i >= 0; i--)
-        r[0].splice(matched_idx_1[i],1);
-      for (let i = matched_idx_2.length -1; i >= 0; i--)
-        r[1].splice(matched_idx_2[i],1);
-      // reset list of matched indexes
-      matched_idx_1 = [];
-      matched_idx_2 = [];
-    }
     
-    // try to match based on coordinates
-    if(_.min([r[0].length, r[1].length])>0) {
-      for(const [idx_1, f1] of r[0].entries()){
-        // compute distance array
-        let distances = _.map(r[1], f2 => {
-          // compute distance in meters
-          return turf.default(f1.coords.value, f2.coords.value) * 1000
-        });
-        let dMin = _.min(distances);
-        let idx_2 = _.indexOf(distances, dMin);
-        // selection criteria: dMin smaller than 10 meters
-        if (dMin < 10) {
-          // conlfate the two fountains
-          conflated_fountains.push(mergeFountains(
-            [r[0][idx_1], r[1][idx_2]], `merged by location`, dMin));
-          // document the indexes for removal
-          matched_idx_1.push(idx_1);
-          matched_idx_2.push(idx_2);
-          //todo: if matching is ambiguous, add a note for community
-        }
-      }
-  
-      // remove matched fountains (reverse order to not mess up indexes)
-      // sort indexes in matched_idx_2, otherwise indexes will be messed up
-      matched_idx_2 = _.orderBy(matched_idx_2);
-      for (let i = matched_idx_1.length -1; i >= 0; i--)
-        r[0].splice(matched_idx_1[i],1);
-      for (let i = matched_idx_2.length -1; i >= 0; i--)
-        r[1].splice(matched_idx_2[i],1);
-      // console.log(r[0].length);
+    let conflated = {
+      wikidata: [],
+      coord: []
+    };
+    
+    // Only try to match if both lists contain fountains
+    if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
+      conflated.wikidata = conflateByWikidata(ftns);
+      conflated.coord = conflateByCoordinates(ftns);
     }
     
     // process remaining fountains that were not matched
-    r[0] = _.map(r[0], f=>{return mergeFountains(f, 'unmatched')});
-    r[1] = _.map(r[1], f=>{return mergeFountains(f, 'unmatched')});
+    let unmatched = {};
+    unmatched.osm = _.map(ftns.osm, f_osm =>{
+      return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched')});
+    unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
+      return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched')});
     
     // append the unmatched fountains to the list
-    conflated_fountains = _.concat(
-      conflated_fountains,
-      r[0],
-      r[1]
+    let conflated_fountains_all = _.concat(
+      conflated.coord,
+      conflated.wikidata,
+      unmatched.osm,
+      unmatched.wikidata
     );
     
     // return fountains
-    resolve(collection2GeoJson(conflated_fountains));
+    resolve(properties2GeoJson(conflated_fountains_all));
   })
 }
 
-function mergeFountains(fountains, mergeNotes='', mergeDistance=null) {
-  let mergedFountain = {};
-  let default_fountain_copy = _.cloneDeep(default_fountain);
+
+function conflateByWikidata(ftns) {
+  // Holder for conflated fountains
+  let conflated_fountains = [];
+  // Temporary holders for matched fountain indexes
+  let matched_idx_osm = [];
+  let matched_idx_wd = [];
   
-  // make array of all properties that exist
-  // loop through properties of default fountain
-  _.forEach(default_fountain_copy.properties, (p, key)=>{
-    // extract properties that should be included for all fountains
-    let propArray = _.map(_.concat(fountains, default_fountain_copy.properties), key);
-    // keep only the property with the highest rank available
-    mergedFountain[key] = _.sortBy(propArray, ['rank'])[0];
-    // copy some default info
-    mergedFountain[key].name = key;
-    mergedFountain[key].type = p.type;
-    // todo: copy preferred source from defaults
-  });
+  // loop through OSM fountains
+  for(const [idx_osm, f_osm] of ftns.osm.entries()){
+    
+    let idx_wd =  _.findIndex(ftns.wikidata, (f_wd) => {
+      return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1);
+    });
+    // if a match was found
+    if (idx_wd >= 0) {
+      // compute distance between fountains
+      let d = null;
+      try{
+        d = haversine(
+          get_prop(ftns.osm[idx_osm], 'osm', 'coords'),
+          get_prop(ftns.wikidata[idx_wd], 'wikidata', 'coords'), {
+            unit: 'meter',
+            format: '[lon,lat]'
+          });
+      }catch (e) {
+        // some wikidata fountains have no coordinates, so distance cannot be calculated
+      }
+      // conflate the two fountains
+      conflated_fountains.push(
+        mergeFountainProperties(
+          {
+            osm: ftns.osm[idx_osm],
+            wikidata: ftns.wikidata[idx_wd]
+          }, 'merged by wikidata id', d));
+      // document the indexes for removal
+      matched_idx_osm.push(idx_osm);
+      matched_idx_wd.push(idx_wd);
+    }
+  }
   
-  // process panorama and image url
-    mergedFountain.pano_url.value = processPanoUrl(mergedFountain);
-    // mergedFountain.image_url.value = processImageUrl(mergedFountain);
-    
-    mergedFountain['merge_notes'] = mergeNotes;
-    mergedFountain['merge_distance'] = mergeDistance;
-    
-  return mergedFountain;
+  // remove matched fountains from lists
+  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd);
+  
+  return conflated_fountains;
 }
 
-function collection2GeoJson(collection){
-  return _.map(collection, f=>{
-    return {
-      type: 'Feature',
-      geometry:{
-        type: 'Point',
-        coordinates: f.coords.value
-      },
-      properties: _.cloneDeep(f)
+function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd) {
+  // remove matched fountains (reverse order to not mess up indexes)
+  // sort indexes in matched_idx_wd, otherwise indexes will be messed up
+  matched_idx_wd = _.orderBy(matched_idx_wd);
+  for (let i = matched_idx_osm.length -1; i >= 0; i--)
+    ftns.osm.splice(matched_idx_osm[i],1);
+  for (let i = matched_idx_wd.length -1; i >= 0; i--)
+    ftns.wikidata.splice(matched_idx_wd[i],1);
+  // console.log(r.osm.length);
+  
+}
+
+function conflateByCoordinates(ftns) {
+  // Holder for conflated fountains
+  let conflated_fountains = [];
+  // Temporary holders for matched fountain indexes
+  let matched_idx_osm = [];
+  let matched_idx_wd = [];
+  
+  let coords_all_wd = _.map(ftns.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
+  
+  for (const [idx_osm, f_osm] of ftns.osm.entries()) {
+    // compute distance array
+    let coords_osm = get_prop(f_osm, 'osm', 'coords');
+    let distances = _.map(coords_all_wd, c_wd => {
+      // compute distance in meters
+      return haversine( c_wd, coords_osm, {
+          unit: 'meter',
+          format: '[lon,lat]'
+        });
+    });
+    let dMin = _.min(distances);
+    let idx_wd = _.indexOf(distances, dMin);
+    // selection criteria: dMin smaller than 10 meters
+    if (dMin < 10) {
+      // conflate the two fountains
+      conflated_fountains.push(mergeFountainProperties(
+        {
+          osm: ftns.osm[idx_osm],
+          wikidata: ftns.wikidata[idx_wd]
+        }, `merged by location`, dMin));
+      // document the indexes for removal
+      matched_idx_osm.push(idx_osm);
+      matched_idx_wd.push(idx_wd);
+      //todo: if matching is ambiguous, add a note for community
     }
+  }
+  // remove matched fountains from lists
+  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd);
+  
+  
+  return conflated_fountains;
+}
+
+
+function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
+  // combines fountain properties from osm and wikidata
+  // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
+  let mergedProperties = {};
+  // loop through all property metadata
+  _.forEach(fountain_property_metadata, (p)=>{
+    // copy default values
+    let temp = {
+      id: p.id,
+      value: p.value,
+      comments: p.comments,
+      status: p.status,
+      type: p.type,
+      issues: [],
+      sources: {
+        osm: {
+          status: null,
+          raw: null,
+          extracted: null,
+          comments: []
+        },
+        wikidata: {
+          status: null,
+          raw: null,
+          extracted: null,
+          comments: []
+        }
+      }
+    };
+    
+    // loop through sources and extract values
+    for(let src_name of ['wikidata', 'osm']){
+      if(p.src_config[src_name] === null){
+        // If property not available, define property as not available for source
+        temp.sources[src_name].status = PROP_STATUS_NOT_AVAILABLE;
+    
+      } else if(! fountains[src_name]){
+        // If fountain doesn't exist
+        temp.sources[src_name].status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
+  
+      }else {
+        // if property is available for source, try to get it
+        // get extraction information
+        const cfg = p.src_config[src_name];
+        
+        // Get value of property from source
+        let value = _.get(fountains[src_name], cfg.src_path, null);
+        let useExtra = false;
+  
+        // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
+        if(value === null && cfg.hasOwnProperty('src_path_extra')){
+          value = _.get(fountains[src_name], cfg.src_path_extra, null);
+          useExtra = true;
+        }
+        
+        // If a value was obtained, try to process it
+        if(value !== null){
+          // save raw value
+          temp.sources[src_name].raw = value;
+          try{
+            // use one translation or the alternative translation
+            temp.sources[src_name].extracted = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
+            // if extracted value is not null, change status
+            if(temp.sources[src_name].extracted !== null){
+              temp.sources[src_name].status = PROP_STATUS_OK;
+            }
+          }catch(err) {
+            temp.sources[src_name].status = PROP_STATUS_ERROR;
+            let warning = `Lost in translation of ${p.id} from ${src_name}: ${err}`;
+            temp.sources[src_name].comments.push(warning);
+            l.error(warning);
+          }
+        }else{
+          // If no property data was found, set status to "not defined"
+          temp.sources[src_name].status = PROP_STATUS_NOT_DEFINED;
+        }
+      }
+    }
+    
+    // Get preferred value to display
+    for(let src_name of p.src_pref){
+      // check if value is available
+      if(temp.sources[src_name].status === PROP_STATUS_OK){
+        temp.value = temp.sources[src_name].extracted;
+        temp.status = PROP_STATUS_OK;
+        temp.source = src_name;
+        break;  // stop looking for data
+      }
+    }
+    
+    // Add merged property to object
+    mergedProperties[p.id] = temp;
+    
+  });
+  // process panorama and image url
+  addDefaultPanoUrls(mergedProperties);
+  
+  mergedProperties['conflation_info'] = {
+    'merge_notes': mergeNotes,
+    'merge_distance': mergeDistance,
+    // document merge date for datablue/#20
+    'merge_date': new Date()
+  };
+  
+  return mergedProperties
+}
+
+function properties2GeoJson(collection){
+  return _.map(collection, properties=>{
+    try{
+      return {
+        type: 'Feature',
+        geometry:{
+          type: 'Point',
+          coordinates: properties.coords.value
+        },
+        properties: _.cloneDeep(properties)
+      }
+    } catch (err) {
+      throw err;
+    }
+    
   })
 }
 
@@ -151,10 +302,13 @@ function processImageUrl(fountain, widthPx=640) {
 }
 
 
-function processPanoUrl(fountain) {
+function addDefaultPanoUrls(fountain) {
   if(fountain.pano_url.value === null){
-    return `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`;
-  }else{
-    return fountain.pano_url.value;
+    fountain.pano_url.value = [
+      {url: `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`,
+      source_name: 'Google Street View'}
+    ];
+    fountain.pano_url.status = PROP_STATUS_INFO;
+    fountain.pano_url.comments = 'URL for Google Street View is automatically generated from coordinates'
   }
 }

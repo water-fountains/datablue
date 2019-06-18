@@ -1,3 +1,10 @@
+/*
+ * @license
+ * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
+ * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
+ */
+
 import l from '../../common/logger';
 import osm_fountain_config from '../../../config/fountains.sources.osm';
 
@@ -16,8 +23,10 @@ function applyImpliedPropertiesOsm(fountains) {
         if ((tag_name in f.properties) &&
           (f.properties[tag_name] === tag_value)) {
           sub_source.implies.forEach(implication => {
-            // apply implied property values
-            f.properties[implication.key] = implication.value;
+            // apply implied property values, if the property doesn't already have a value
+            if(!f.properties.hasOwnProperty(implication.key)){
+              f.properties[implication.key] = implication.value;
+            }
           })
         }
       });
@@ -25,7 +34,7 @@ function applyImpliedPropertiesOsm(fountains) {
     // return the fountains with added properties
     resolve(fountains);
     // if there is an issue, reject the promise
-    setTimeout(() => reject('woops'), 500);
+    setTimeout(() => reject('Timed out on applying implied property for fountains'), 500);
   })
 }
 
