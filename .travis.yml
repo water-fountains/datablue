@@ -17,8 +17,8 @@ deploy:
 - provider: script
   skip_cleanup: true
   script: ssh -i deploy_rsa root@water-fountains.org -o "StrictHostKeyChecking no"
-    "cd /var/www/datablue && git stash && git pull origin develop && npm install &&
-    npm run compile && pm2 delete datablue_$TRAVIS_BRANCH && pm2 start build/main.js
+    "cd /var/www/datablue_$TRAVIS_BRANCH && git stash && git pull origin develop && npm install &&
+    npm run compile && pm2 delete datablue_$TRAVIS_BRANCH | echo && pm2 start build/main.js
     --name \"datablue_$TRAVIS_BRANCH\""
   on:
     all_branches: true
