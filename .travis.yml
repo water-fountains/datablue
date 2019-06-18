@@ -9,11 +9,6 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_bc3701740180_key -iv $encrypted_bc3701740180_iv
   -in deploy_rsa.enc -out deploy_rsa -d
 - chmod 400 deploy_rsa
-before_script:
-- node git.version.js
-script:
-- npm install
-- npm run build
 deploy:
 - provider: script
   skip_cleanup: true
