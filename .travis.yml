@@ -10,16 +10,24 @@ before_install:
   -in deploy_rsa.enc -out deploy_rsa -d
 - chmod 400 deploy_rsa
 install:
-  - echo 'no action'
+  - npm install
 script:
-  - echo 'no action'
+  # build app
+  - npm run compile
+  # gzip app
+  - tar -czf package.tgz build
 deploy:
 - provider: script
   skip_cleanup: true
-  script: ssh -i deploy_rsa root@water-fountains.org -o "StrictHostKeyChecking no"
-    "cd /var/www/datablue_$TRAVIS_BRANCH && git stash && git pull origin develop && npm install &&
-    npm run compile && pm2 delete datablue_$TRAVIS_BRANCH | echo && pm2 start build/main.js
-    --name \"datablue_$TRAVIS_BRANCH\""
+  script: scp -e "ssh -i deploy_rsa -o StrictHostKeyChecking=no" -r --delete-after --quiet $TRAVIS_BUILD_DIR/package.tgz root@water-fountains.org:/var/www/datablue_$TRAVIS_BRANCH &&
+  ssh -i deploy_rsa root@water-fountains.org -o "StrictHostKeyChecking no" "cd /var/www/datablue_$TRAVIS_BRANCH &&
+  tar -xzf package.tgz &&
+  rm package.tgz &&
+  rm -rf www_old &&
+  mv www www_old &&
+  mv build www &&
+  pm2 delete datablue_$TRAVIS_BRANCH | echo &&
+  pm2 start www/main.js --name \"datablue_$TRAVIS_BRANCH\""
   on:
     all_branches: true
     condition: "$TRAVIS_BRANCH =~ ^stable|develop$"
