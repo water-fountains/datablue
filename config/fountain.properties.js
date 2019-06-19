@@ -1186,6 +1186,11 @@ let fountain_properties = {
     src_pref: ['osm'],
     src_config: {
       osm: {
+        src_info: {
+          en: 'If information is lacking, potability is inferred if the element has "man_made=water_tap" or "amenity=watering_place"  or "amenity=water_point" tags.',
+          de: 'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=water_tap" oder "amenity=watering_place" oder "amenity=water_point" versehen ist.',
+          fr: 'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=water_tap" ou "amenity=watering_place" ou "amenity=water_point".'
+        },
         src_path: ['properties', 'bottle'],
         src_instructions: {
           en: ['tag', 'bottle'],
@@ -1240,6 +1245,11 @@ let fountain_properties = {
     src_pref: ['osm'],
     src_config: {
       osm: {
+        src_info: {
+          en: 'If information is lacking, potability is inferred if the element has "man_made=drinking_fountain" or "amenity=drinking_water"  or "amenity=water_point" tags.',
+          de: 'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=drinking_fountain" oder "amenity=drinking_water" oder "amenity=water_point" versehen ist.',
+          fr: 'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=drinking_fountain" ou "amenity=drinking_water" ou "amenity=water_point".'
+        },
         src_path: ['properties', 'drinking_water'],
         src_instructions: {
           en: ['tag', 'drinking_water'],

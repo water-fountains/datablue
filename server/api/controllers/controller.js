@@ -99,9 +99,7 @@ export class Controller {
         cityCache.set(req.query.city + '_errors', extractProcessingErrors(fountainCollection));
       })
         .catch(error =>{
-          l.error(`Error: ${error}`);
-          // res.status(500);
-          res.sendStatus(500);
+          res.status(500).send(error.message);
         })
     }
     // otherwise, get the data from storage
@@ -163,11 +161,7 @@ function generateLocationData(locationName){
     // get data from Wikidata
     let wikidataPromise = WikidataService
       .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
-      .then(r=>WikidataService.byIds(r))
-      .catch(e=>{
-        l.error(`Error collecting wikidata data: ${e}`);
-        reject(e);
-      });
+      .then(r=>WikidataService.byIds(r));
     
     // conflate
     Promise.all([osmPromise, wikidataPromise])
@@ -187,7 +181,6 @@ function generateLocationData(locationName){
         })
       })
       .catch(error => {
-        l.error(`Error conflating or processing data: ${error}`);
         reject(error);
       })
     
