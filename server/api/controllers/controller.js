@@ -99,6 +99,7 @@ export class Controller {
         cityCache.set(req.query.city + '_errors', extractProcessingErrors(fountainCollection));
       })
         .catch(error =>{
+          if(error.message){res.statusMessage = error.message;}
           res.status(500).send(error.message);
         })
     }

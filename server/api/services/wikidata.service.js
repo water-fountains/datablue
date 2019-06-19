@@ -267,12 +267,11 @@ function doSparqlRequest(sparql){
     const url = wdk.sparqlQuery(sparql);
     
     // get data
-    let request = https.get(url, (res) => {
-      const {statusCode} = res;
-      
-      let error;
-      if (statusCode !== 200) {
-        error = new Error(`Request to Wikidata Failed. Status Code: ${statusCode}. Status Message: ${res.statusMessage}. Url: ${url}`);
+    let request = axios.get(url)
+        .then(res => {
+
+      if (res.status !== 200) {
+        let error = new Error(`Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
         l.error(error.message);
         // consume response data to free up memory
         res.resume();
@@ -280,30 +279,22 @@ function doSparqlRequest(sparql){
         
       }
 
-      
-      res.setEncoding('utf8');
-      let rawData = '';
-      res.on('data', (chunk) => {
-        rawData += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const parsedData = JSON.parse(rawData);
-          let simplifiedResults = wdk.simplifySparqlResults(parsedData);
-          // l.info(simplifiedResults);
-          resolve(simplifiedResults);
-        } catch (e) {
-          l.error('Error occurred simplifying wikidata results.');
-          reject(e);
-        }
-      });
-    });
-    
-    request.on('error', e=>{
-      l.error(`Error occurred with wikidata query: ${e}`);
-      l.info(url);
-      reject(e);
+
+      try {
+        let simplifiedResults = wdk.simplifySparqlResults(res.data);
+        // l.info(simplifiedResults);
+        resolve(simplifiedResults);
+      } catch (e) {
+        l.error('Error occurred simplifying wikidata results.');
+        reject(e);
+      }
+
     })
+        .catch(error=>{
+            l.error(`Request to Wikidata Failed. Url: ${url}`);
+          reject(error)
+        });
+
   });
 }
 
