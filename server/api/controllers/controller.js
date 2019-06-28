@@ -100,7 +100,7 @@ export class Controller {
       })
         .catch(error =>{
           if(error.message){res.statusMessage = error.message;}
-          res.status(500).send(error.message);
+          res.status(500).send(error.stack);
         })
     }
     // otherwise, get the data from storage
@@ -135,7 +135,7 @@ export class Controller {
         res.json(value)
       } else {
         res.statusMessage = 'Error with cache: ' + err;
-        res.status(500).end();
+        res.status(500).send(err.stack);
       }
     });
   }
@@ -212,7 +212,7 @@ function byCoords(req, res) {
     .then(r => applyImpliedPropertiesOsm(r))
     .catch(e=>{
       l.error(`Error collecting OSM data: ${e}`);
-      res.sendStatus(500);
+      res.status(500).send(e.stack);
     });
   
   let wikidataPromise = WikidataService
@@ -220,7 +220,7 @@ function byCoords(req, res) {
     .then(r=>WikidataService.byIds(r))
     .catch(e=>{
       l.error(`Error collecting Wikidata data: ${e}`);
-      res.sendStatus(500);
+      res.status(500).send(e.stack);
     });
   
   // conflate
@@ -251,6 +251,6 @@ function byCoords(req, res) {
   })
     .catch(e=>{
       l.error(`Error collecting data: ${e}`);
-      res.sendStatus(500);
+      res.status(500).send(e.stack);
     });
 }
