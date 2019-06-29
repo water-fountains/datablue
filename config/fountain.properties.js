@@ -350,6 +350,8 @@ let fountain_properties = {
               
             }
           }
+          // if no match was found, return null
+          return null;
         },
       },
       osm: {
@@ -437,7 +439,7 @@ let fountain_properties = {
           fr: 'Seule la première valeur retournée par wikidata est conservée.'
         },
         value_translation: values => {
-          //just keep the first date
+          //just keep the year first date
           return parseInt(values[0].value.substring(0, 4));
         }
       },
@@ -449,6 +451,41 @@ let fountain_properties = {
           fr: ['Attribut', 'start_date']
         },
         value_translation: identity
+      }
+    }
+  },
+  removal_date: {
+    name:{
+      en: 'removal date',
+      de: 'Entfernungsdatum',
+      fr: 'date d\'enlèvement'
+    },
+    essential: true,
+    type: 'number',
+    descriptions: {
+      en:'Year the fountain was removed.',
+      de: 'Entfernungsjahr des Brunnens.',
+      fr: 'Année d\'enlèvement de la fontaine.'
+    },
+    src_pref: ['wikidata'],
+    src_config: {
+      osm: null,
+      wikidata: {
+        src_path: ['claims', 'P576'],
+        src_instructions: {
+          en: ['Statement', 'dissolved, abolished or demolished'],
+          de: ['Aussage', 'Auflösungsdatum'],
+          fr: ['Déclaration', 'date de dissolution ou de démolition']
+        },
+        extraction_info: {
+          en: 'Only the first value returned by wikidata is kept.',
+          de: 'Nur der erste Wert, der von Wikidata zurückgegeben wird, bleibt erhalten.',
+          fr: 'Seule la première valeur retournée par wikidata est conservée.'
+        },
+        value_translation: values => {
+          //just keep the year of the first date returned
+          return parseInt(values[0].value.substring(0, 4));
+        }
       }
     }
   },
