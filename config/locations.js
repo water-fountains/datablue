@@ -14,7 +14,12 @@ export const locations = {
         "latMax": 47.431119712250506,
         "lngMax": 8.61940272745742
       },
-      "operator_qid": 'Q53629101'
+      "operator_fountain_catalog_qid": 'Q53629101',
+      issue_api:{
+        qid: null,
+        thumbnail_url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/ZueriWieNeuLogo.png',
+        url_template: 'https://www.zueriwieneu.ch/report/new?longitude=${lon}&latitude=${lat}&category=Brunnen/Hydranten'
+      }
     },
     "ch-ge": {
       name: 'Geneva',
@@ -24,7 +29,12 @@ export const locations = {
         "latMax": 46.29001987172955,
         "lngMax": 6.273880004882812
       },
-      "operator_qid": 'undefined'
+      "operator_fountain_catalog_qid": 'undefined',
+      issue_api:{
+        qid: null,
+        thumbnail_url: '',
+        url_template: null
+      }
     },
     "ch-bl": {
       name: 'Basel',
@@ -34,7 +44,12 @@ export const locations = {
         "latMax": 47.60477416894759,
         "lngMax": 7.676696777343749
       },
-      "operator_qid": 'undefined'
+      "operator_fountain_catalog_qid": 'undefined',
+      issue_api:{
+        qid: null,
+        thumbnail_url: '',
+        url_template: null
+      }
     },
   "ch-lz": {
     name: 'Lucerne',
@@ -44,7 +59,12 @@ export const locations = {
       "latMax": 47.068718776878946,
       "lngMax": 8.33810806274414
     },
-    "operator_qid": 'undefined'
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      qid: null,
+      thumbnail_url: '',
+      url_template: null
+    }
   },
   "us-nyc": {
     name: 'New York',
@@ -54,6 +74,11 @@ export const locations = {
       "latMax": 40.852254338121625,
       "lngMax": -73.81988525390624
     },
-    "operator_qid": 'undefined'
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      qid: null,
+      thumbnail_url: '',
+      url_template: null
+    }
   }
   };

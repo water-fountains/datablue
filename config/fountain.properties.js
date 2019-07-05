@@ -337,15 +337,15 @@ let fountain_properties = {
           fr: ['Déclaration', 'numéro de catalogue']
         },
         src_info: {
-          en:`The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_qid}`}).join(', ')})`,
-          de: `Der Katalogcode muss einen 'Katalog'-Qualifizierer haben, der sich auf den in den Standortmetadaten dokumentierten Katalog bezieht. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_qid}`}).join(', ')})`,
-          fr: `Le code de catalogue doit avoir un qualificatif \'catalogue\' faisant référence au catalogue documenté dans les métadonnées de localisation. (${_.map(locations, (l,name)=> {return `${l.name} : ${l.operator_qid}`}).join(', ')})`
+          en:`The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_fountain_catalog_qid}`}).join(', ')})`,
+          de: `Der Katalogcode muss einen 'Katalog'-Qualifizierer haben, der sich auf den in den Standortmetadaten dokumentierten Katalog bezieht. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_fountain_catalog_qid}`}).join(', ')})`,
+          fr: `Le code de catalogue doit avoir un qualificatif \'catalogue\' faisant référence au catalogue documenté dans les métadonnées de localisation. (${_.map(locations, (l,name)=> {return `${l.name} : ${l.operator_fountain_catalog_qid}`}).join(', ')})`
           },
         value_translation: catCodes => {
           // loop through all catalog codes to find the right one
           for(let code of catCodes){
             // return value only if qualifier matches the operator id
-            if(_.map(locations, 'operator_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
+            if(_.map(locations, 'operator_fountain_catalog_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
               return code.value;
               
             }
