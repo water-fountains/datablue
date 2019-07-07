@@ -178,10 +178,16 @@ class WikidataService {
         .catch(err=>{
           l.error(`Error collecting artist name and url from wikidata: ${err}`);
           fountain.properties.artist_name.issues.push({
+            data: err,
+              context: {
+              fountain_name: fountain.properties.name.value,
+                property_id: 'artist_name',
+                id_osm: fountain.properties.id_osm.value,
+                id_wikidata: fountain.properties.id_wikidata.value
+            },
             type: 'data_processing',
-            level: 'error',
-            message: `Failed to fetch Wikidata entity information. Url: ${url}`,
-            error_data: err
+              level: 'error',
+              message: `Failed to fetch Wikidata entity information. Url: ${url}`,
           });
           return fountain});
     }else{

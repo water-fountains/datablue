@@ -17,7 +17,7 @@ import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING
 
 let api = axios.create({});
 
-// a concurrency parameter of 1 makes all api requests secuential
+// a concurrency parameter of 1 makes all api requests sequential
 const MAX_CONCURRENT_REQUESTS = 200;
 
 // init your manager.
@@ -91,11 +91,20 @@ class WikimediaService {
             l.error(`Failed to fetch category members. Url: ${url}`);
             // add gallery as value of fountain gallery property
             fountain.properties.gallery.issues.push({
+              data: err,
+              context: {
+                fountain_name: fountain.properties.name.value,
+                property_id: 'gallery',
+                id_osm: fountain.properties.id_osm.value,
+                id_wikidata: fountain.properties.id_wikidata.value
+              },
               type: 'data_processing',
               level: 'error',
               message: `Failed to fetch category members from Wikimedia Commons. Url: ${url}`,
-              error_data: err
             });
+            // return empty gallery so that the gallery creation can continue (the gallery might
+            // then just consist in the main image
+            return [];
           })
       }
       

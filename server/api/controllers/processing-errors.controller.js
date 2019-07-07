@@ -22,17 +22,8 @@ export function extractProcessingErrors(fountainCollection){
     _.forIn(fountain.properties, (p, key)=>{
       if(p.hasOwnProperty('issues') && p.issues.length > 0){
         p.issues.forEach(issue=>{
-          // copy all errors/issues
-          let error = {
-            level: issue.level,
-            message: issue.message,
-            type: issue.type,
-            fountain_name: fountain.properties.name.value,
-            property_id: key,
-            id_osm: fountain.properties.id_osm.value,
-            id_wikidata: fountain.properties.id_wikidata.value
-          };
-    
+          // create copy
+          let error = _.cloneDeep(issue);
           // append error to collection
           errorCollection.push(error);
         });

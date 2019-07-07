@@ -337,19 +337,21 @@ let fountain_properties = {
           fr: ['Déclaration', 'numéro de catalogue']
         },
         src_info: {
-          en:`The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_qid}`}).join(', ')})`,
-          de: `Der Katalogcode muss einen 'Katalog'-Qualifizierer haben, der sich auf den in den Standortmetadaten dokumentierten Katalog bezieht. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_qid}`}).join(', ')})`,
-          fr: `Le code de catalogue doit avoir un qualificatif \'catalogue\' faisant référence au catalogue documenté dans les métadonnées de localisation. (${_.map(locations, (l,name)=> {return `${l.name} : ${l.operator_qid}`}).join(', ')})`
+          en:`The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_fountain_catalog_qid}`}).join(', ')})`,
+          de: `Der Katalogcode muss einen 'Katalog'-Qualifizierer haben, der sich auf den in den Standortmetadaten dokumentierten Katalog bezieht. (${_.map(locations, (l,name)=>{return `${l.name}: ${l.operator_fountain_catalog_qid}`}).join(', ')})`,
+          fr: `Le code de catalogue doit avoir un qualificatif \'catalogue\' faisant référence au catalogue documenté dans les métadonnées de localisation. (${_.map(locations, (l,name)=> {return `${l.name} : ${l.operator_fountain_catalog_qid}`}).join(', ')})`
           },
         value_translation: catCodes => {
           // loop through all catalog codes to find the right one
           for(let code of catCodes){
             // return value only if qualifier matches the operator id
-            if(_.map(locations, 'operator_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
+            if(_.map(locations, 'operator_fountain_catalog_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
               return code.value;
               
             }
           }
+          // if no match was found, return null
+          return null;
         },
       },
       osm: {
@@ -437,7 +439,7 @@ let fountain_properties = {
           fr: 'Seule la première valeur retournée par wikidata est conservée.'
         },
         value_translation: values => {
-          //just keep the first date
+          //just keep the year first date
           return parseInt(values[0].value.substring(0, 4));
         }
       },
@@ -449,6 +451,41 @@ let fountain_properties = {
           fr: ['Attribut', 'start_date']
         },
         value_translation: identity
+      }
+    }
+  },
+  removal_date: {
+    name:{
+      en: 'removal date',
+      de: 'Entfernungsdatum',
+      fr: 'date d\'enlèvement'
+    },
+    essential: true,
+    type: 'number',
+    descriptions: {
+      en:'Year the fountain was removed.',
+      de: 'Entfernungsjahr des Brunnens.',
+      fr: 'Année d\'enlèvement de la fontaine.'
+    },
+    src_pref: ['wikidata'],
+    src_config: {
+      osm: null,
+      wikidata: {
+        src_path: ['claims', 'P576'],
+        src_instructions: {
+          en: ['Statement', 'dissolved, abolished or demolished'],
+          de: ['Aussage', 'Auflösungsdatum'],
+          fr: ['Déclaration', 'date de dissolution ou de démolition']
+        },
+        extraction_info: {
+          en: 'Only the first value returned by wikidata is kept.',
+          de: 'Nur der erste Wert, der von Wikidata zurückgegeben wird, bleibt erhalten.',
+          fr: 'Seule la première valeur retournée par wikidata est conservée.'
+        },
+        value_translation: values => {
+          //just keep the year of the first date returned
+          return parseInt(values[0].value.substring(0, 4));
+        }
       }
     }
   },
