@@ -31,8 +31,8 @@ const cityCache = new NodeCache( {
 
 // when cache expires, regenerate it (ignore non-essential)
 cityCache.on('expired', (key, value)=>{
-  l.log(`Automatic cache refresh of ${key}`);
-  if(!key.includes('_essential')){
+  if(!key.includes('_essential') && !key.includes('_errors')){
+    l.info(`Automatic cache refresh of ${key}`);
     generateLocationData(key)
       .then(fountainCollection=>{
         // save new data to storage

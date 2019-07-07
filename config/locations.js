@@ -16,6 +16,7 @@ export const locations = {
       },
       "operator_fountain_catalog_qid": 'Q53629101',
       issue_api:{
+        operator: 'Wasserversorgung Zürich',
         qid: null,
         thumbnail_url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/ZueriWieNeuLogo.png',
         url_template: 'https://www.zueriwieneu.ch/report/new?longitude=${lon}&latitude=${lat}&category=Brunnen/Hydranten'
@@ -31,6 +32,7 @@ export const locations = {
       },
       "operator_fountain_catalog_qid": 'undefined',
       issue_api:{
+        operator: null,
         qid: null,
         thumbnail_url: '',
         url_template: null
@@ -46,6 +48,7 @@ export const locations = {
       },
       "operator_fountain_catalog_qid": 'undefined',
       issue_api:{
+        operator: null,
         qid: null,
         thumbnail_url: '',
         url_template: null
@@ -61,6 +64,7 @@ export const locations = {
     },
     "operator_fountain_catalog_qid": 'undefined',
     issue_api:{
+      operator: null,
       qid: null,
       thumbnail_url: '',
       url_template: null
@@ -76,6 +80,7 @@ export const locations = {
     },
     "operator_fountain_catalog_qid": 'undefined',
     issue_api:{
+      operator: null,
       qid: null,
       thumbnail_url: '',
       url_template: null
