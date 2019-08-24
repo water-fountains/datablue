@@ -85,5 +85,21 @@ export const locations = {
       thumbnail_url: '',
       url_template: null
     }
+  },
+  "tr-be": {
+    name: 'Bergama',
+    "bounding_box": {
+      "latMin": 39.08743603215884,
+      "lngMin": 27.13726043701172,
+      "latMax": 39.14097854651647,
+      "lngMax": 27.21691131591797
+    },
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      operator: null,
+      qid: null,
+      thumbnail_url: '',
+      url_template: null
+    }
   }
   };
