@@ -54,8 +54,8 @@ export class Controller {
     // generate location data and save to storage
     if(process.env.NODE_ENV === 'production') {
       for (let location_code of Object.keys(locations)){
-        l.info(`Generating data for ${location}`);
-        generateLocationData(location)
+        l.info(`Generating data for ${location_code}`);
+        generateLocationData(location_code)
           .then(r => {
             // save new data to storage
             cityCache.set(location_code, r, 60 * 60 * 2);
