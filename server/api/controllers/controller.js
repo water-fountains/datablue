@@ -53,16 +53,16 @@ export class Controller {
   constructor(){
     // generate location data and save to storage
     if(process.env.NODE_ENV === 'production') {
-      for (let location of Object.keys(locations)){
+      for (let location_code of Object.keys(locations)){
         l.info(`Generating data for ${location}`);
         generateLocationData(location)
           .then(r => {
             // save new data to storage
-            cityCache.set(location, r, 60 * 60 * 2);
+            cityCache.set(location_code, r, 60 * 60 * 2);
             // create a reduced version of the data as well
-            cityCache.set(location + '_essential', essenceOf(r));
+            cityCache.set(location_code + '_essential', essenceOf(r));
             // also create list of processing errors (for proximap#206)
-            cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
+            cityCache.set(location_code + '_errors', extractProcessingErrors(fountainCollection))
           })
       }
     }
