@@ -13,10 +13,11 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 
 # Running the project locally
 1. Requirements (make sure these are up to date)
-  - <a href="https://nodejs.org" target="_blank">NodeJS</a> is a JavaScript runtime.
-  - <a href="https://git-scm.com/" target="_blank">Git</a> is a version control system you will need to have available as a command line executable on your path. A git integrated in your IDE will not be sufficient (and may cause issues).
-  - Around 200MB of space on your disk. The project has development dependencies that are downloaded when you run `> npm install` (see point 3).
-2. Clone this repository to a local project directory `> git clone https://github.com/water-fountains/datablue.git -b develop`.
+    - <a href="https://nodejs.org" target="_blank">NodeJS</a> is a JavaScript runtime.
+    - <a href="https://git-scm.com/" target="_blank">Git</a> is a version control system you will need to have available as a command line executable on your path. A git integrated in your IDE will not be sufficient (and may cause issues).
+    - Around 200MB of space on your disk. The project has development dependencies that are downloaded when you run `> npm install` (see point 3).
+2. Clone this repository to a local project directory. Checkout the `develop` branch to get all the latest features. The `stable` branch is updated at a less frequent interval to guarantee stability.
+    - run `> git clone https://github.com/water-fountains/datablue.git -b develop`. 
 3. Open a command line in the local project directory
     - Install required node packages: run `> npm install`. On Windows a warning will appear about an optional package that is required for Mac. This is normal but you can use `> npm install --force` if you don't want to see it.
     - Create a copy of the environment file `> cp .envTEMPLATE .env`
@@ -47,8 +48,13 @@ Note: In production mode, the endpoint is available over https.
 
 Submit an issue for a feature request, architecture suggestion, or to discuss a modification you have made or would like to make. 
 
-If you would like to contribute directly to the code, fork this repo and make a pull request.
+If you would like to contribute directly to the code:
+- fork this repo
+- checkout the `develop` branch
+- create a new branch `feature/[yourFeatureName]`
+- make your changes and test them thoroughly. Commit them to your fork of the project
+- make a pull request
 
-To get ideas for how to contribute, check out the repository issues.
+To get ideas for what features to develop, check out the repository issues.
 
 To add a fountain property to be processed and made available by datablue, check this guide: [Guide: include a new fountain property (operator id) in the processing pipeline](https://github.com/water-fountains/datablue/wiki/Guide:-include-a-new-fountain-property-(operator-id)-in-the-processing-pipeline)

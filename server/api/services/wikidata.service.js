@@ -156,7 +156,7 @@ class WikidataService {
           }
           // Try to find a useful link
           // Look for Wikipedia entry in English, French, or German
-          for(let lang of ['en', 'fr', 'de']){
+          for(let lang of ['en', 'fr', 'de', 'it']){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               fountain.properties.artist_name.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
               return fountain;

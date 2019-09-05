@@ -64,13 +64,14 @@ class WikimediaService {
         gallery_image_promise = new Promise((resolve, reject)=>resolve([]));
       }else{
         // if there is a gallery, then fetch all images in category
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(fountain.properties.wiki_commons_name.value)}&prop=imageinfo&format=json`;
+        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(fountain.properties.wiki_commons_name.value))}&prop=imageinfo&format=json`;
         // make array of image promises
         let gallery_image_promises = [];
   
         gallery_image_promise = api.get(url, {timeout: 5000})
           .then(r => {
             let category_members = r.data.query['categorymembers'];
+
         
             // fetch information for each image
             _.forEach(category_members, page => {
