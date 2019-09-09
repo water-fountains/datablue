@@ -38,7 +38,7 @@ export const locations = {
         url_template: null
       }
     },
-    "ch-bl": {
+    "ch-bs": {
       name: 'Basel',
       "bounding_box": {
         "latMin": 47.517200697839414,
@@ -54,7 +54,7 @@ export const locations = {
         url_template: null
       }
     },
-  "ch-lz": {
+  "ch-lu": {
     name: 'Lucerne',
     "bounding_box": {
       "latMin": 47.03608752310776,
