@@ -70,6 +70,22 @@ export const locations = {
       url_template: null
     }
   },
+  "it-roma": {
+    name: 'Roma',
+    "bounding_box": {
+      "latMin": 41.793,
+      "lngMin": 12.369,
+      "latMax": 41.994,
+      "lngMax": 12.622
+    },
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      operator: null,
+      qid: null,
+      thumbnail_url: '',
+      url_template: null
+    }
+  },
   "us-nyc": {
     name: 'New York',
     "bounding_box": {
