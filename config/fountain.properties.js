@@ -39,7 +39,7 @@ let fountain_properties = {
       de: 'Originaltitel des Brunnens, zum Beispiel der vom Bildhauer gegeben wurde.',
       fr: 'Titre original de la fontaine, par exemple celui donné par le sculpteur.',
       it: 'Titolo originale della fontana, per esempio il titolo dato dallo scultore',
-      tr: 'Çeşmenin yapan kişi tarafından verilmiş orijinal ismi.'
+      tr: 'Çeşmeyi yapan kişi tarafından verilmiş özgün isim.'
     },
     src_pref: ['osm', 'wikidata'],
     src_config: {
@@ -106,7 +106,7 @@ let fountain_properties = {
           de: ['Attribut', 'name:en'],
           fr: ['Attribut', 'name:en'],
           it: ['Attributo','name:en'],
-          tr: ['Özellik', 'name: en']
+          tr: ['Özellik', 'name:en']
         },
         value_translation: identity
       }
@@ -150,8 +150,8 @@ let fountain_properties = {
           en: ['tag', 'name:de'],
           de: ['Attribut', 'name:de'],
           fr: ['Attribut', 'name:de'],
-          it: ['Denominazione','tedesco'],
-          tr: ['Özellik', 'isim: de']
+          it: ['Attributo','name:de'],
+          tr: ['Özellik', 'name:de']
         },
         value_translation: identity
       }
@@ -196,7 +196,7 @@ let fountain_properties = {
           de: ['Attribut', 'name:fr'],
           fr: ['Attribut', 'name:fr'],
           it: ['Attributo', 'name:fr'],
-          tr: ['Özellik', 'name: fr']
+          tr: ['Özellik', 'name:fr']
         },
         value_translation: identity
       }
@@ -318,7 +318,7 @@ let fountain_properties = {
           en: ['tag', 'description:en'],
           de: ['Attribut', 'description:en'],
           fr: ['Attribut', 'description:en'],
-          it: ['Attributo', 'descrizione:en'],
+          it: ['Attributo', 'description:en'],
           tr: ['Özellik', 'description:en']
         },
         value_translation: identity
@@ -363,8 +363,8 @@ let fountain_properties = {
           en: ['tag', 'description:de'],
           de: ['Attribut', 'description:de'],
           fr: ['Attribut', 'description:de'],
-          it: ['Attributo', 'descrizione:de'],
-          tr: ['Özellik', 'açıklama:de']
+          it: ['Attributo', 'description:de'],
+          tr: ['Özellik', 'description:de']
         },
         value_translation: identity
       },
@@ -408,8 +408,8 @@ let fountain_properties = {
           en: ['tag', 'description:fr'],
           de: ['Attribut', 'description:fr'],
           fr: ['Attribut', 'description:fr'],
-          it: ['Attributo', 'descrizione:fr'],
-          tr: ['Özellik', 'açıklama:en']
+          it: ['Attributo', 'description:fr'],
+          tr: ['Özellik', 'description:fr']
         },
         value_translation: identity
       },
@@ -453,8 +453,8 @@ let fountain_properties = {
           en: ['tag', 'description:it'],
           de: ['Attribut', 'description:it'],
           fr: ['Attribut', 'description:it'],
-          it: ['Attributo', 'descrizione:it'],
-          tr: ['Özellik', 'açıklama: it']
+          it: ['Attributo', 'description:it'],
+          tr: ['Özellik', 'description:it']
         },
         value_translation: identity
       },
@@ -498,8 +498,8 @@ let fountain_properties = {
           en: ['tag', 'description:tr'],
           de: ['Attribut', 'description:tr'],
           fr: ['Attribut', 'description:tr'],
-          it: ['Attributo', 'descrizione:tr'],
-          tr: ['Özellik', 'açıklama:tr']
+          it: ['Attributo', 'description:tr'],
+          tr: ['Özellik', 'description:tr']
         },
         value_translation: identity
       },
@@ -788,7 +788,7 @@ let fountain_properties = {
       de: 'Der Name des Künstlers, der den Brunnen erschaffen hat.',
       fr: 'Nom de l\'artiste qui a créé ou conçu la fontaine.',
       it: 'Nome dell\' artista che ha creato o progettato la fontana.',
-      tr: 'çeşmeyi yapan veya tasarlayan mimarın ismi. '
+      tr: 'Çeşmeyi yapan veya tasarlayan mimarın ismi. '
     },
     src_pref: ['wikidata', 'osm'],
     src_config: {
@@ -1081,7 +1081,7 @@ let fountain_properties = {
           de: ['Attribut', 'wikimedia_commons'],
           fr: ['Attribut', 'wikimedia_commons'],
           it: ['Attributi', 'wikimedia_commons'],
-          tr: ['Attribute', 'wikimedia_commons']
+          tr: ['Özellik', 'wikimedia_commons']
         },
         value_translation: text=>{
           if(text.includes('File:')){
@@ -1201,7 +1201,7 @@ let fountain_properties = {
       de: 'Art des Wassers, das der Brunnen liefert, z.B. Leitungswasser, Quellwasser oder Grundwasser.',
       fr: 'Type d\'eau que la fontaine fournit, par exemple l\'eau du robinet, l\'eau de source ou l\'eau souterraine.',
       it: 'Tipo d\'acqua che la fontana fornisce, per esempio acqua di rubinetto, acqua di sorgente o acqua di falda.',
-      tr: 'MISSING TRANSLATION'
+      tr: 'Çeşmeden akan suyun tipi, örneğin musluk suyu, kaynak suyu veya yeraltı suyu.'
     },
     src_pref: ['wikidata', 'osm'],
     src_config: {
@@ -1243,7 +1243,7 @@ let fountain_properties = {
           de: ['Attribut', 'drinking_water:description'],
           fr: ['Attribut', 'drinking_water:description'],
           it: ['Attributo', 'drinking_water:description'],
-          tr: ['Özellik', 'drinking_water: description']
+          tr: ['Özellik', 'drinking_water:description']
         },
         src_info: {
           en:'This attribute can also be used for other purposes.',
@@ -1391,7 +1391,7 @@ let fountain_properties = {
           de: ['Attribut', 'wikipedia'],
           fr: ['Attribut', 'wikipedia'],
           it: ['Attribut', 'wikipedia'],
-          tr: ['Attribute', 'wikipedia']
+          tr: ['Özellik', 'wikipedia']
         },
         src_info: {
           en:'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
@@ -1525,7 +1525,7 @@ let fountain_properties = {
           de: ['Attribut', 'wikipedia'],
           fr: ['Attribut', 'wikipedia'],
           it: ['Attributo', 'wikipedia'],
-          tr: ['Attributo', 'wikipedia']
+          tr: ['Özellik', 'wikipedia']
         },
         src_info: {
           en:'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
@@ -1729,8 +1729,8 @@ let fountain_properties = {
           en: ['tag', 'operator'],
           de: ['Attribut', 'operator'],
           fr: ['Attribut', 'operator'],
-          it: ['Attributo', 'operatore'],
-          tr: ['Attributo', 'operatore']
+          it: ['Attributo', 'operator'],
+          tr: ['Özellik', 'operator']
         },
         extraction_info: {
           en: 'Known OpenStreetMap values are translated into "official names".',
@@ -1773,8 +1773,8 @@ let fountain_properties = {
           en: ['tag', 'dog'],
           de: ['Attribut', 'dog'],
           fr: ['Attribut', 'dog'],
-          it: ['Attributo', 'cane'],
-          tr: ['Özellik', 'köpek']
+          it: ['Attributo', 'dog'],
+          tr: ['Özellik', 'dog']
         },
         value_translation: identity
       },
@@ -1814,7 +1814,7 @@ let fountain_properties = {
           de: ['Attribut', 'bottle'],
           fr: ['Attribut', 'bottle'],
           it: ['Attributo', 'bottle'],
-          tr: ['Özellik', 'şişe']
+          tr: ['Özellik', 'bottle']
         },
         value_translation: identity
       },
@@ -1847,7 +1847,7 @@ let fountain_properties = {
           de: ['Attribut', 'wheelchair'],
           fr: ['Attribut', 'wheelchair'],
           it: ['Attributo', 'wheelchair'],
-          tr: ['Özellik', 'tekerlikli sandalye']
+          tr: ['Özellik', 'wheelchair']
         },
         value_translation: identity
       },
@@ -1887,7 +1887,7 @@ let fountain_properties = {
           de: ['Attribut', 'drinking_water'],
           fr: ['Attribut', 'drinking_water'],
           it: ['Attributo', 'drinking_water'],
-          tr: ['Attributo', 'drinking_water']
+          tr: ['Özellik', 'drinking_water']
         },
         value_translation: identity
       },
@@ -1920,7 +1920,7 @@ let fountain_properties = {
           de: ['Attribut', 'drinking_water:legal'],
           fr: ['Attribut', 'drinking_water:legal'],
           it: ['Attributo', 'drinking_water:legal'],
-          tr: ['Özellik', 'drinking_water: legal']
+          tr: ['Özellik', 'drinking_water:legal']
         },
         value_translation: str2bool
       },
