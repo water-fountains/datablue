@@ -8,7 +8,21 @@
 export const locations = {
     "ch-zh": {
       name: 'Zurich',
-      "bounding_box": {
+      description: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      description_more: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      bounding_box: {
         "latMin": 47.3229261255644,
         "lngMin": 8.45960259979614,
         "latMax": 47.431119712250506,
@@ -24,7 +38,21 @@ export const locations = {
     },
     "ch-ge": {
       name: 'Geneva',
-      "bounding_box": {
+      description: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      description_more: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      bounding_box: {
         "latMin": 46.113705723112744,
         "lngMin": 6.0129547119140625,
         "latMax": 46.29001987172955,
@@ -34,13 +62,27 @@ export const locations = {
       issue_api:{
         operator: null,
         qid: null,
-        thumbnail_url: '',
+        thumbnail_url: ``,
         url_template: null
       }
     },
     "ch-bs": {
       name: 'Basel',
-      "bounding_box": {
+      description: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      description_more: {
+        en: ``,
+        de: ``,
+        fr: ``,
+        it: ``,
+        tr: ``,
+      },
+      bounding_box: {
         "latMin": 47.517200697839414,
         "lngMin": 7.544174194335937,
         "latMax": 47.60477416894759,
@@ -50,13 +92,27 @@ export const locations = {
       issue_api:{
         operator: null,
         qid: null,
-        thumbnail_url: '',
+        thumbnail_url: ``,
         url_template: null
       }
     },
   "ch-lu": {
     name: 'Lucerne',
-    "bounding_box": {
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
       "latMin": 47.03608752310776,
       "lngMin": 8.282318115234375,
       "latMax": 47.068718776878946,
@@ -66,13 +122,27 @@ export const locations = {
     issue_api:{
       operator: null,
       qid: null,
-      thumbnail_url: '',
+      thumbnail_url: ``,
       url_template: null
     }
   },
   "it-roma": {
     name: 'Roma',
-    "bounding_box": {
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
       "latMin": 41.793,
       "lngMin": 12.369,
       "latMax": 41.994,
@@ -82,13 +152,27 @@ export const locations = {
     issue_api:{
       operator: null,
       qid: null,
-      thumbnail_url: '',
+      thumbnail_url: ``,
       url_template: null
     }
   },
   "us-nyc": {
     name: 'New York',
-    "bounding_box": {
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
       "latMin": 40.643135583312805,
       "lngMin": -74.13848876953125,
       "latMax": 40.852254338121625,
@@ -98,13 +182,40 @@ export const locations = {
     issue_api:{
       operator: null,
       qid: null,
-      thumbnail_url: '',
+      thumbnail_url: ``,
       url_template: null
     }
   },
   "tr-be": {
     name: 'Bergama',
-    "bounding_box": {
+    description: {
+      en: `
+<h2>The water fountains of Bergama</h2>
+      The 2019 topic of the Bergama Environmental Film Festival <a href='https://bergamacevreff.org/en' target='_blank'>https://bergamacevreff.org/en</a> is WATER, an indispensable component of our life and the planet. .
+Therefore responsible citizens have mapped out all fountains of the festival hosting city (with drinkable water or unfortunately no longer...) to foster environmental discussions to rebuild our future...
+      `,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: `
+<h2> Bergama'nın su çeşmeleri </h2>
+İklim krizinin olumsuzluklarının nedenlerini ortadan kaldırmak ve etkilerini azaltmak, bu olumsuzlukları yaratan bizler, insanların elinde. Bu nedenle sorumlu vatandaşlar olarak, iklim değişikliğine neden olan siyasal, toplumsal ve ekolojik sorunlar üzerine herkesi düşünmeye, sorgulamaya ve davranış değişikliğine yönlendiren bir film festivali yapıyoruz. Festivalin bu yılki teması bedenlerimizin ve gezegenin vazgeçilmez bileşeni SU. Büyük bir tehditle karşı karşıya olan ortak varlığımız su, bizi ulusların, dinlerin, nesillerin ve türlerin ötesinde birleştirecek güçte. İşte böyle berrak bir güçle geleceği yeniden inşa edebiliriz. Su gibi akan filmler, söyleşiler ve etkinliklerde buluşacağımız Bergama Çevre Filmleri Festivali’ne hepinizi yalnızca izlemek için değil, konuşmak, paylaşmak ve birlikte çözüm üretmek için de bekliyoruz.
+      <a href='https://bergamacevreff.org' target='_blank'>https://bergamacevreff.org</a>
+`,
+    },
+    description_more: {
+      en: `It is in our hands to eliminate and reduce the effects of all the disastrous events caused by Climate Crises. Therefore, as responsible citizens, we organized a film festival on environmental issues we expected to experience in Turkey to discuss solutions and encourage behavioral changes toward the social and ecological problems due to climate crises. To be effective in our discussions, we will address a different environmental theme each year. This year's theme is WATER, an indispensable component of our life and the planet. Our common existence, facing a major threat, has the power to unite us beyond nationalities, religions, generations and species. With such clear power, we can rebuild the future. We are inviting you not only to watch and talk, but more importantly to share and find solutions together in Bergama Environmental Films Festival, where we will meet in films, panel discussions and various side events flowing like water.
+<a href="https://bergamacevreff.org/en" target="_blank"> https://bergamacevreff.org/en</a>
+<a href="http://whc.unesco.org/en/list/1457" target="_blank"> http://whc.unesco.org/en/list/1457</a>
+
+<h3>Team</h3>
+<a href="https://commons.wikimedia.org/wiki/User:Fatih_Kurunaz" target="_blank"> https://commons.wikimedia.org/wiki/User:Fatih_Kurunaz</a>`,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
       "latMin": 39.08743603215884,
       "lngMin": 27.13726043701172,
       "latMax": 39.14097854651647,
@@ -114,7 +225,7 @@ export const locations = {
     issue_api:{
       operator: null,
       qid: null,
-      thumbnail_url: '',
+      thumbnail_url: ``,
       url_template: null
     }
   }

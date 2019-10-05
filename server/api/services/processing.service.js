@@ -88,7 +88,7 @@ export function fillWikipediaSummaries(fountainCollection){
     // loop through fountains
     _.forEach(fountainCollection, fountain =>{
       // check English and German
-      _.forEach(['en', 'de', 'fr', 'it'], lang =>{
+      _.forEach(['en', 'de', 'fr', 'it', 'tr'], lang =>{
         let urlParam = `wikipedia_${lang}_url`;
         if(!_.isNull(fountain.properties[urlParam].value)){
           // if not Null, get summary and create new property
@@ -173,7 +173,7 @@ export function essenceOf(fountainCollection) {
 export function fillOutNames(fountainCollection) {
   // takes a collection of fountains and returns the same collection, with holes in fountain names filled best possible way
   return new Promise((resolve, reject) => {
-    let langs = ['en','de','fr', 'it'];
+    let langs = ['en','de','fr', 'it', 'tr'];
     fountainCollection.forEach(f => {
       // fill default name if not filled
       if(f.properties.name.value === null){
