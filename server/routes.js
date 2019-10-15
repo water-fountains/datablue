@@ -5,8 +5,9 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import examplesRouter from './api/controllers/router';
+import Router from './api/controllers/router';
 
+// provide the base url for api
 export default function routes(app) {
-  app.use('/api/v1', examplesRouter);
+  app.use('/api/v1', Router);
 }

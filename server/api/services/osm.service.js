@@ -11,19 +11,20 @@ import osm_fountain_config from "../../../config/fountains.sources.osm";
 var query_overpass = require('query-overpass');
 
 class OsmService {
-  byCenter(lat, lng) {
-    // fetch fountain from OSM by coordinates
+  /**
+   * Return all fountains within radius around center
+   * @param {number} lat - latitude of center around which fountains should be fetched
+   * @param {number} lng - longitude of center
+   * @param {number} radius - radius around center to conduct search
+   */
+  byCenter(lat, lng, radius) {
+    // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject)=>{
-      let query = queryBuilderCenter(lat, lng);
-      // l.debug(query);
+      let query = queryBuilderCenter(lat, lng, radius);
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
-        // }else if(data.features.length === 0){
-        //   reject(new Error(NO_FOUNTAIN_AT_LOCATION));
         }else{
-          // return only the first fountain in the list
-          // l.info(data.features[0]);
           resolve(data.features);
         }
       }, {flatProperties: true})
@@ -49,6 +50,7 @@ class OsmService {
 }
 
 function queryBuilderCenter(lat, lng, radius=10) {
+  // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   let query = `
     (${['node', 'way'].map(e=>
       osm_fountain_config.sub_sources.map((item, i)=>
@@ -59,6 +61,7 @@ function queryBuilderCenter(lat, lng, radius=10) {
 }
 
 function queryBuilderBox(latMin, lngMin, latMax, lngMax) {
+  // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   let query = `
     (${['node', 'way'].map(e=>
       osm_fountain_config.sub_sources.map((item, i)=>

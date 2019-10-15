@@ -82,12 +82,12 @@ export function fillOperatorInfo(fountainCollection){
 }
 
 export function fillWikipediaSummaries(fountainCollection){
-  // takes a collection of fountains and returns the same collection, enhanced with image galleries when available
+  // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
   return new Promise((resolve, reject) => {
     let promises = [];
     // loop through fountains
     _.forEach(fountainCollection, fountain =>{
-      // check English and German
+      // check all languages to see if a wikipedia page is referenced
       _.forEach(['en', 'de', 'fr', 'it', 'tr'], lang =>{
         let urlParam = `wikipedia_${lang}_url`;
         if(!_.isNull(fountain.properties[urlParam].value)){
@@ -95,7 +95,7 @@ export function fillWikipediaSummaries(fountainCollection){
           promises.push(new Promise((resolve, reject) => {
             WikipediaService.getSummary(fountain.properties[urlParam].value)
               .then(summary => {
-                // add suumary as derived information to url
+                // add suumary as derived information to url property
                 fountain.properties[urlParam].derived = {
                   summary: summary
                 };
@@ -143,8 +143,10 @@ export function essenceOf(fountainCollection) {
     features: []
   };
   
+  // Get list of property names that are marked as essential in the metadata
   let essentialPropNames = _.map(fountain_property_metadata, (p, p_name)=>{if (p.essential) {return p_name} });
   
+  // Use the list of essential property names to create a compact version of the fountain data
   fountainCollection.features.forEach(f=>{
     let props = _.pick(f.properties, essentialPropNames);
     props = _.mapValues(props, (obj)=>{
@@ -155,7 +157,7 @@ export function essenceOf(fountainCollection) {
     // add photo if it is not google street view
     props.photo = f.properties.gallery.comments?'':f.properties.gallery.value[0].small;
     
-    // create feature
+    // create feature for fountain
     newCollection.features.push({
       type: 'Feature',
       geometry: {
@@ -171,14 +173,15 @@ export function essenceOf(fountainCollection) {
 }
 
 export function fillOutNames(fountainCollection) {
-  // takes a collection of fountains and returns the same collection, with holes in fountain names filled best possible way
+  // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
   return new Promise((resolve, reject) => {
     let langs = ['en','de','fr', 'it', 'tr'];
     fountainCollection.forEach(f => {
-      // fill default name if not filled
+      // if the default name (aka title) if not filled, then fill it from one of the other languages
       if(f.properties.name.value === null){
         for(let lang of langs){
           if(f.properties[`name_${lang}`].value !== null){
+            // take the first language-specific name that is not null and apply it to the default name
             f.properties.name.value = f.properties[`name_${lang}`].value;
             f.properties.name.source_name = f.properties[`name_${lang}`].source_name;
             f.properties.name.source_url = f.properties[`name_${lang}`].source_url;
@@ -188,7 +191,7 @@ export function fillOutNames(fountainCollection) {
           }
         }
       }
-      // fill specific names if not filled and a default name exists
+      // fill lang-specific names if null and if a default name exists
       if(f.properties.name.value !== null) {
         for (let lang of langs) {
           if (f.properties[`name_${lang}`].value === null) {
@@ -225,7 +228,7 @@ export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains
     // Get qids not included in wikidata collection
     let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
   
-    // Fetch fountains for missing qids
+    // Fetch fountains with missing qids and add them to the wikidata_fountains collection
     WikidataService.byIds(missing_qids)
       .then(missing_wikidata_fountains=>{
         resolve({

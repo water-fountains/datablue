@@ -8,12 +8,13 @@
 import OsmService from '../services/osm.service';
 import WikidataService from '../services/wikidata.service';
 import l from '../../common/logger'
-import applyImpliedPropertiesOsm from "../services/applyImplied.service";
+import generateLocationData from "../services/generateLocationData.service"
 import {locations} from '../../../config/locations';
 import {fountain_property_metadata} from "../../../config/fountain.properties";
 
 const NodeCache = require( "node-cache" );
 import {conflate} from "../services/conflate.data.service";
+import applyImpliedPropertiesOsm from "../services/applyImplied.service";
 import {
   createUniqueIds, essenceOf, defaultCollectionEnhancement, fillInMissingWikidataFountains
 } from "../services/processing.service";
@@ -22,27 +23,43 @@ import {extractProcessingErrors} from "./processing-errors.controller";
 const haversine = require("haversine");
 const _ = require('lodash');
 
+
+// Configuration of Cache after https://www.npmjs.com/package/node-cache
 const cityCache = new NodeCache( {
-  stdTTL: 60*60*2, // time til expire in seconds
-  checkperiod: 30, // how often to check for expire in seconds
-  deleteOnExpire: false, // on expire, we want the cache to be recreated.
-  useClones: false // do not create a clone of the data when fetching
+  stdTTL: 60*60*2, // time till cache expires, in seconds
+  checkperiod: 30, // how often to check for expiration, in seconds
+  deleteOnExpire: false, // on expire, we want the cache to be recreated not deleted
+  useClones: false // do not create a clone of the data when fetching from cache
 } );
 
-// when cache expires, regenerate it (ignore non-essential)
+
+/*
+* For each location (city), three JSON objects are created. Example for Zurich:
+* - "ch-zh": contains the full data for all fountains of the location
+* - "ch-zh_essential": contains a summary version of "ch-zh". This is the data loaded for display on the map. It is derived from "ch-zh".
+* - "ch-zh_errors": contains a list of errors encountered when processing "ch-zh". 
+*/
+
+
+// when cached data expires, regenerate it (ignore non-essential)
 cityCache.on('expired', (key, value)=>{
+  // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if(!key.includes('_essential') && !key.includes('_errors')){
+    
     l.info(`Automatic cache refresh of ${key}`);
+    
+    // trigger a reprocessing of the location's data, based on the key.
     generateLocationData(key)
       .then(fountainCollection=>{
-        // save new data to storage
-        cityCache.set(key, fountainCollection, 60*60*2);
+        // save newly generated fountainCollection to the cache
+        cityCache.set(key, fountainCollection, 60*60*2); // expire after two hours
   
         // create a reduced version of the data as well
         cityCache.set(key + '_essential', essenceOf(fountainCollection));
   
         // also create list of processing errors (for proximap#206)
         cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
+
       }).catch(error =>{
       l.error(`unable to set Cache. Error: ${error}`)
     })
@@ -51,14 +68,15 @@ cityCache.on('expired', (key, value)=>{
 
 export class Controller {
   constructor(){
-    // generate location data and save to storage
+
+    // In production mode, process all fountains when starting the server so that the data are ready for the first requests
     if(process.env.NODE_ENV === 'production') {
       for (let location_code of Object.keys(locations)){
         l.info(`Generating data for ${location_code}`);
         generateLocationData(location_code)
           .then(fountainCollection => {
             // save new data to storage
-            cityCache.set(location_code, fountainCollection, 60 * 60 * 2);
+            cityCache.set(location_code, fountainCollection, 60 * 60 * 2); // expire after two hours
             // create a reduced version of the data as well
             cityCache.set(location_code + '_essential', essenceOf(fountainCollection));
             // also create list of processing errors (for proximap#206)
@@ -68,16 +86,22 @@ export class Controller {
     }
   }
   
+  // Function to return detailed fountain information
+  // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req, res){
     if(req.query.queryType === 'byCoords'){
-      byCoords(req, res)
+      // byCoords will return the nearest fountain to the given coordinates. 
+      // The databases are queried and fountains are reprocessed for this
+      reprocessFountainAtCoords(req, res)
     }else{
+      // byId will look into the fountain cache and return the fountain with the given identifier
       byId(req, res)
     }
   }
   
+  // Function to return all fountain information for a location.
   byLocation(req, res){
-    // if an update is requested or if no data is in storage, then regenerate the data
+    // if a refresh is requested or if no data is in the cache, then reprocessess the fountains
     if(req.query.refresh || cityCache.keys().indexOf(req.query.city) === -1){
       generateLocationData(req.query.city)
         .then(fountainCollection => {
@@ -86,9 +110,9 @@ export class Controller {
         
         // create a reduced version of the data as well
         let r_essential = essenceOf(fountainCollection);
-        cityCache.set(req.query.city + '_essential', r_essential, 60*60*2);
+        cityCache.set(req.query.city + '_essential', r_essential);
         
-        // return either the full or reduced version
+        // return either the full or reduced version, depending on the "essential" parameter of the query
         if(req.query.essential){
           res.json(r_essential);
         }else{
@@ -113,14 +137,25 @@ export class Controller {
     }
   }
   
+  /**
+   *  Function to return metadata regarding all the fountain properties that can be displayed. 
+   * (e.g. name translations, definitions, contribution information and tips)
+   * it simply returns the object created by fountain.properties.js
+   */
   getPropertyMetadata(req, res) {
     res.json(fountain_property_metadata);
   }
   
+  /**
+   * Function to return metadata about locations supported by application
+   */
   getLocationMetadata(req, res) {
     res.json(locations);
   }
   
+  /**
+   * Function to extract processing errors from detailed list of fountains
+   */
   getProcessingErrors(req, res){
     // returns all processing errors for a given location
     // made for #206
@@ -142,52 +177,9 @@ export class Controller {
 }
 export default new Controller();
 
-function generateLocationData(locationName){
-  l.info(`processing all fountains from ${locationName}`);
-  return new Promise((resolve, reject)=>{
-    // get bounding box of location
-    if(!locations.hasOwnProperty(locationName)){
-      reject(new Error(`location not found in config: ${locationName}`))
-    }
-    let bbox = locations[locationName].bounding_box;
-    // get data from Osm
-    let osmPromise = OsmService
-      .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
-      .then(r => applyImpliedPropertiesOsm(r))
-      .catch(e=>{
-        l.error(`Error collecting OSM data: ${e}`);
-        reject(e);
-      });
-    
-    // get data from Wikidata
-    let wikidataPromise = WikidataService
-      .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
-      .then(r=>WikidataService.byIds(r));
-    
-    // conflate
-    Promise.all([osmPromise, wikidataPromise])
-    // get any missing wikidata fountains for #212
-      .then(r=>fillInMissingWikidataFountains(r[0], r[1]))
-      .then(r => conflate({
-        osm: r.osm,
-        wikidata: r.wikidata
-      }))
-      .then(r => defaultCollectionEnhancement(r))
-      .then(r => createUniqueIds(r))
-      .then(r => {
-        l.info(`successfully processed all fountains from ${locationName}`);
-        resolve({
-          type: 'FeatureCollection',
-          features: r
-        })
-      })
-      .catch(error => {
-        reject(error);
-      })
-    
-  });
-}
-
+/**
+ * Function to respond to request by returning the fountain as defined by the provided identifier
+ */
 function byId(req, res){
   try{
       let fountain = _.find(
@@ -202,13 +194,23 @@ function byId(req, res){
   
 }
 
-function byCoords(req, res) {
+
+/**
+ * Function to reprocess data near provided coordinates and update cache with fountain. 
+ * The req.query object should have the following properties:
+ * - lat: latitude of search location
+ * - lng: longitude of search location
+ * - radius: radius in which to search for fountains
+ */
+function reprocessFountainAtCoords(req, res) {
   
-  l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lat}`);
+  l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius}`);
   
   // OSM promise
   let osmPromise = OsmService
+    // Get data from OSM within given radius
     .byCenter(req.query.lat, req.query.lng, req.query.radius)
+    // Process OSM data to apply implied properties
     .then(r => applyImpliedPropertiesOsm(r))
     .catch(e=>{
       l.error(`Error collecting OSM data: ${e}`);
@@ -216,35 +218,46 @@ function byCoords(req, res) {
     });
   
   let wikidataPromise = WikidataService
+    // Fetch all wikidata items within radius
     .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
+    // Fetch detailed information for fountains based on wikidata ids
     .then(r=>WikidataService.byIds(r))
     .catch(e=>{
       l.error(`Error collecting Wikidata data: ${e}`);
       res.status(500).send(e.stack);
     });
   
-  // conflate
+  // When both OSM and Wikidata data have been collected, continue with joint processing
   Promise.all([osmPromise, wikidataPromise])
-    // get any missing wikidata fountains for #212
+
+    // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
     .then(r=>fillInMissingWikidataFountains(r[0], r[1]))
+
+    // Conflate osm and wikidata fountains together
     .then(r => conflate({
       osm: r.osm,
       wikidata: r.wikidata
     }))
-    // return the closest fountain in the list
+
+    // return only the fountain that is closest to the coordinates of the query
     .then(r => {
       let distances = _.map(r, f=>{
+        // compute distance to center for each fountain
         return haversine(
           f.geometry.coordinates, [req.query.lng, req.query.lat], {
             unit: 'meter',
             format: '[lon,lat]'
           });
       });
+      // return closest
       let closest = r[_.indexOf(distances, _.min(distances))];
       return [closest];
     })
-     // fetch more information about fountains
+
+     // fetch more information about fountains (Artist information, gallery, etc.)
     .then(r => defaultCollectionEnhancement(r))
+
+    // Update cache with newly processed fountain
     .then(r=>{
       let closest = updateCacheWithFountain(cityCache, r[0], req.query.city);
       res.json(closest);

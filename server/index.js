@@ -5,10 +5,10 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import './common/env';
-import Server from './common/server';
-import routes from './routes';
-import l from './common/logger'
+import './common/env'; //read environment files
+import Server from './common/server'; // import Server definition
+import routes from './routes'; // import routes to be used by server
+import l from './common/logger';
 
 // Unhandled errors are handled here
 // todo: put this in another file

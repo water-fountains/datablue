@@ -8,6 +8,7 @@
 import * as express from 'express';
 import controller from './controller';
 
+// This file maps API routes to functions
 export default express
   .Router()
   .get('/fountain/', controller.getSingle)
