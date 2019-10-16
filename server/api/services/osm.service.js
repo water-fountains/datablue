@@ -21,7 +21,7 @@ class OsmService {
     // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject)=>{
       let query = queryBuilderCenter(lat, lng, radius);
-      l.info(query);
+      // l.info(query);
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
