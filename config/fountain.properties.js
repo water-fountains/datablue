@@ -10,49 +10,68 @@ import {locations} from "./locations";
 
 const _ = require('lodash');
 
-function str2bool(val) {
-  switch (val) {
-    case 'yes':
-      return 'true';
-    case 'no':
-      return 'false';
-    default:
-      return 'other';
-  }
-}
-
+/**
+ * function that passes data through without modification
+ * @param {any} val - any object, string or number
+ */
 function identity(val){return val}
 
+
+/**
+ * Fountain properties are described with the following structure:
+ * [codename]: {  // unique codename of property
+ *  name: {},  // name of property in all supported languages
+ *  essential: bool,
+ *  type: string,
+ *  descriptions: {},
+ *  src_pref: ['osm]
+ * }
+ */
+
+
 let fountain_properties = {
-  name: {
-    name:{
+  name: {  // unique codename of property
+    name:{  // name of property in all supported languages
       en: 'title',
       de: 'Titel',
       fr: 'titre',
       it: 'titolo',
       tr: 'başlık'
     },
-    essential: true,
-    type: 'string',
-    descriptions: {
+    essential: true,  // whether this property should be included in short version of data
+    type: 'string',  // type of data, such as string, number, boolean_string, etc. Used for displaying property
+    descriptions: {  // description of what property represents
       en:'Original title of the fountain, for example the title given by the sculptor.',
       de: 'Originaltitel des Brunnens, zum Beispiel der vom Bildhauer gegeben wurde.',
       fr: 'Titre original de la fontaine, par exemple celui donné par le sculpteur.',
       it: 'Titolo originale della fontana, per esempio il titolo dato dallo scultore',
       tr: 'Çeşmeyi yapan kişi tarafından verilmiş özgün isim.'
     },
-    src_pref: ['osm', 'wikidata'],
+    src_pref: ['osm', 'wikidata'],  // which source should be given priority? only the first element in the list matters, since there are only two sources
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P1476'],
-        src_instructions: {
+        // help: 'https://url.com',  // url to page that describes the property. This is only necessary for certain properties for which the help page cannot be derived from the 'src_path'
+        src_path: ['claims', 'P1476'],  // describes path for extracting this property from the response of the wikidata api (after simplification of the response)
+        src_instructions: { // human-readable path of how to modify this propoerty on wikidata.org. For example: create a Statement of type "title"
           en: ['Statement', 'title'],
           de: ['Aussage', 'Titel'],
           fr: ['Déclaration', 'titre'],
           it: ['Dichiarazione','titolo'],
           tr: ['tanım', 'başlık']
         },
-        value_translation: identity
+        /**
+         * src_info: {  // provides further information to user about how to enter data. E.g. regarding formatting of entry. See for example property "id_operator"
+         *   en: '', // this information is not necessary for all properties
+         *   de: '',
+         *   ...
+         * },
+         * extraction_info: {  // explains how information is extracted from the source. E.g., if multiple values are present, only the first will be extracted (see "construction_date").
+         *   en: '',
+         *   de: '',
+         *   ...
+         * },
+        */
+        value_translation: identity  // function for transforming the data from the source (see "construction_date" for an example).
       },
       osm: {
         src_path: ['properties', 'name'],
@@ -1922,7 +1941,7 @@ let fountain_properties = {
           it: ['Attributo', 'drinking_water:legal'],
           tr: ['Özellik', 'drinking_water:legal']
         },
-        value_translation: str2bool
+        value_translation: identity
       },
       wikidata: null
     }
@@ -2103,12 +2122,13 @@ let fountain_properties = {
     }
   }
 };
+// assign default attributes to all the properties
 _.forEach(fountain_properties, function (property, key) {
-  property.id = key;
-  property.value = null;
+  property.id = key;  // the id is the same as the key
+  property.value = null;  // the default value is "null"
   property.comments = '';
-  property.status = PROP_STATUS_WARNING;
-  property.source = '';
+  property.status = PROP_STATUS_WARNING;  // the property status is a warning if no data is available. This is updated when the data is fetched
+  property.source = '';  // this indicates the source from which the property value was obtained.
 });
 // some custom values
 fountain_properties.fixme.status = PROP_STATUS_OK;
@@ -2116,6 +2136,12 @@ fountain_properties.fixme.comments = '';
 
 export const fountain_property_metadata = fountain_properties;
 
+/**
+ * Returns the value of a property for a given fountain and a given source
+ * @param {Fountain object} fountain Fountain from which property value should be fetched
+ * @param {String} source either 'osm' or 'wikidata', depending on which source should be used
+ * @param {'String'} property codename of property for which value should be fetched
+ */
 export function get_prop(fountain, source, property) {
   return fountain_properties[property].src_config[source].value_translation(
     _.get(fountain, fountain_properties[property].src_config[source].src_path));
