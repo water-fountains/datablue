@@ -65,10 +65,9 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [ch-zh, ch-ge, ch-bs, ch-lu, it-roma, us-nyc, tr-be]
           example: ch-zh
           required: false
-          description: name of city for which fountains are to be served
+          description: code of city for which fountains are to be served
         - name: idval
           in: query
           type: string
@@ -106,10 +105,9 @@ paths:
         - name: city
           in: query
           type: string
-          enum: [ch-zh, ch-ge, ch-bs, ch-lu, it-roma, us-nyc, tr-be]
           example: ch-zh
           required: true
-          description: name of city for which fountains are to be served
+          description: code of location for which fountains are to be served
         - name: refresh
           in: query
           type: boolean

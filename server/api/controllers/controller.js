@@ -213,7 +213,7 @@ function reprocessFountainAtCoords(req, res) {
     // Process OSM data to apply implied properties
     .then(r => applyImpliedPropertiesOsm(r))
     .catch(e=>{
-      l.error(`Error collecting OSM data: ${e}`);
+      l.error(`Error collecting OSM data: ${JSON.stringify(e)}`);
       res.status(500).send(e.stack);
     });
   

@@ -126,6 +126,36 @@ export const locations = {
       url_template: null
     }
   },
+  "ch-nw": {
+    name: 'Nidwalden',
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
+      "latMin": 46.76432449601197,
+      "lngMin": 8.20953369140625,
+      "latMax": 47.01958886438217,
+      "lngMax": 8.580322265624998
+    },
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      operator: null,
+      qid: null,
+      thumbnail_url: ``,
+      url_template: null
+    }
+  },
   "it-roma": {
     name: 'Roma',
     description: {
