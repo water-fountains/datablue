@@ -34,8 +34,9 @@ class WikidataService {
             bd:serviceParam wikibase:radius "${radius/1000}".
           }.
 
-          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453) or flowing well fountain (Q29592411)
-          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q29592411}).
+          
+          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
+          FILTER (EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q483453 }).
 
           # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
           SERVICE wikibase:label {
@@ -57,8 +58,8 @@ class WikidataService {
             bd:serviceParam wikibase:cornerEast "Point(${lngMax} ${latMax})"^^geo:wktLiteral.
           } .
           
-          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453) or flowing well fountain (Q29592411)
-          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q29592411}).
+          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
+          FILTER (EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q483453 }).
           
           # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
           SERVICE wikibase:label {
