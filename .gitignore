@@ -3,3 +3,4 @@ build
 server/common/build.info.js
 .env
 .idea
+/.project
