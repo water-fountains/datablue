@@ -2048,7 +2048,7 @@ let fountain_properties = {
     essential: false,
     type: 'object',
     descriptions: {
-      en:'Foutnain is described at the following URLs.',
+      en:'Fountain is described at the following URLs.',
       de: 'Der Brunnen wird in den angegebenen URLs beschrieben.',
       fr: 'La fontaine est décrits aux l\'URLs suivantes.',
       it: 'La fontana è descritta all\'URL seguente.',
@@ -2074,7 +2074,17 @@ let fountain_properties = {
           tr: 'Tanımlanmış tüm URL değerleri verilir.'
         },
         value_translation: (urls)=>{
-          return _.map(urls, 'value');
+          let validUrls = [];
+          urls.forEach((elt)=>{
+            let url = elt.value; 
+            if(!_.startsWith(url, 'https://h2o.do')) {
+              validUrls.push(url);
+            }
+          });
+          if(validUrls.length > 0){
+            return validUrls;
+          }
+          return null;
         }
       }
     }
