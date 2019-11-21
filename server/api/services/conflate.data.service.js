@@ -20,7 +20,7 @@ const haversine = require('haversine');
 const md5 = require('js-md5');
 
 
-// wikidata property paths
+// wikidata property paths: path for accessing the wikidata QID of a fountain, either in the query result of wikidata or the query result from OSM
 const idwd_path_wd = fountain_property_metadata.id_wikidata.src_config.wikidata.src_path;
 const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_path;
 
@@ -35,20 +35,25 @@ export function conflate(ftns) {
       coord: []
     };
     
-    // Only try to match if both lists contain fountains
+    // Only try to find matching fountains if both lists contain fountains
+    // (sometimes one of the lists is empty)
     if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
+
+      // first conflate by wikidata identifiers (QID)
       conflated.wikidata = conflateByWikidata(ftns);
+
+      // then conflate by coordinates
       conflated.coord = conflateByCoordinates(ftns);
     }
     
-    // process remaining fountains that were not matched
+    // process remaining fountains that were not matched by either QID or coordinates
     let unmatched = {};
     unmatched.osm = _.map(ftns.osm, f_osm =>{
       return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched')});
     unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
       return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched')});
     
-    // append the unmatched fountains to the list
+    // append the matched (conflated) and unmatched fountains to the list "conflated_fountains_all"
     let conflated_fountains_all = _.concat(
       conflated.coord,
       conflated.wikidata,
@@ -56,28 +61,32 @@ export function conflate(ftns) {
       unmatched.wikidata
     );
     
-    // return fountains
+    // return fountains (first turn list of fountains into geojson)
     resolve(properties2GeoJson(conflated_fountains_all));
   })
 }
 
-
+/**
+ * This function finds matching pairs of fountains between osm and wikidata. It returns the list of matches and removes the matched fountains from the 'ftns' argument
+ * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ */
 function conflateByWikidata(ftns) {
-  // Holder for conflated fountains
+  // Holder for conflated (matched) fountains
   let conflated_fountains = [];
-  // Temporary holders for matched fountain indexes
+  // Holders for matched fountain indexes
   let matched_idx_osm = [];
   let matched_idx_wd = [];
   
   // loop through OSM fountains
   for(const [idx_osm, f_osm] of ftns.osm.entries()){
     
+    // find the index of the fountain in the wikidata list with a wikidata QID that matches the wikidata id referenced in OSM
     let idx_wd =  _.findIndex(ftns.wikidata, (f_wd) => {
-      return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1);
+      return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1); // check for match. Use default values 0 and 1 to ensure no match if no data is found
     });
     // if a match was found
     if (idx_wd >= 0) {
-      // compute distance between fountains
+      // compute distance between the two fountains
       let d = null;
       try{
         d = haversine(
@@ -87,16 +96,16 @@ function conflateByWikidata(ftns) {
             format: '[lon,lat]'
           });
       }catch (e) {
-        // some wikidata fountains have no coordinates, so distance cannot be calculated
+        // some wikidata fountains have no coordinates, so distance cannot be calculated. That is ok.
       }
-      // conflate the two fountains
+      // merge the two fountains' properties and add to "conflated_fountains" list
       conflated_fountains.push(
         mergeFountainProperties(
           {
             osm: ftns.osm[idx_osm],
             wikidata: ftns.wikidata[idx_wd]
           }, 'merged by wikidata id', d));
-      // document the indexes for removal
+      // document the indexes of the matched fountains so the fountains can be removed from the lists
       matched_idx_osm.push(idx_osm);
       matched_idx_wd.push(idx_wd);
     }
@@ -108,18 +117,28 @@ function conflateByWikidata(ftns) {
   return conflated_fountains;
 }
 
+/**
+ * remove matched fountains from 'ftns' (remove in reverse order to not mess up indexes)
+ * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ * @param {[number]} matched_idx_osm - List of matched OSM IDs
+ * @param {[number]} matched_idx_wd - List of matched wikidata IDs
+ */
 function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd) {
-  // remove matched fountains (reverse order to not mess up indexes)
-  // sort indexes in matched_idx_wd, otherwise indexes will be messed up
-  matched_idx_wd = _.orderBy(matched_idx_wd);
+  matched_idx_osm = _.orderBy(matched_idx_osm);
   for (let i = matched_idx_osm.length -1; i >= 0; i--)
     ftns.osm.splice(matched_idx_osm[i],1);
+    
+  matched_idx_wd = _.orderBy(matched_idx_wd);
   for (let i = matched_idx_wd.length -1; i >= 0; i--)
     ftns.wikidata.splice(matched_idx_wd[i],1);
   // console.log(r.osm.length);
   
 }
 
+/**
+ * Find matching fountains based on coordinates alone
+ * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ */
 function conflateByCoordinates(ftns) {
   // Holder for conflated fountains
   let conflated_fountains = [];
@@ -127,18 +146,21 @@ function conflateByCoordinates(ftns) {
   let matched_idx_osm = [];
   let matched_idx_wd = [];
   
+  // make ordered list of coordinates from all Wikidata fountains
   let coords_all_wd = _.map(ftns.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
   
+  // Loop through OSM fountains
+  // todo: loop through wikidata fountains instead, since this is the more incomplete list the matching will go much faster
   for (const [idx_osm, f_osm] of ftns.osm.entries()) {
-    // compute distance array
+    // compute distance array between OSM fountain and all wikidata fountains
     let coords_osm = get_prop(f_osm, 'osm', 'coords');
     let distances = _.map(coords_all_wd, c_wd => {
-      // compute distance in meters
       return haversine( c_wd, coords_osm, {
           unit: 'meter',
           format: '[lon,lat]'
         });
     });
+    // find the value and index of the smallest distance
     let dMin = _.min(distances);
     let idx_wd = _.indexOf(distances, dMin);
     // selection criteria: dMin smaller than 10 meters
@@ -167,9 +189,9 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
   let mergedProperties = {};
-  // loop through all property metadata
+  // loop through each property in the metadata
   _.forEach(fountain_property_metadata, (p)=>{
-    // copy default values
+    // foutnain template with default property values copied in
     let temp = {
       id: p.id,
       value: p.value,
@@ -193,19 +215,20 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
       }
     };
     
-    // loop through sources and extract values
+    // loop through sources (osm and wikidata) and extract values
     for(let src_name of ['wikidata', 'osm']){
       if(p.src_config[src_name] === null){
         // If property not available, define property as not available for source
         temp.sources[src_name].status = PROP_STATUS_NOT_AVAILABLE;
     
       } else if(! fountains[src_name]){
-        // If fountain doesn't exist
+        // If fountain doesn't exist for that source (e.g. the fountain is only defined in osm, not wikidata), mark status
         temp.sources[src_name].status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
   
       }else {
-        // if property is available for source, try to get it
-        // get extraction information
+        // if property is available (fundamentally) for source, try to get it
+
+        // get extraction information (how to extract property from source)
         const cfg = p.src_config[src_name];
         
         // Get value of property from source
@@ -223,9 +246,9 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
           // save raw value
           temp.sources[src_name].raw = value;
           try{
-            // use one translation or the alternative translation
+            // use one translation (or the alternative translation if the additional data source was used)
             temp.sources[src_name].extracted = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
-            // if extracted value is not null, change status
+            // if extracted value is not null, change status to ok
             if(temp.sources[src_name].extracted !== null){
               temp.sources[src_name].status = PROP_STATUS_OK;
             }

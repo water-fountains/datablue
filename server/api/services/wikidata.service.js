@@ -28,14 +28,19 @@ class WikidataService {
         WHERE
         {
           SERVICE wikibase:around {
+            # this service allows points around a center point to be queried (https://en.wikibooks.org/wiki/SPARQL/SERVICE_-_around_and_box) 
             ?place wdt:P625 ?location .
             bd:serviceParam wikibase:center "Point(${lng} ${lat})"^^geo:wktLiteral.
             bd:serviceParam wikibase:radius "${radius/1000}".
-          } .
-          # Is a water well or fountain or subclass of fountain
-          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 }).
+          }.
+
+          
+          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
+          FILTER (EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q483453 }).
+
+          # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
           SERVICE wikibase:label {
-            bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" .
+            bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
     return doSparqlRequest(sparql);
@@ -47,14 +52,18 @@ class WikidataService {
         WHERE
         {
           SERVICE wikibase:box {
+            # this service allows points within a box to be queried (https://en.wikibooks.org/wiki/SPARQL/SERVICE_-_around_and_box) 
             ?place wdt:P625 ?location .
             bd:serviceParam wikibase:cornerWest "Point(${lngMin} ${latMin})"^^geo:wktLiteral.
             bd:serviceParam wikibase:cornerEast "Point(${lngMax} ${latMax})"^^geo:wktLiteral.
           } .
-          # Is a water well or fountain or subclass of fountain
-          FILTER (EXISTS { ?place wdt:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q483453 } || EXISTS { ?place wdt:P31/wdt:P279* wd:Q29592411}).
+          
+          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
+          FILTER (EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q483453 }).
+          
+          # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
           SERVICE wikibase:label {
-            bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" .
+            bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
     return doSparqlRequest(sparql);
@@ -63,7 +72,7 @@ class WikidataService {
   
   byIds(qids) {
     // fetch fountains by their QIDs
-    const chunckSize = 50;  // how many fountains should be fetched at a time
+    const chunckSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject)=>{
       let allFountainData = [];
       let httpPromises = [];
@@ -75,25 +84,30 @@ class WikidataService {
             format: 'json',
             props: []
           });
-          // l.debug(url);
           // get data
           httpPromises.push(http.get(url));
         });
-        // wait for all http requests to resolve
+        // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
           .then(responses => {
+            // holder for data of all fountains
             let dataAll = [];
             responses.forEach(r => {
+              // holder for data from each chunk
               let data = [];
               for (let key in r.data.entities) {
+                // simplify object structure of each wikidata entity and add it to 'data'
                 data.push(wdk.simplify.entity(
                   r.data.entities[key],
                   {
+                    // keep qualifiers when simplifying (qualifiers are needed for the operator id)
                     keepQualifiers: true
                   }));
               }
+              // concatenate the fountains from each chunk into "dataAll"
               dataAll = dataAll.concat(data);
             });
+            // return dataAll to 
             resolve(dataAll);
           })
           .catch(e=>{
@@ -119,7 +133,7 @@ class WikidataService {
       }
     };
     
-    // if there is a wikidata entity, then fetch more information
+    // if there is a wikidata entity, then fetch more information with a query
     if(fountain.properties.artist_name.source === 'wikidata'){
   
       let qid = fountain.properties.artist_name.value;
@@ -127,7 +141,7 @@ class WikidataService {
       // enter wikidata url
       fountain.properties.artist_name.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
       
-      // create sparql url
+      // create sparql query url
       const url = wdk.getEntities({
         ids: [qid],
         format: 'json',
@@ -155,8 +169,8 @@ class WikidataService {
             fountain.properties.artist_name.value = entity.labels[langs[0]];
           }
           // Try to find a useful link
-          // Look for Wikipedia entry in English, French, or German
-          for(let lang of ['en', 'fr', 'de', 'it']){
+          // Look for Wikipedia entry in different languages
+          for(let lang of ['en', 'fr', 'de', 'it', 'tr']){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               fountain.properties.artist_name.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
               return fountain;
@@ -176,6 +190,7 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
+          // report error to log and save to data
           l.error(`Error collecting artist name and url from wikidata: ${err}`);
           fountain.properties.artist_name.issues.push({
             data: err,
@@ -199,7 +214,7 @@ class WikidataService {
   fillOperatorInfo(fountain){
     // created for proximap/#149
     if(fountain.properties.operator_name.source === 'wikidata'){
-      // create sparql url
+      // create sparql url to fetch operator information from QID
       let qid = fountain.properties.operator_name.value;
       const url = wdk.getEntities({
         ids: [qid],
@@ -228,19 +243,19 @@ class WikidataService {
             fountain.properties.operator_name.value = entity.labels[langs[0]];
           }
           // Try to find a useful link
-          fountain.properties.operator_name.derived = {
-            url: null,
-            qid: qid
-          };
           // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
+          let url = null;
           for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
             // get the url value if the path exists
-            let url = _.get(entity.claims, [pid, 0, 'value'], false);
+            url = _.get(entity.claims, [pid, 0, 'value'], false);
             if(url){
-              fountain.properties.operator_name.derived.url = url;
               break;
             }
           }
+          fountain.properties.operator_name.derived = {
+            url: url,
+            qid: qid
+          };
           return fountain;
         })
         .catch(err=>{

@@ -1,5 +1,5 @@
 # datablue
-Datablue is a tool for collecting and aggregating open data, written using NodeJS and Express.
+Datablue is a server for collecting, aggregating, and serving open data. It is written using NodeJS and Express.
 It is being developed in conjunction with [Proximap](//github.com/water-fountains/proximap), a responsive web app for finding nearby public infrastructure, using drinking fountains as a showcase example. Check out [water-fountains.org](//water-fountains.org)
 for more information on the overall project.
 
