@@ -156,6 +156,36 @@ export const locations = {
       url_template: null
     }
   },
+  "de-hh": {
+    name: 'Hamburg',
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
+      "latMin": 53.4075,
+      "lngMin": 9.657,
+      "latMax": 53.7365,
+      "lngMax": 10.2997
+    },
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      operator: null,
+      qid: null,
+      thumbnail_url: ``,
+      url_template: null
+    }
+  },
   "it-roma": {
     name: 'Roma',
     description: {
