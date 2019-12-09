@@ -186,8 +186,8 @@ export const locations = {
       url_template: null
     }
   },
-  "it-roma": {
-    name: 'Roma',
+  "de-hh": {
+    name: 'Hamburg',
     description: {
       en: ``,
       de: ``,
@@ -203,10 +203,40 @@ export const locations = {
       tr: ``,
     },
     bounding_box: {
-      "latMin": 41.793,
-      "lngMin": 12.369,
-      "latMax": 41.994,
-      "lngMax": 12.622
+      "latMin": 53.4075,
+      "lngMin": 9.657,
+      "latMax": 53.7365,
+      "lngMax": 10.2997
+    },
+    "operator_fountain_catalog_qid": 'undefined',
+    issue_api:{
+      operator: null,
+      qid: null,
+      thumbnail_url: ``,
+      url_template: null
+    }
+  },
+  "fr-paris": {
+    name: 'Paris',
+    description: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    description_more: {
+      en: ``,
+      de: ``,
+      fr: ``,
+      it: ``,
+      tr: ``,
+    },
+    bounding_box: {
+      "latMin": 48.818,
+      "lngMin": 2.246,
+      "latMax": 48.901,
+      "lngMax": 2.456
     },
     "operator_fountain_catalog_qid": 'undefined',
     issue_api:{
