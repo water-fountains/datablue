@@ -20,3 +20,7 @@ deploy:
   on:
     all_branches: true
     condition: "$TRAVIS_BRANCH =~ ^stable|develop$"
+after_success:
+  - echo "Build successful. TRAVIS_TEST_RESULT=$TRAVIS_TEST_RESULT - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
+after_failure:
+  - echo "Build failed. TRAVIS_TEST_RESULT=$TRAVIS_TEST_RESULT - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"

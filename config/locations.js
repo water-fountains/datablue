@@ -186,28 +186,28 @@ export const locations = {
       url_template: null
     }
   },
-  "de-hh": {
-    name: 'Hamburg',
-    description: {
-      en: ``,
-      de: ``,
-      fr: ``,
-      it: ``,
-      tr: ``,
-    },
-    description_more: {
-      en: ``,
-      de: ``,
-      fr: ``,
-      it: ``,
-      tr: ``,
-    },
-    bounding_box: {
-      "latMin": 53.4075,
-      "lngMin": 9.657,
-      "latMax": 53.7365,
-      "lngMax": 10.2997
-    },
+  "it-roma": {
+	name: 'Roma',
+	description: {
+	  en: ``,
+	  de: ``,
+	  fr: ``,
+	  it: ``,
+	  tr: ``,
+	},
+	description_more: {
+	  en: ``,
+	  de: ``,
+	  fr: ``,
+	  it: ``,
+	  tr: ``,
+	},
+	bounding_box: {
+	  "latMin": 41.793,
+	  "lngMin": 12.369,
+	  "latMax": 41.994,
+	  "lngMax": 12.622
+	},
     "operator_fountain_catalog_qid": 'undefined',
     issue_api:{
       operator: null,
