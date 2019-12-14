@@ -25,7 +25,7 @@ const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 
 class WikimediaService {
-  fillGallery(fountain){
+  fillGallery(fountain, dbg){
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
@@ -51,7 +51,7 @@ class WikimediaService {
       // if a main image is defined, get that
       if(!_.isNull(fountain.properties.featured_image_name.value)){
         // fetch info for just the one image
-        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value)
+        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg)
       }else{
         // If there is no main image, resolve with false
         main_image_promise = new Promise((resolve, reject)=>resolve(false));
@@ -71,14 +71,15 @@ class WikimediaService {
         gallery_image_promise = api.get(url, {timeout: 5000})
           .then(r => {
             let category_members = r.data.query['categorymembers'];
-
-        
+            let cI = 0;
+            let cTot = category_members.length;
             // fetch information for each image
             _.forEach(category_members, page => {
+              cI = cI + 1;
               // only use photo media, not videos
               let ext = page.title.slice(-3).toLowerCase();
               if( ['jpg', 'png', 'gif'].indexOf(ext)>=0){
-                gallery_image_promises.push(this.getImageInfo(page.title));
+                gallery_image_promises.push(this.getImageInfo(page.title,"f-"+dbg+"_i-"+cI+"/"+cTot));
               }
             });
             
@@ -166,7 +167,7 @@ class WikimediaService {
     });
   }
   
-  getImageInfo(pageTitle){
+  getImageInfo(pageTitle, dbg){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.big = this.getImageUrl(pageTitle, 1200);
@@ -194,13 +195,13 @@ class WikimediaService {
           resolve(newImage);
         }
         else{
-          l.warn(`http request when getting metadata for ${pageTitle} did not return useful data. Url: ${url}`);
+          l.warn(`http request when getting metadata for ${pageTitle} ${dbg} did not return useful data. Url: ${url}`);
           newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.warn(`http request when getting metadata for ${pageTitle} timed out or failed. Error message: ${error}. Url: ${url}`);
+        l.warn(`http request when getting metadata for ${pageTitle} ${dbg} timed out or failed. Error message: ${error}. Url: ${url}`);
         newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Error message: ${error}. Url: ${url}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);

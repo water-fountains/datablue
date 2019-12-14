@@ -34,8 +34,13 @@ export function fillImageGalleries(fountainCollection){
   
   return new Promise((resolve, reject) => {
     let promises = [];
+    let i = 0;
+    let tot = fountainCollection.length;
+    let dbg = 'dbgUndef';
     _.forEach(fountainCollection, fountain =>{
-      promises.push(WikimediaService.fillGallery(fountain));
+      i=i+1;
+      dbg = i+'/'+tot;
+      promises.push(WikimediaService.fillGallery(fountain, dbg));
     });
     
     Promise.all(promises)
