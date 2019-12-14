@@ -2078,6 +2078,7 @@ let fountain_properties = {
           urls.forEach((elt)=>{
             let url = elt.value; 
             if(!_.startsWith(url, 'https://h2o.do')) {
+              //as per https://github.com/water-fountains/import2wikidata/issues/10#issuecomment-528876473
               validUrls.push(url);
             }
           });
