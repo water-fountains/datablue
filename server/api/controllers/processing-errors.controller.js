@@ -30,6 +30,7 @@ export function extractProcessingErrors(fountainCollection){
       }
     });
   }
+  l.info('found '+errorCollection.length+' processing errors');
   
   return errorCollection;
 }
