@@ -16,6 +16,7 @@ import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
 export function defaultCollectionEnhancement(fountainCollection,dbg) {
+  l.info('defaultCollectionEnhancement: '+dbg);
   return new Promise((resolve, reject)=>{
     fillImageGalleries(fountainCollection,dbg)
       .then(r => fillOutNames(r))
@@ -28,7 +29,7 @@ export function defaultCollectionEnhancement(fountainCollection,dbg) {
 }
 
 
-export function fillImageGalleries(fountainCollection, dbg){
+export function fillImageGalleries(fountainCollection, city){
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
   
@@ -38,8 +39,8 @@ export function fillImageGalleries(fountainCollection, dbg){
     let tot = fountainCollection.length;
     _.forEach(fountainCollection, fountain =>{
       i=i+1;
-      dbg = i+'/'+tot;
-      promises.push(WikimediaService.fillGallery(fountain, dbg));
+      let dbg = i+'/'+tot;
+      promises.push(WikimediaService.fillGallery(fountain, dbg, city));
     });
     
     Promise.all(promises)

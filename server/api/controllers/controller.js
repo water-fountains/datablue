@@ -95,7 +95,7 @@ export class Controller {
       reprocessFountainAtCoords(req, res,req.query.city)
     }else{
       // byId will look into the fountain cache and return the fountain with the given identifier
-      byId(req, res)
+      byId(req, res,'dbgTbd')
     }
   }
   
@@ -180,8 +180,9 @@ export default new Controller();
 /**
  * Function to respond to request by returning the fountain as defined by the provided identifier
  */
-function byId(req, res){
+function byId(req, res, dbg){
   try{
+      l.info('byId '+req.query.city);
       let fountain = _.find(
         cityCache.get(req.query.city).features,
         f=>{
@@ -189,7 +190,7 @@ function byId(req, res){
         });
       res.json(fountain)
   }catch (e) {
-    l.error(`Error finding fountain in preprocessed data: ${e}`);
+    l.error(`Error finding fountain in preprocessed data: ${e} `+req.query.city+ ' '+dbg);
   }
   
 }
@@ -204,7 +205,7 @@ function byId(req, res){
  */
 function reprocessFountainAtCoords(req, res, dbg) {
   
-  l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius}`);
+  l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius} `+dbg);
   
   // OSM promise
   let osmPromise = OsmService

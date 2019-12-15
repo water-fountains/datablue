@@ -25,7 +25,11 @@ const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 
 class WikimediaService {
-  fillGallery(fountain, dbg){
+  fillGallery(fountain, dbg, city){
+    let dbgIdWd = null;
+    if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
+      dbgIdWd = fountain.properties.id_wikidata.value;
+    }
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
@@ -51,7 +55,7 @@ class WikimediaService {
       // if a main image is defined, get that
       if(!_.isNull(fountain.properties.featured_image_name.value)){
         // fetch info for just the one image
-        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg)
+        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city)
       }else{
         // If there is no main image, resolve with false
         main_image_promise = new Promise((resolve, reject)=>resolve(false));
@@ -76,12 +80,15 @@ class WikimediaService {
             // fetch information for each image
             _.forEach(category_members, page => {
               cI = cI + 1;
+              let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cTot;  
+              let pTit = page.title.toLowerCase();
+              let dotPos = pTit.lastIndexOf(".");
               // only use photo media, not videos
-              let ext = page.title.slice(-3).toLowerCase();
-              if( ['jpg', 'png', 'gif'].indexOf(ext)>=0){
-                gallery_image_promises.push(this.getImageInfo(page.title,"f-"+dbg+"_i-"+cI+"/"+cTot));
+              let ext = pTit.substring(dotPos+1);
+              if( ['jpg','jpeg', 'png', 'gif','tif','tiff'].indexOf(ext)>=0){
+                gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd));
               } else {
-                l.info('skipping "'+page.title+'"');
+                l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
               }
             });
             
