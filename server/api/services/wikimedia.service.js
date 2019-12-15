@@ -55,7 +55,7 @@ class WikimediaService {
       // if a main image is defined, get that
       if(!_.isNull(fountain.properties.featured_image_name.value)){
         // fetch info for just the one image
-        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city)
+        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city+' '+dbgIdWd,null)
       }else{
         // If there is no main image, resolve with false
         main_image_promise = new Promise((resolve, reject)=>resolve(false));
@@ -85,8 +85,8 @@ class WikimediaService {
               let dotPos = pTit.lastIndexOf(".");
               // only use photo media, not videos
               let ext = pTit.substring(dotPos+1);
-              if( ['jpg','jpeg', 'png', 'gif','tif','tiff'].indexOf(ext)>=0){
-                gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd));
+              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg'].indexOf(ext)>=0){
+                gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd,cI+"/"+cTot));
               } else {
                 l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
               }
@@ -177,7 +177,7 @@ class WikimediaService {
     });
   }
   
-  getImageInfo(pageTitle, dbg){
+  getImageInfo(pageTitle, dbg,iOfTot){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.big = this.getImageUrl(pageTitle, 1200);
@@ -200,18 +200,28 @@ class WikimediaService {
           let artist = newImage.metadata.artist;
           artist = artist?artist.replace('href', 'target="_blank" href'):"";
           // save description
-          newImage.description = `${license}${artist}`;
-          newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+          let imgUrl = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+          let imgDesc = `${license}&nbsp;${artist}`;
+          if (null != iOfTot) {
+            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+iOfTot+'</a>';
+          } else {
+            if (pageTitle.toLowerCase().endsWith('.svg')) {
+              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >svg</a>';
+
+            }
+          }
+          newImage.description = imgDesc;
+          newImage.url = imgUrl;
           resolve(newImage);
         }
         else{
-          l.warn(`http request when getting metadata for ${pageTitle} ${dbg} did not return useful data. Url: ${url}`);
+          l.warn(`http request when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} did not return useful data. Url: ${url}`);
           newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.warn(`http request when getting metadata for ${pageTitle} ${dbg} timed out or failed. Error message: ${error}. Url: ${url}`);
+        l.warn(`http req when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} timed out or failed. Error message: ${error}. Url: ${url}`);
         newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Error message: ${error}. Url: ${url}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);

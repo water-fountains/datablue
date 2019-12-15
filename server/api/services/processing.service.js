@@ -93,12 +93,20 @@ export function fillWikipediaSummaries(fountainCollection, dbg){
     // loop through fountains
     _.forEach(fountainCollection, fountain =>{
       // check all languages to see if a wikipedia page is referenced
+      let i = 0;
+      let tot = fountainCollection.length;
       _.forEach(['en', 'de', 'fr', 'it', 'tr'], lang =>{
         let urlParam = `wikipedia_${lang}_url`;
+        i=i+1;
+        let dbgHere = i+'/'+tot+' '+dbg;
         if(!_.isNull(fountain.properties[urlParam].value)){
           // if not Null, get summary and create new property
+          let dbgIdWd = null;
+          if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
+            dbgIdWd = fountain.properties.id_wikidata.value;
+          }       
           promises.push(new Promise((resolve, reject) => {
-            WikipediaService.getSummary(fountain.properties[urlParam].value, dbg)
+            WikipediaService.getSummary(fountain.properties[urlParam].value, dbgHere+' '+lang+' '+dbgIdWd)
               .then(summary => {
                 // add suumary as derived information to url property
                 fountain.properties[urlParam].derived = {
