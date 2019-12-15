@@ -122,7 +122,7 @@ class WikidataService {
     })
   }
   
-  fillArtistName(fountain){
+  fillArtistName(fountain,dbg){
     // created for proximap/#129
     
     // intialize
@@ -191,7 +191,7 @@ class WikidataService {
         })
         .catch(err=>{
           // report error to log and save to data
-          l.error(`Error collecting artist name and url from wikidata: ${err}`);
+          l.error(`Error collecting artist name and url from wikidata: ${err} `+dbg);
           fountain.properties.artist_name.issues.push({
             data: err,
               context: {
@@ -200,9 +200,10 @@ class WikidataService {
                 id_osm: fountain.properties.id_osm.value,
                 id_wikidata: fountain.properties.id_wikidata.value
             },
+            timeStamp: new Date(),
             type: 'data_processing',
               level: 'error',
-              message: `Failed to fetch Wikidata entity information. Url: ${url}`,
+              message: `Failed to fetch Wikidata entity information. Url: ${url} `+dbg,
           });
           return fountain});
     }else{

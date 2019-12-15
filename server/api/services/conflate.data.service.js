@@ -27,7 +27,7 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // This service finds matching fountains from osm and wikidata
 // and merges their properties
 
-export function conflate(ftns) {
+export function conflate(ftns, dbg) {
   return new Promise((resolve, reject)=>{
     
     let conflated = {
@@ -40,10 +40,10 @@ export function conflate(ftns) {
     if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
 
       // first conflate by wikidata identifiers (QID)
-      conflated.wikidata = conflateByWikidata(ftns);
+      conflated.wikidata = conflateByWikidata(ftns,dbg);
 
       // then conflate by coordinates
-      conflated.coord = conflateByCoordinates(ftns);
+      conflated.coord = conflateByCoordinates(ftns,dbg);
     }
     
     // process remaining fountains that were not matched by either QID or coordinates
@@ -70,13 +70,13 @@ export function conflate(ftns) {
  * This function finds matching pairs of fountains between osm and wikidata. It returns the list of matches and removes the matched fountains from the 'ftns' argument
  * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByWikidata(ftns) {
+function conflateByWikidata(ftns,dbg) {
   // Holder for conflated (matched) fountains
   let conflated_fountains = [];
   // Holders for matched fountain indexes
   let matched_idx_osm = [];
   let matched_idx_wd = [];
-  
+  //l.info(ftns+' ftns conflateByWikidata '+dbg);
   // loop through OSM fountains
   for(const [idx_osm, f_osm] of ftns.osm.entries()){
     
@@ -139,7 +139,7 @@ function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd) {
  * Find matching fountains based on coordinates alone
  * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByCoordinates(ftns) {
+function conflateByCoordinates(ftns,dbg) {
   // Holder for conflated fountains
   let conflated_fountains = [];
   // Temporary holders for matched fountain indexes
@@ -148,7 +148,7 @@ function conflateByCoordinates(ftns) {
   
   // make ordered list of coordinates from all Wikidata fountains
   let coords_all_wd = _.map(ftns.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
-  
+  l.info(ftns.length+' ftns conflateByCoordinates '+dbg);
   // Loop through OSM fountains
   // todo: loop through wikidata fountains instead, since this is the more incomplete list the matching will go much faster
   for (const [idx_osm, f_osm] of ftns.osm.entries()) {

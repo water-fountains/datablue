@@ -90,7 +90,7 @@ class WikimediaService {
           })
           .catch(err => {
             // If there is an error getting the category members, then reject with error
-            l.error(`Failed to fetch category members. Url: ${url}`);
+            l.error(`Failed to fetch category members. Url: ${url} `+dbg);
             // add gallery as value of fountain gallery property
             fountain.properties.gallery.issues.push({
               data: err,
@@ -100,9 +100,10 @@ class WikimediaService {
                 id_osm: fountain.properties.id_osm.value,
                 id_wikidata: fountain.properties.id_wikidata.value
               },
+              timeStamp: new Date(),
               type: 'data_processing',
               level: 'error',
-              message: `Failed to fetch category members from Wikimedia Commons. Url: ${url}`,
+              message: `Failed to fetch category members from Wikimedia Commons. Url: ${url} `+dbg,
             });
             // return empty gallery so that the gallery creation can continue (the gallery might
             // then just consist in the main image

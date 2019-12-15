@@ -92,7 +92,7 @@ export class Controller {
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
-      reprocessFountainAtCoords(req, res)
+      reprocessFountainAtCoords(req, res,req.query.city)
     }else{
       // byId will look into the fountain cache and return the fountain with the given identifier
       byId(req, res)
@@ -202,7 +202,7 @@ function byId(req, res){
  * - lng: longitude of search location
  * - radius: radius in which to search for fountains
  */
-function reprocessFountainAtCoords(req, res) {
+function reprocessFountainAtCoords(req, res, dbg) {
   
   l.info(`processing all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius}`);
   
@@ -237,7 +237,7 @@ function reprocessFountainAtCoords(req, res) {
     .then(r => conflate({
       osm: r.osm,
       wikidata: r.wikidata
-    }))
+    },dbg))
 
     // return only the fountain that is closest to the coordinates of the query
     .then(r => {
@@ -255,7 +255,7 @@ function reprocessFountainAtCoords(req, res) {
     })
 
      // fetch more information about fountains (Artist information, gallery, etc.)
-    .then(r => defaultCollectionEnhancement(r))
+    .then(r => defaultCollectionEnhancement(r,dbg))
 
     // Update cache with newly processed fountain
     .then(r=>{

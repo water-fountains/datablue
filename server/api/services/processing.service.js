@@ -15,12 +15,12 @@ import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
-export function defaultCollectionEnhancement(fountainCollection) {
+export function defaultCollectionEnhancement(fountainCollection,dbg) {
   return new Promise((resolve, reject)=>{
-    fillImageGalleries(fountainCollection)
+    fillImageGalleries(fountainCollection,dbg)
       .then(r => fillOutNames(r))
       .then(r => fillWikipediaSummaries(r))
-      .then(r => fillArtistNames(r))
+      .then(r => fillArtistNames(r,dbg))
       .then(r => fillOperatorInfo(r))
       .then(r => resolve(r))
       .catch(err=>reject(err))
@@ -28,7 +28,7 @@ export function defaultCollectionEnhancement(fountainCollection) {
 }
 
 
-export function fillImageGalleries(fountainCollection){
+export function fillImageGalleries(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
   
@@ -36,7 +36,6 @@ export function fillImageGalleries(fountainCollection){
     let promises = [];
     let i = 0;
     let tot = fountainCollection.length;
-    let dbg = 'dbgUndef';
     _.forEach(fountainCollection, fountain =>{
       i=i+1;
       dbg = i+'/'+tot;
@@ -51,14 +50,14 @@ export function fillImageGalleries(fountainCollection){
 }
 
 // created for proximap #129
-export function fillArtistNames(fountainCollection){
+export function fillArtistNames(fountainCollection,dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with artist names if only QID was given
   
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
-      promises.push(WikidataService.fillArtistName(fountain));
+      promises.push(WikidataService.fillArtistName(fountain,dbg));
     });
     
     Promise.all(promises)

@@ -49,8 +49,8 @@ function generateLocationData(locationName){
         .then(r => conflate({
           osm: r.osm,
           wikidata: r.wikidata
-        }))
-        .then(r => defaultCollectionEnhancement(r))
+        },locationName))
+        .then(r => defaultCollectionEnhancement(r, locationName))
         .then(r => createUniqueIds(r))
         .then(r => {
           //TODO add location size as per https://github.com/water-fountains/datablue/issues/39
