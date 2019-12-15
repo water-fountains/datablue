@@ -212,7 +212,7 @@ class WikidataService {
   }
   
   
-  fillOperatorInfo(fountain){
+  fillOperatorInfo(fountain, dbg){
     // created for proximap/#149
     if(fountain.properties.operator_name.source === 'wikidata'){
       // create sparql url to fetch operator information from QID
@@ -260,7 +260,7 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
-          l.error(`Error collecting operator info name: ${err}`);
+          l.error(`Error collecting operator info name: ${err} `+dbg);
           fountain.properties.operator_name.value = fountain.properties.operator_name.value + '(lookup unsuccessful)';
           return fountain});
     }else{

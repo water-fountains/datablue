@@ -19,7 +19,7 @@ export function defaultCollectionEnhancement(fountainCollection,dbg) {
   return new Promise((resolve, reject)=>{
     fillImageGalleries(fountainCollection,dbg)
       .then(r => fillOutNames(r))
-      .then(r => fillWikipediaSummaries(r))
+      .then(r => fillWikipediaSummaries(r,dbg))
       .then(r => fillArtistNames(r,dbg))
       .then(r => fillOperatorInfo(r))
       .then(r => resolve(r))
@@ -68,14 +68,14 @@ export function fillArtistNames(fountainCollection,dbg){
 }
 
 // created for proximap #149
-export function fillOperatorInfo(fountainCollection){
+export function fillOperatorInfo(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with operator information if that information is available in Wikidata
   
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
-      promises.push(WikidataService.fillOperatorInfo(fountain));
+      promises.push(WikidataService.fillOperatorInfo(fountain,dbg));
     });
     
     Promise.all(promises)
@@ -85,7 +85,7 @@ export function fillOperatorInfo(fountainCollection){
   })
 }
 
-export function fillWikipediaSummaries(fountainCollection){
+export function fillWikipediaSummaries(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
   return new Promise((resolve, reject) => {
     let promises = [];
@@ -97,7 +97,7 @@ export function fillWikipediaSummaries(fountainCollection){
         if(!_.isNull(fountain.properties[urlParam].value)){
           // if not Null, get summary and create new property
           promises.push(new Promise((resolve, reject) => {
-            WikipediaService.getSummary(fountain.properties[urlParam].value)
+            WikipediaService.getSummary(fountain.properties[urlParam].value, dbg)
               .then(summary => {
                 // add suumary as derived information to url property
                 fountain.properties[urlParam].derived = {

@@ -80,6 +80,8 @@ class WikimediaService {
               let ext = page.title.slice(-3).toLowerCase();
               if( ['jpg', 'png', 'gif'].indexOf(ext)>=0){
                 gallery_image_promises.push(this.getImageInfo(page.title,"f-"+dbg+"_i-"+cI+"/"+cTot));
+              } else {
+                l.info('skipping "'+page.title+'"');
               }
             });
             
