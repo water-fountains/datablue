@@ -1051,8 +1051,11 @@ let fountain_properties = {
             let url = el.value;
             // determine source from url
             let source_name = 'unknown';
-            if(url.includes('goo.gl/maps') || url.includes('instantstreetview')){
+            if(url.includes('goo.gl/maps')){
               source_name = 'Google Street View';
+            }else if(url.includes('instantstreetview')){
+              //a first step towards https://github.com/water-fountains/proximap/issues/137
+              source_name = 'Google Street View (+)';
             }else if(url.includes('mapillary')){
               source_name = 'Mapillary';
             }else if(url.includes('openstreetcam')){
