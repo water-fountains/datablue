@@ -81,6 +81,14 @@ class WikimediaService {
             let cI = 0;
             let cTot = category_members.length;
             if (hasMain) {
+              _.forEach(category_members, page => {
+                if(page.title.endsWith(':'+fountain.properties.featured_image_name.value)) {
+                  //since the duplicates get removed later, this would lead to a jump in the numbering
+                  hasMain = false;
+                }
+              });
+            }
+            if (hasMain) {
               cTot++;
               cI++;
             }
@@ -92,7 +100,7 @@ class WikimediaService {
               let dotPos = pTit.lastIndexOf(".");
               // only use photo media, not videos
               let ext = pTit.substring(dotPos+1);
-              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg'].indexOf(ext)>=0){
+              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv'].indexOf(ext)>=0){
                 gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd,cI+"/"+cTot));
               } else {
                 l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
@@ -211,8 +219,15 @@ class WikimediaService {
           if (null != iOfTot) {
             imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+iOfTot+'</a>';
           } else {
-            if (pageTitle.toLowerCase().endsWith('.svg')) { //e.g. Q3076321 
-              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >svg</a>';
+            let ptLc = pageTitle.toLowerCase();
+            let specFmt = null;
+            if (ptLc.endsWith('.svg')) { //e.g. Q3076321 
+              specFmt = 'svg';
+            } else if (ptLc.endsWith('.ogv')) { //e.g. Q29685311 
+              specFmt = 'ogv';
+            }
+            if (null != specFmt) {
+              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+specFmt+'</a>';
             }
           }
           newImage.description = imgDesc;
