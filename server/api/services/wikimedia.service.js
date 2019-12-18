@@ -51,24 +51,27 @@ class WikimediaService {
       let gallery_image_promise = null;
       let main_image_promise = null;
       
-      
+      let hasMain = false;
       // if a main image is defined, get that
       if(!_.isNull(fountain.properties.featured_image_name.value)){
+        hasMain = true; //under the assumption that main image will not fail
         // fetch info for just the one image
-        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city+' '+dbgIdWd,null)
+        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city+' '+dbgIdWd,null);
       }else{
         // If there is no main image, resolve with false
         main_image_promise = new Promise((resolve, reject)=>resolve(false));
       }
-  
-      
+      let url = null;  
+      if(_.isNull(fountain.properties.wiki_commons_name.value)) {
+        // TODO check whether there 'wiki_commons' in OSM and 'wetap:photo' (Q76938390) and 'flickr' (Q983774)
+      }
       // check if fountain has a Wikimedia category and create gallery
       if(_.isNull(fountain.properties.wiki_commons_name.value)) {
         // if not, resolve with empty
         gallery_image_promise = new Promise((resolve, reject)=>resolve([]));
       }else{
         // if there is a gallery, then fetch all images in category
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(fountain.properties.wiki_commons_name.value))}&prop=imageinfo&format=json`;
+        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(fountain.properties.wiki_commons_name.value))}&prop=imageinfo&format=json`;
         // make array of image promises
         let gallery_image_promises = [];
   
@@ -77,6 +80,10 @@ class WikimediaService {
             let category_members = r.data.query['categorymembers'];
             let cI = 0;
             let cTot = category_members.length;
+            if (hasMain) {
+              cTot++;
+              cI++;
+            }
             // fetch information for each image
             _.forEach(category_members, page => {
               cI = cI + 1;
@@ -94,8 +101,6 @@ class WikimediaService {
             
             // when all images are resolved, resolve gallery
             return Promise.all(gallery_image_promises)
-            
-            
           })
           .catch(err => {
             // If there is an error getting the category members, then reject with error
@@ -170,7 +175,7 @@ class WikimediaService {
         })
   
         .catch(err => {
-          l.error(`Failed to create gallery for fountain.`);
+          l.error(`Failed to create gallery for fountain `+dbgIdWd+' '+city+' '+dbg);
           reject(err)
         })
       
@@ -184,7 +189,8 @@ class WikimediaService {
       newImage.medium = this.getImageUrl(pageTitle, 512);
       newImage.small = this.getImageUrl(pageTitle, 120);
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      api.get(url, {timeout: 2000})
+      let timeout = 2000;
+      api.get(url, {timeout: timeout})
         .then(response => {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
         if(data.hasOwnProperty('imageinfo')){
@@ -205,9 +211,8 @@ class WikimediaService {
           if (null != iOfTot) {
             imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+iOfTot+'</a>';
           } else {
-            if (pageTitle.toLowerCase().endsWith('.svg')) {
+            if (pageTitle.toLowerCase().endsWith('.svg')) { //e.g. Q3076321 
               imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >svg</a>';
-
             }
           }
           newImage.description = imgDesc;

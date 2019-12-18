@@ -95,7 +95,7 @@ export class Controller {
       reprocessFountainAtCoords(req, res,req.query.city)
     }else{
       // byId will look into the fountain cache and return the fountain with the given identifier
-      byId(req, res,'dbgTbd')
+      byId(req, res,req.query.idval)
     }
   }
   
@@ -182,7 +182,7 @@ export default new Controller();
  */
 function byId(req, res, dbg){
   try{
-      l.info('byId '+req.query.city);
+      l.info('byId '+req.query.city+' '+dbg);
       let fountain = _.find(
         cityCache.get(req.query.city).features,
         f=>{
