@@ -221,9 +221,9 @@ class WikimediaService {
           } else {
             let ptLc = pageTitle.toLowerCase();
             let specFmt = null;
-            if (ptLc.endsWith('.svg')) { //e.g. Q3076321 
+            if (ptLc.endsWith('.svg')) { //e.g. Q3076321 https://github.com/lukasz-galka/ngx-gallery/issues/296
               specFmt = 'svg';
-            } else if (ptLc.endsWith('.ogv')) { //e.g. Q29685311 
+            } else if (ptLc.endsWith('.ogv')) { //e.g. Q29685311 https://github.com/lukasz-galka/ngx-gallery/issues/296
               specFmt = 'ogv';
             }
             if (null != specFmt) {
