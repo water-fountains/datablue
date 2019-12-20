@@ -330,7 +330,8 @@ function addDefaultPanoUrls(fountain) {
     fountain.pano_url.value = [
       {url: `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`,
       //a first step towards https://github.com/water-fountains/proximap/issues/137
-      source_name: 'Google Street View (+)'}
+      source_name: 'Google Street View' // (+)'
+    }
     ];
     fountain.pano_url.status = PROP_STATUS_INFO;
     fountain.pano_url.comments = 'URL for Google Street View is automatically generated from coordinates'
