@@ -100,7 +100,7 @@ class WikimediaService {
               let dotPos = pTit.lastIndexOf(".");
               // only use photo media, not videos
               let ext = pTit.substring(dotPos+1);
-              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv'].indexOf(ext)>=0){
+              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', webm].indexOf(ext)>=0){
                 gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd,cI+"/"+cTot));
               } else {
                 l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
@@ -225,6 +225,8 @@ class WikimediaService {
               specFmt = 'svg';
             } else if (ptLc.endsWith('.ogv')) { //e.g. Q29685311 https://github.com/lukasz-galka/ngx-gallery/issues/296
               specFmt = 'ogv';
+            } else if (ptLc.endsWith('.webm')) { //e.g. category "Fountains" https://commons.wikimedia.org/wiki/File:DJI_0111.webm
+              specFmt = 'webm';
             }
             if (null != specFmt) {
               imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+specFmt+'</a>';
