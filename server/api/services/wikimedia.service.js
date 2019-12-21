@@ -196,9 +196,8 @@ class WikimediaService {
   getImageInfo(pageTitle, dbg,iOfTot){
     return new Promise((resolve, reject) =>{
       let newImage = {};
-      newImage.big = this.getImageUrl(pageTitle, 1200);
-      newImage.medium = this.getImageUrl(pageTitle, 512);
-      newImage.small = this.getImageUrl(pageTitle, 120);
+      newImage.s = 'wd';
+      newImage.pgTit = pageTitle.replace('File:','').replace(/ /g, '_');
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       let timeout = 2000;
       api.get(url, {timeout: timeout})
@@ -219,9 +218,10 @@ class WikimediaService {
           // save description
           let imgUrl = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           let imgDesc = `${license}&nbsp;${artist}`;
-          let aTitle=' title="See image in a new tab" '; //T.b.d. NLS
+          let counterTitle=' title="See image in a new tab" '; //TODO NLS
           if (null != iOfTot) {
-            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '+aTitle+' >'+iOfTot+'</a>';
+            //counter RFE https://github.com/lukasz-galka/ngx-gallery/issues/252
+            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '+counterTitle+' >'+iOfTot+'</a>';
           } else {
             let ptLc = pageTitle.toLowerCase();
             let specFmt = null;
@@ -234,7 +234,7 @@ class WikimediaService {
             }
             if (null != specFmt) {
               imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '
-               + aTitle +' >'+specFmt+'</a>';
+               + counterTitle +' >'+specFmt+'</a>';
             }
           }
           newImage.description = imgDesc;
@@ -242,13 +242,13 @@ class WikimediaService {
           resolve(newImage);
         }
         else{
-          l.warn(`http request when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} did not return useful data. Url: ${url}`);
+          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} did not return useful data. Url: ${url}`);
           newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
           newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.warn(`http req when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} timed out or failed. Error message: ${error}. Url: ${url}`);
+        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} timed out or failed. Error message: ${error}. Url: ${url}`);
         newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Error message: ${error}. Url: ${url}`;
         newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
         resolve(newImage);
@@ -267,11 +267,12 @@ class WikimediaService {
       .replace(/&/g, '%26');
   }
   
+  //deprecated should go to browser
   getImageUrl(pageTitle, imageSize=640){
     // construct url of thumbnail
     // let imgName = pageTitle.replace('File:','');
     let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
-  
+    
     let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
     return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
   }
