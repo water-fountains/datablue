@@ -189,7 +189,7 @@ function byId(req, res, dbg){
       let cty = cityCache.get(cityS);
       if (null== cty) {
         l.info('byId '+cityS+' not found in cache '+dbg+' - start city lazy load');
-        generateLocationData();
+        generateLocationData(cityS);
         cty = cityCache.get(cityS);
       }
       let fountain = _.find(

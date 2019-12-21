@@ -219,8 +219,9 @@ class WikimediaService {
           // save description
           let imgUrl = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           let imgDesc = `${license}&nbsp;${artist}`;
+          let aTitle=' title="See image in a new tab" '; //T.b.d. NLS
           if (null != iOfTot) {
-            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+iOfTot+'</a>';
+            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '+aTitle+' >'+iOfTot+'</a>';
           } else {
             let ptLc = pageTitle.toLowerCase();
             let specFmt = null;
@@ -232,7 +233,8 @@ class WikimediaService {
               specFmt = 'webm';
             }
             if (null != specFmt) {
-              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" >'+specFmt+'</a>';
+              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '
+               + aTitle +' >'+specFmt+'</a>';
             }
           }
           newImage.description = imgDesc;

@@ -191,7 +191,7 @@ class WikidataService {
         })
         .catch(err=>{
           // report error to log and save to data
-          l.error(`Error collecting artist name and url from wikidata: ${err} `+dbgHere);
+          l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbgHere);
           l.info(`stack: ${err.stack}`);
           fountain.properties.artist_name.issues.push({
             data: err,
