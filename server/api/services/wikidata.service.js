@@ -124,7 +124,7 @@ class WikidataService {
   
   fillArtistName(fountain,dbg){
     // created for proximap/#129
-    
+    let dbgHere = dbg + ' '+fountain.properties.id_wikidata.value;
     // intialize
     fountain.properties.artist_name.derived = {
       website: {
@@ -191,7 +191,8 @@ class WikidataService {
         })
         .catch(err=>{
           // report error to log and save to data
-          l.error(`Error collecting artist name and url from wikidata: ${err} `+dbg);
+          l.error(`Error collecting artist name and url from wikidata: ${err} `+dbgHere);
+          l.info(`stack: ${err.stack}`);
           fountain.properties.artist_name.issues.push({
             data: err,
               context: {
