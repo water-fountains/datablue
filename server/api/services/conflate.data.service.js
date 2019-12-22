@@ -254,7 +254,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
             }
           }catch(err) {
             temp.sources[src_name].status = PROP_STATUS_ERROR;
-            let warning = `Lost in translation of ${p.id} from ${src_name}: ${err}`;
+            let warning = `Lost in translation of "${p.id}" from "${src_name}": ${err.stack}`;
             temp.sources[src_name].comments.push(warning);
             l.error(warning);
           }
