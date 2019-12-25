@@ -158,7 +158,8 @@ export function essenceOf(fountainCollection) {
   
   // Get list of property names that are marked as essential in the metadata
   let essentialPropNames = _.map(fountain_property_metadata, (p, p_name)=>{if (p.essential) {return p_name} });
-  
+  let withGallery = 0;
+  let strVw = 0;
   // Use the list of essential property names to create a compact version of the fountain data
   fountainCollection.features.forEach(f=>{
     let fPrps = f.properties;
@@ -175,8 +176,15 @@ export function essenceOf(fountainCollection) {
     if (null == fGV0) {
       // l.info(fPrps.id+" null == fGV0 - essenceOf processing.service.js "+new Date().toISOString());
     } else {
-      props.ph = fGal.comments?'':{s:fGV0.s,
-                                 pt:fGV0.pgTit };
+      if (fGal.comments) {
+        //leading to streetview default
+        props.ph = '';
+        strVw++;
+      } else {
+        props.ph = { s:fGV0.s,
+                     pt:fGV0.pgTit };
+        withGallery++;
+      }
     }
     
     // create feature for fountain
@@ -189,7 +197,7 @@ export function essenceOf(fountainCollection) {
       properties: props
     })
   });
-  
+  l.info("processing.service.js essenceOf: withGallery "+withGallery+", strVw "+strVw+" "+new Date().toISOString());
   return newCollection;
   
 }
