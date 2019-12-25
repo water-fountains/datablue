@@ -145,17 +145,8 @@ class WikimediaService {
           
           // if neither gallery nor image, then use google street view
           if(!main_image && (gallery.length === 0)){
-            fountain.properties.featured_image_name.source = 'Google Street View';
-            getStaticStreetView(fountain)
-              .then(image=>{
-                fountain.properties.gallery.value = [image].concat(fountain.properties.gallery.value);
-                fountain.properties.gallery.comments = 'Image obtained from Google Street View Service because no Wikimedia Commons image is associated with the fountain.';
-                fountain.properties.gallery.status = PROP_STATUS_INFO;
-                fountain.properties.gallery.source = 'google';
-      
-                resolve(fountain);
-              })
-            
+            //now done in browser
+            resolve(fountain)            
           }else{
             // if there is a main image, combine it with the gallery
             if(main_image){

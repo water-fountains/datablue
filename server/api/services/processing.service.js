@@ -172,8 +172,12 @@ export function essenceOf(fountainCollection) {
     let fGal = fPrps.gallery;
     let fGV = fGal.value;
     let fGV0 = fGV[0];
-    props.ph = fGal.comments?'':{s:fGV0.s,
+    if (null == fGV0) {
+      // l.info(fPrps.id+" null == fGV0 - essenceOf processing.service.js "+new Date().toISOString());
+    } else {
+      props.ph = fGal.comments?'':{s:fGV0.s,
                                  pt:fGV0.pgTit };
+    }
     
     // create feature for fountain
     newCollection.features.push({
