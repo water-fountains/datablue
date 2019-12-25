@@ -161,14 +161,19 @@ export function essenceOf(fountainCollection) {
   
   // Use the list of essential property names to create a compact version of the fountain data
   fountainCollection.features.forEach(f=>{
-    let props = _.pick(f.properties, essentialPropNames);
+    let fPrps = f.properties;
+    let props = _.pick(fPrps, essentialPropNames);
     props = _.mapValues(props, (obj)=>{
       return obj.value
     });
     // add id manually, since it does not have the standard property structure
-    props.id = f.properties.id;
+    props.id = fPrps.id;
     // add photo if it is not google street view
-    props.photo = f.properties.gallery.comments?'':f.properties.gallery.value[0].small;
+    let fGal = fPrps.gallery;
+    let fGV = fGal.value;
+    let fGV0 = fGV[0];
+    props.ph = fGal.comments?'':{s:fGV0.s,
+                                 pt:fGV0.pgTit };
     
     // create feature for fountain
     newCollection.features.push({
