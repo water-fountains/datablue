@@ -45,8 +45,7 @@ const cityCache = new NodeCache( {
 cityCache.on('expired', (key, value)=>{
   // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if(!key.includes('_essential') && !key.includes('_errors')){
-    
-    l.info(`cityCache.on('expired',...): Automatic cache refresh of ${key}`);
+    l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`);
     
     // trigger a reprocessing of the location's data, based on the key.
     generateLocationData(key)
@@ -61,7 +60,7 @@ cityCache.on('expired', (key, value)=>{
         cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
 
       }).catch(error =>{
-      l.error(`unable to set Cache. Error: ${error}`)
+      l.error(`controller.js unable to set Cache. Error: ${error.stack}`)
     })
   }
 });
@@ -72,7 +71,7 @@ export class Controller {
     // In production mode, process all fountains when starting the server so that the data are ready for the first requests
     if(process.env.NODE_ENV === 'production') {
       for (let location_code of Object.keys(locations)){
-        l.info(`Generating data for ${location_code}`);
+        l.info(`controller.js Generating data for ${location_code}`);
         generateLocationData(location_code)
           .then(fountainCollection => {
             // save new data to storage
@@ -89,7 +88,7 @@ export class Controller {
   // Function to return detailed fountain information
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req, res){
-    l.info(`getSingle: refresh: ${req.query.refresh} , city: `+req.query.city)      
+    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city)      
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
@@ -104,7 +103,7 @@ export class Controller {
   byLocation(req, res){
     // if a refresh is requested or if no data is in the cache, then reprocessess the fountains
     if(req.query.refresh || cityCache.keys().indexOf(req.query.city) === -1){
-      l.info(`byLocation: refresh: ${req.query.refresh} , city: `+req.query.city)      
+      l.info(`controller.js byLocation: refresh: ${req.query.refresh} , city: `+req.query.city)      
       generateLocationData(req.query.city)
         .then(fountainCollection => {
         // save new data to storage
@@ -146,6 +145,7 @@ export class Controller {
    */
   getPropertyMetadata(req, res) {
     res.json(fountain_property_metadata);
+    l.info("controller.js: getPropertyMetadata sent "+new Date().toISOString());
   }
   
   /**
@@ -172,8 +172,11 @@ export class Controller {
     cityCache.get(key, (err, value) => {
       if (!err) {
         res.json(value)
+        l.info("controller.js: getProcessingErrors !err sent "+new Date().toISOString());
       } else {
-        res.statusMessage = 'Error with cache: ' + err;
+        let errMsg = 'Error with cache: ' + err;
+        l.info("controller.js: getProcessingErrors "+errMsg+" "+new Date().toISOString());
+        res.statusMessage = errMst;
         res.status(500).send(err.stack);
       }
     });
@@ -187,10 +190,10 @@ export default new Controller();
 function byId(req, res, dbg){
   let cityS = req.query.city;
   try{
-      l.info('byId '+cityS+' '+dbg);
+      l.info('controller.js byId '+cityS+' '+dbg);
       let cty = cityCache.get(cityS);
       if (null== cty) {
-        l.info('byId '+cityS+' not found in cache '+dbg+' - start city lazy load');
+        l.info('controller.js byId '+cityS+' not found in cache '+dbg+' - start city lazy load');
         generateLocationData(cityS);
         cty = cityCache.get(cityS);
       }
@@ -198,13 +201,13 @@ function byId(req, res, dbg){
        cty.features,
         f=>{
           if (null== f) {
-             l.info('byId fountain of '+cityS+' not found in cache '+dbg);
+             l.info('controller.js byId fountain of '+cityS+' not found in cache '+dbg);
           }
           return f.properties['id_'+req.query.database].value === req.query.idval
         });
       res.json(fountain)
   }catch (e) {
-    l.error(`byId: Error finding fountain in preprocessed data: ${e} `+cityS+ ' '+dbg);
+    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} `+cityS+ ' '+dbg);
   }
   
 }
@@ -219,7 +222,7 @@ function byId(req, res, dbg){
  */
 function reprocessFountainAtCoords(req, res, dbg) {
   
-  l.info(`reprocessFountainAtCoords: all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius} `+dbg);
+  l.info(`controller.js reprocessFountainAtCoords: all fountains near lat:${req.query.lat}, lon: ${req.query.lng}, radius: ${req.query.radius} `+dbg);
   
   // OSM promise
   let osmPromise = OsmService

@@ -21,7 +21,7 @@ import {
   * @param {string} locationName - the code name of the location for which fountains should be processed
   */
 function generateLocationData(locationName){
-    l.info(`processing all fountains from ${locationName}`);
+    l.info(`processing all fountains from "${locationName}" `+ new Date().toISOString());
     return new Promise((resolve, reject)=>{
       // get bounding box of location
       if(!locations.hasOwnProperty(locationName)){
