@@ -103,6 +103,9 @@ class WikimediaService {
               let ext = pTit.substring(dotPos+1);
               if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)>=0){
                 gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd,cI+"/"+cTot));
+                // '.svg' e.g. Q3076321 https://github.com/lukasz-galka/ngx-gallery/issues/296
+                // '.ogv' e.g. Q29685311 https://github.com/lukasz-galka/ngx-gallery/issues/296
+                // '.webm' e.g. category "Fountains" https://commons.wikimedia.org/wiki/File:DJI_0111.webm
               } else {
                 l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
               }
@@ -196,40 +199,6 @@ class WikimediaService {
         let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
         if(data.hasOwnProperty('imageinfo')){
           newImage.metadata = makeMetadata(data.imageinfo[0]);
-          // if image doesn't have a license url, just use plain text
-          let license = newImage.metadata.license_short;
-          if(newImage.metadata.license_url === null){
-            license = license?(license+' '):"";
-          }else{
-            license = `<a href='${newImage.metadata.license_url}' target='_blank'>${newImage.metadata.license_short}</a>`
-          }
-          // if artist name is a link, then it usually isn't set to open in a new page. Change that
-          let artist = newImage.metadata.artist;
-          artist = artist?artist.replace('href', 'target="_blank" href'):"";
-          // save description
-          let imgUrl = `https://commons.wikimedia.org/wiki/${pageTitle}`;
-          let imgDesc = `${license}&nbsp;${artist}`;
-          let counterTitle=' title="See image in a new tab" '; //TODO NLS
-          if (null != iOfTot) {
-            //counter RFE https://github.com/lukasz-galka/ngx-gallery/issues/252
-            imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '+counterTitle+' >'+iOfTot+'</a>';
-          } else {
-            let ptLc = pageTitle.toLowerCase();
-            let specFmt = null;
-            if (ptLc.endsWith('.svg')) { //e.g. Q3076321 https://github.com/lukasz-galka/ngx-gallery/issues/296
-              specFmt = 'svg';
-            } else if (ptLc.endsWith('.ogv')) { //e.g. Q29685311 https://github.com/lukasz-galka/ngx-gallery/issues/296
-              specFmt = 'ogv';
-            } else if (ptLc.endsWith('.webm')) { //e.g. category "Fountains" https://commons.wikimedia.org/wiki/File:DJI_0111.webm
-              specFmt = 'webm';
-            }
-            if (null != specFmt) {
-              imgDesc += '&nbsp;<a href="'+imgUrl+'" target="_blank" '
-               + counterTitle +' >'+specFmt+'</a>';
-            }
-          }
-          newImage.description = imgDesc;
-          newImage.url = imgUrl;
           resolve(newImage);
         }
         else{
