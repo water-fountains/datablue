@@ -152,7 +152,9 @@ export class Controller {
    * Function to return metadata about locations supported by application
    */
   getLocationMetadata(req, res) {
+    // let gak = locations.gak;
     res.json(locations);
+    l.info("controller.js: getLocationMetadata sent "+new Date().toISOString());
   }
   
   /**
