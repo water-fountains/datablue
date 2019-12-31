@@ -319,5 +319,35 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
       url_template: null
     }
   },
+  "test": {
+	    name: 'Test-City (not in Prod)',
+	    description: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    description_more: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    bounding_box: {
+	        "latMin": 39.117,
+	        "lngMin": 27.17,
+	        "latMax": 39.12,
+	        "lngMax": 27.19
+	    },
+	    "operator_fountain_catalog_qid": 'undefined',
+	    issue_api:{
+	      operator: null,
+	      qid: null,
+	      thumbnail_url: ``,
+	      url_template: null
+	    }
+	  },
   gak:`${process.env.GOOGLE_API_KEY}`
 };

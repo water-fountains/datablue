@@ -21,7 +21,9 @@ class OsmService {
     // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject)=>{
       let query = queryBuilderCenter(lat, lng, radius);
-      // l.info(query);
+      if (process.env.NODE_ENV !== 'production') {
+        l.info('osm.service byCenter: '+query+' '+new Date().toISOString());
+      }
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
