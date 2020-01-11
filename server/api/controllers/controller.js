@@ -237,9 +237,9 @@ function reprocessFountainAtCoords(req, res, dbg) {
   
   let wikidataPromise = WikidataService
     // Fetch all wikidata items within radius
-    .idsByCenter(req.query.lat, req.query.lng, req.query.radius)
+    .idsByCenter(req.query.lat, req.query.lng, req.query.radius, dbg)
     // Fetch detailed information for fountains based on wikidata ids
-    .then(r=>WikidataService.byIds(r))
+    .then(r=>WikidataService.byIds(r, dbg))
     .catch(e=>{
       l.error(`Error collecting Wikidata data: ${e}`);
       res.status(500).send(e.stack);

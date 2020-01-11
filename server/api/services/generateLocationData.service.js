@@ -1,6 +1,6 @@
 /*
  * @license
- * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * (c) Copyright 2019 - 2020 | MY-D Foundation | Created by Matthew Moy de Vitry, Ralf Hauser
  * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
@@ -21,7 +21,7 @@ import {
   * @param {string} locationName - the code name of the location for which fountains should be processed
   */
 function generateLocationData(locationName){
-    l.info(`processing all fountains from "${locationName}" `+ new Date().toISOString());
+    l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `+ new Date().toISOString());
     return new Promise((resolve, reject)=>{
       // get bounding box of location
       if(!locations.hasOwnProperty(locationName)){
@@ -39,8 +39,8 @@ function generateLocationData(locationName){
       
       // get data from Wikidata
       let wikidataPromise = WikidataService
-        .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
-        .then(r=>WikidataService.byIds(r));
+        .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax,locationName)
+        .then(r=>WikidataService.byIds(r, locationName));
       
       // conflate
       Promise.all([osmPromise, wikidataPromise])

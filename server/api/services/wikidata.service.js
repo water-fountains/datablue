@@ -21,7 +21,7 @@ const http = axios.create({
 });
 
 class WikidataService {
-  idsByCenter(lat, lng, radius=10) {
+  idsByCenter(lat, lng, radius=10,locationName) {
     // fetch fountain from OSM by coordinates, within radius in meters
     const sparql = `
         SELECT ?place
@@ -43,10 +43,10 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    return doSparqlRequest(sparql);
+    return doSparqlRequest(sparql,locationName);
   }
   
-  idsByBoundingBox(latMin, lngMin, latMax, lngMax){
+  idsByBoundingBox(latMin, lngMin, latMax, lngMax, locationName){
     const sparql = `
         SELECT ?place
         WHERE
@@ -66,19 +66,22 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    return doSparqlRequest(sparql);
+    return doSparqlRequest(sparql,locationName);
   }
   
   
-  byIds(qids) {
+  byIds(qids,locationName) {
     // fetch fountains by their QIDs
     const chunckSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject)=>{
       let allFountainData = [];
       let httpPromises = [];
       try{
+    	  let chkCnt = 0;
         chunk(qids, chunckSize).forEach(qidChunk=> {
+        	chkCnt++;
           // create sparql url
+            l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName+' '+new Date().toISOString());
           const url = wdk.getEntities({
             ids: qidChunk,
             format: 'json',
@@ -284,7 +287,7 @@ function chunk (arr, len) {
   return chunks;
 }
 
-function doSparqlRequest(sparql){
+function doSparqlRequest(sparql, location){
   return new Promise((resolve, reject)=> {
     // create url from SPARQL
     const url = wdk.sparqlQuery(sparql);
@@ -295,7 +298,7 @@ function doSparqlRequest(sparql){
 
       if (res.status !== 200) {
         let error = new Error(`Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
-        l.error(error.message);
+        l.error(error.message+' '+new Date().toISOString());
         // consume response data to free up memory
         res.resume();
         return reject(error);
@@ -305,16 +308,17 @@ function doSparqlRequest(sparql){
 
       try {
         let simplifiedResults = wdk.simplifySparqlResults(res.data);
-        // l.info(simplifiedResults);
+        l.info('wikidata.service.js doSparqlRequest: '//+simplifiedResults+' '
+             +simplifiedResults.length+' ids found for '+location+' '+new Date().toISOString());
         resolve(simplifiedResults);
       } catch (e) {
-        l.error('Error occurred simplifying wikidata results.');
+        l.error('Error occurred simplifying wikidata results.'+e+' '+new Date().toISOString());
         reject(e);
       }
 
     })
         .catch(error=>{
-            l.error(`Request to Wikidata Failed. Url: ${url}`);
+            l.error(`Request to Wikidata Failed. Url: ${url}`+' '+new Date().toISOString());
           reject(error)
         });
 

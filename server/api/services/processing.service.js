@@ -1,6 +1,6 @@
 /*
  * @license
- * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * (c) Copyright 2019 - 20 | MY-D Foundation | Created by Matthew Moy de Vitry, Ralf Hauser
  * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
@@ -16,7 +16,7 @@ import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
 export function defaultCollectionEnhancement(fountainCollection,dbg) {
-  l.info('defaultCollectionEnhancement: '+dbg);
+  l.info('processing.service.js defaultCollectionEnhancement: '+dbg+' '+new Date().toISOString());
   return new Promise((resolve, reject)=>{
     fillImageGalleries(fountainCollection,dbg)
       .then(r => fillOutNames(r))
@@ -243,7 +243,7 @@ export function fillOutNames(fountainCollection) {
   });
 }
 
-export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains){
+export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains, dbg){
   // Created for #212. This function should run before conflation. It checks if all Wikidata
   // fountains referenced in OSM have been fetched, and fetches any missing wikidata fountains.
   // It returns the original OSM fountain collection and the completed Wikidata fountain collection.
@@ -257,9 +257,14 @@ export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains
   
     // Get qids not included in wikidata collection
     let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
-  
+    if (null == missing_qids) {
+        l.info('processing.service.js fillInMissingWikidataFountains: none for '+dbg+' '+new Date().toISOString());
+    } else {
+        l.info('processing.service.js fillInMissingWikidataFountains: '+missing_qids.length+' for '+dbg+' '+missing_qids+' '+new Date().toISOString());
+    }
+
     // Fetch fountains with missing qids and add them to the wikidata_fountains collection
-    WikidataService.byIds(missing_qids)
+    WikidataService.byIds(missing_qids, dbg)
       .then(missing_wikidata_fountains=>{
         resolve({
           osm: osm_fountains,
