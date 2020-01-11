@@ -49,7 +49,7 @@ class OsmService {
           if (process.env.NODE_ENV !== 'production') {
             l.info('osm.service byBoundingBox: '+query+' '+new Date().toISOString());
           }
-          l.info('osm.service byBoundingBox: resulted in '+data.features.length+' foutains '+new Date().toISOString());
+          l.info('osm.service byBoundingBox: resulted in '+data.features.length+' fountains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})
