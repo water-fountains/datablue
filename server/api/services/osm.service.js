@@ -28,6 +28,7 @@ class OsmService {
         if(error){
           reject(error);
         }else{
+          l.info('osm.service byCenter: resulted in '+data.features.length+' foutains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})
@@ -45,6 +46,10 @@ class OsmService {
         }else if(data.features.length === 0){
           reject(new Error(NO_FOUNTAIN_AT_LOCATION));
         }else{
+          if (process.env.NODE_ENV !== 'production') {
+            l.info('osm.service byBoundingBox: '+query+' '+new Date().toISOString());
+          }
+          l.info('osm.service byBoundingBox: resulted in '+data.features.length+' foutains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})
