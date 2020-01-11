@@ -53,8 +53,8 @@ function generateLocationData(locationName){
         .then(r => defaultCollectionEnhancement(r, locationName))
         .then(r => createUniqueIds(r))
         .then(r => {
-          //TODO add location size as per https://github.com/water-fountains/datablue/issues/39
-          l.info(`successfully processed all (size t.b.d.) fountains from ${locationName} `);
+          l.info('generateLocationData.service.js: successfully processed all (size '+r.length+
+        		  `) fountains from ${locationName} `);
           resolve({
             type: 'FeatureCollection',
             features: r
