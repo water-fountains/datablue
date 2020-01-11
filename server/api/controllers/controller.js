@@ -88,7 +88,7 @@ export class Controller {
   // Function to return detailed fountain information
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req, res){
-    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city)      
+    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city+' '+new Date().toISOString())      
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
@@ -190,10 +190,10 @@ export default new Controller();
 function byId(req, res, dbg){
   let cityS = req.query.city;
   try{
-      l.info('controller.js byId '+cityS+' '+dbg);
+      l.info('controller.js byId: '+cityS+' '+dbg);
       let cty = cityCache.get(cityS);
       if (null== cty) {
-        l.info('controller.js byId '+cityS+' not found in cache '+dbg+' - start city lazy load');
+        l.info('controller.js byId: '+cityS+' not found in cache '+dbg+' - start city lazy load');
         generateLocationData(cityS);
         cty = cityCache.get(cityS);
       }
@@ -201,13 +201,14 @@ function byId(req, res, dbg){
        cty.features,
         f=>{
           if (null== f) {
-             l.info('controller.js byId fountain of '+cityS+' not found in cache '+dbg);
+             l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
           }
           return f.properties['id_'+req.query.database].value === req.query.idval
         });
       res.json(fountain)
+      l.info('controller.js byId: of '+cityS+' res.json '+dbg+' '+new Date().toISOString());
   }catch (e) {
-    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} `+cityS+ ' '+dbg);
+    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} `+cityS+ ' '+dbg+' '+new Date().toISOString());
   }
   
 }
