@@ -1129,8 +1129,9 @@ let fountain_properties = {
           tr: 'yalnızca Wikidata tarafından gönderilen değer tutulur.'
         },
         value_translation: values => {
-          //just keep the first value
-          return values[0].value;
+          let img = { src: 'wd',
+                      imgs: values };
+          return img;
         }
       }
     }
@@ -2020,17 +2021,17 @@ let fountain_properties = {
           tr: 'Bu çeşme "yüzme havuzu" veya "yüzülebilen yer" olarak tanımlanabilir.'
         },
         extraction_info: {
-          en: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q17456505)',
-          de: 'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q17456505) handelt.',
-          fr: 'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q17456505).',
-          it: 'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q17456505).',
-          tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q17456505) olduğunu gösterir.'
+          en: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q12004466)',
+          de: 'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q12004466) handelt.',
+          fr: 'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q12004466).',
+          it: 'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q12004466).',
+          tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q12004466) olduğunu gösterir.'
         },
         value_translation: parents => {
           // loop through all instances to see if swimming pool or swimming place is among them
           for(let code of parents){
             // return value only if qualifier matches the operator id
-            if(['Q1501', 'Q17456505'].indexOf(code.value)>=0) {
+            if(['Q1501', 'Q12004466'].indexOf(code.value)>=0) {
               return 'yes';
             }
           }
