@@ -72,16 +72,18 @@ class WikidataService {
   
   byIds(qids,locationName) {
     // fetch fountains by their QIDs
-    const chunckSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
+    const chunkSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject)=>{
       let allFountainData = [];
       let httpPromises = [];
+	  let chkCnt = 0;
       try{
-    	  let chkCnt = 0;
-        chunk(qids, chunckSize).forEach(qidChunk=> {
+        chunk(qids, chunkSize).forEach(qidChunk=> {
         	chkCnt++;
+        	if ((chunkSize*chkCnt)> qids.length) {
+        		l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName+' '+new Date().toISOString());	
+        	}
           // create sparql url
-            l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName+' '+new Date().toISOString());
           const url = wdk.getEntities({
             ids: qidChunk,
             format: 'json',
@@ -93,6 +95,7 @@ class WikidataService {
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
           .then(responses => {
+            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for '+locationName+' '+new Date().toISOString());
             // holder for data of all fountains
             let dataAll = [];
             responses.forEach(r => {
