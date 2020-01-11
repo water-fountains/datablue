@@ -25,11 +25,54 @@ const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 
 class WikimediaService {
+
+  addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg) {
+    let i = -1;
+    if (null != imgListWithSource && null != imgListWithSource.imgs) {
+      i++;
+      for(let foFeaImg of imgListWithSource.imgs) {
+        let imgNam = foFeaImg.value;
+        let pTit = imgNam.toLowerCase();
+        let dotPos = pTit.lastIndexOf(".");
+        // only use photo media, not videos
+        let ext = pTit.substring(dotPos+1);
+        if(['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)<0){
+          l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
+          //https://github.com/lukasz-galka/ngx-gallery/issues/296 to handle svg, ogv, webm
+          continue;
+        }
+        if ('wd'==imgListWithSource.src) {
+          if (!imgUrlSet.has(imgNam)) {
+            imgUrlSet.add(imgNam);
+            let img = {
+              src: imgListWithSource.src,
+              val: foFeaImg.value
+            }
+            imgUrls.push(img);
+            i++;
+          } else {
+            l.info('fillGallery.foFeaImgs: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+          }
+        } else {
+            l.info('fillGallery.foFeaImgs: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
+        }    
+      };
+      if (1 < imgListWithSource.imgs.length) {
+        if(process.env.NODE_ENV !== 'production') {
+          l.info('fillGallery.foFeaImgs: added '+imgListWithSource.imgs.length+' ' +dbg);
+        }
+      }
+    }
+    return i;  
+  }
+
   fillGallery(fountain, dbg, city){
     let dbgIdWd = null;
     if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
       dbgIdWd = fountain.properties.id_wikidata.value;
     }
+    let lastCatName = 'undefCatNam';
+    let lastCatUrl =  'undefCatUrl';
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
@@ -46,82 +89,112 @@ class WikimediaService {
         // name: 'gallery',  // don't give it a name so it doesn't appear in the list
         comments: ''
       };
-      
-      // initiate with empty promises
-      let gallery_image_promise = null;
-      let main_image_promise = null;
-      
-      let hasMain = false;
-      // if a main image is defined, get that
-      if(!_.isNull(fountain.properties.featured_image_name.value)){
-        hasMain = true; //under the assumption that main image will not fail
-        // fetch info for just the one image
-        main_image_promise = this.getImageInfo('File:'+fountain.properties.featured_image_name.value, dbg+' '+city+' '+dbgIdWd,null);
-      }else{
-        // If there is no main image, resolve with false
-        main_image_promise = new Promise((resolve, reject)=>resolve(false));
-      }
-      let url = null;  
-      if(_.isNull(fountain.properties.wiki_commons_name.value)) {
-        // TODO check whether there 'wiki_commons' in OSM and 'wetap:photo' (Q76938390) and 'flickr' (Q983774)
-      }
-      // check if fountain has a Wikimedia category and create gallery
+
+      let galVal = fountain.properties.gallery.value;
+      let imgUrls = [];
+      let imgUrlSet = new Set();
+      let fProps = fountain.properties;
+      let foFeaImgs = fProps.featured_image_name;
+      let foFeaImgsV = foFeaImgs.value;
+      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd);
+      let imgNoInfoPomise = null;
       if(_.isNull(fountain.properties.wiki_commons_name.value)) {
         // if not, resolve with empty
-        gallery_image_promise = new Promise((resolve, reject)=>resolve([]));
+        if(process.env.NODE_ENV !== 'production') {
+          l.info('wikimedia.service.js: no commons category defined "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        }
+        imgNoInfoPomise = new Promise((resolve, reject)=>resolve(false));
       }else{
         let catName = fountain.properties.wiki_commons_name.value;
+        lastCatName = catName;
         // if there is a gallery, then fetch all images in category
-        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
+        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
+        lastCatUrl = url;
         // make array of image promises
-        let gallery_image_promises = [];
-  
-        gallery_image_promise = api.get(url, {timeout: 2000})
+        let imgValsCumul = [];
+        imgNoInfoPomise = api.get(url, {timeout: 1000})
           .then(r => {
             let category_members = r.data.query['categorymembers'];
             let cI = 0;
             let cTot = category_members.length;
-            if (hasMain) {
-              _.forEach(category_members, page => {
-                if(page.title.endsWith(':'+fountain.properties.featured_image_name.value)) {
-                  //since the duplicates get removed later, this would lead to a jump in the numbering
-                  hasMain = false;
-                }
-              });
-            }
-            if (hasMain) {
-              cTot++;
-              cI++;
+            if(process.env.NODE_ENV !== 'production') {
+              l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
             }
             // fetch information for each image
-            _.forEach(category_members, page => {
-              cI = cI + 1;
+            for(let page of category_members) {
+              cI++;
               let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cTot;  
-              let pTit = page.title.toLowerCase();
-              let dotPos = pTit.lastIndexOf(".");
-              // only use photo media, not videos
-              let ext = pTit.substring(dotPos+1);
-              if( ['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)>=0){
-                gallery_image_promises.push(this.getImageInfo(page.title,dbgImg + dbgIdWd,cI+"/"+cTot));
-                // '.svg' e.g. Q3076321 https://github.com/lukasz-galka/ngx-gallery/issues/296
-                // '.ogv' e.g. Q29685311 https://github.com/lukasz-galka/ngx-gallery/issues/296
-                // '.webm' e.g. category "Fountains" https://commons.wikimedia.org/wiki/File:DJI_0111.webm
-              } else {
-                l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
-              }
-            });
-            
-            // when all images are resolved, resolve gallery
-            return Promise.all(gallery_image_promises)
-          })
-          .catch(err => {
+              let imgLikeFromWikiMedia = {
+                      value: page.title.replace('File:','')
+                    }
+              let imgVals = [];
+              imgVals.push(imgLikeFromWikiMedia);
+              imgValsCumul.push(imgLikeFromWikiMedia);
+              let imgs = { src: 'wd',
+                imgs: imgVals };
+              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd);
+            };
+            return Promise.all(imgValsCumul);
+        }).catch(err=> {
             // If there is an error getting the category members, then reject with error
-            l.error('fillGallery.gallery_image_promise = api.get:\n'+
+            l.error('fillGallery.categorymembers = api.get:\n'+
               `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
                + ' url '+url+'\n'+err.stack);
             // add gallery as value of fountain gallery property
             fountain.properties.gallery.issues.push({
               data: err,
+              context: {
+                fountain_name: fountain.properties.name.value,
+                property_id: 'gallery',
+                id_osm: fountain.properties.id_osm.value,
+                id_wikidata: fountain.properties.id_wikidata.value
+              },
+              timeStamp: new Date(),
+              type: 'data_processing',
+              level: 'error',
+              message: `Failed to fetch category members from Wikimedia Commons. Url: ${url} `+dbg,  
+            });
+        });
+      }
+      imgNoInfoPomise
+      // Promise.all(imgNoInfoPomise)
+      .then(cr => {
+      let imgPromise = null;
+      if (0 < imgUrlSet.size) {
+        l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+imgUrlSet.size+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        let galValPromises = [];
+        let k = 0;
+        for(let img of imgUrls) {
+        	k++;
+        	galValPromises.push(this.getImageInfo('File:'+img.val, k+'/'+imgUrls.length+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
+                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString()
+                + '\n'+giiErr.stack);
+            }));
+        }
+        l.info('wikimedia.service.js: fillGallery galValPromises.length '+galValPromises.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        Promise.all(galValPromises).then(r => {
+          l.info('wikimedia.service.js: fillGallery galValPromises.r.length '+r.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+          galVal = galVal.concat(r);
+          fountain.properties.gallery.value = galVal;
+          fountain.properties.gallery.status = PROP_STATUS_OK;
+          fountain.properties.gallery.comments = '';
+          fountain.properties.gallery.source = 'wikimedia commons';
+          resolve(fountain);      
+        });
+      } else {
+         //could check the qualifiers as per https://github.com/water-fountains/proximap/issues/294
+        l.info("wikimedia.service.js: fillGallery "+dbgIdWd+" has no img ");
+        resolve(fountain);      
+      }
+      });     
+    }).catch(err => {
+      // If there is an error getting the category members, then reject with error
+      l.error('fillGallery.gallery_image_promise = api.get:\n'+
+           `Failed to fetch category members. Cat "`+lastCatName+'" ' +dbg + ' '+ dbgIdWd 
+             + ' url '+lastCatUrl+'\n'+err.stack);
+        // add gallery as value of fountain gallery property
+        fountain.properties.gallery.issues.push({
+        data: err,
               context: {
                 fountain_name: fountain.properties.name.value,
                 property_id: 'gallery',
@@ -137,80 +210,34 @@ class WikimediaService {
             // then just consist in the main image
             return [];
           })
-      }
-      
-      
-      // When all promises are resolved
-      Promise.all([main_image_promise, gallery_image_promise])
-        .then(r => {
-          let main_image = r[0];
-          let gallery = r[1];
-          
-          // if neither gallery nor image, then use google street view
-          if(!main_image && (gallery.length === 0)){
-            //now done in browser
-            resolve(fountain)            
-          }else{
-            // if there is a main image, combine it with the gallery
-            if(main_image){
-              //  check if image already in gallery
-              let idx = _.map(gallery, 'big').indexOf(main_image.big);
-              if(idx >=0){
-                // remove image from gallery (so we can add it at beginning)
-                gallery.splice(idx, 1)
-              }
-              // add image at beginning of gallery
-              gallery = [main_image].concat(gallery);
-              
-            }else{
-              // if there is no main image, just use the gallery
-            }
-  
-            // add gallery as value of fountain gallery property
-            fountain.properties.gallery.value = gallery;
-            fountain.properties.gallery.status = PROP_STATUS_OK;
-            fountain.properties.gallery.comments = '';
-            fountain.properties.gallery.source = 'wikimedia commons';
-  
-            // resolve fountain with gallery
-            resolve(fountain)
-          }
-          
-        
-        })
-  
-        .catch(err => {
-          l.error(`Failed to create gallery for fountain `+dbgIdWd+' '+city+' '+dbg);
-          reject(err)
-        })
-      
-    });
+    ;
   }
   
-  getImageInfo(pageTitle, dbg,iOfTot){
+  getImageInfo(pageTitle, dbg){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.s = 'wd';
       newImage.pgTit = pageTitle.replace('File:','').replace(/ /g, '_');
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      let timeout = 2000;
+      const timeoutSecs = 1;
+      let timeout = timeoutSecs*1000; 
       api.get(url, {timeout: timeout})
         .then(response => {
-        let data = response.data.query.pages[Object.keys(response.data.query.pages)[0]];
+        let keys = Object.keys(response.data.query.pages);
+        let key = keys[0];
+        let pags =response.data.query.pages;
+        let data = pags[key];
         if(data.hasOwnProperty('imageinfo')){
           newImage.metadata = makeMetadata(data.imageinfo[0]);
           resolve(newImage);
-        }
-        else{
-          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} did not return useful data. Url: ${url}`);
+        } else{
+          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`);
           newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
-          newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} ${iOfTot} timed out or failed. Error message: ${error}. Url: ${url}`);
-        newImage.description = `http request when getting metadata for ${pageTitle} timed out after 2 seconds or failed. Error message: ${error}. Url: ${url}`;
-        newImage.url = `https://commons.wikimedia.org/wiki/${pageTitle}`;
+        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`);
+        newImage.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
         resolve(newImage);
       });
     });
@@ -227,15 +254,6 @@ class WikimediaService {
       .replace(/&/g, '%26');
   }
   
-  //deprecated should go to browser
-  getImageUrl(pageTitle, imageSize=640){
-    // construct url of thumbnail
-    // let imgName = pageTitle.replace('File:','');
-    let imgName = this.sanitizeTitle(pageTitle.replace('File:',''));
-    
-    let h = md5(pageTitle.replace('File:','').replace(/ /g, '_'));
-    return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${imageSize}px-${imgName}`;
-  }
 }
 
 function makeMetadata(data){
