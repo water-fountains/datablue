@@ -58,7 +58,7 @@ export default class ExpressServer {
   }
   
     listen() {
-    const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`);
+    const welcome = p => () => l.info(`server.js: up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`);
     if(process.env.NODE_ENV === 'production'){
       https.createServer({
         key: privateKey,
