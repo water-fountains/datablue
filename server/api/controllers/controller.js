@@ -115,9 +115,9 @@ export class Controller {
         
         // return either the full or reduced version, depending on the "essential" parameter of the query
         if(req.query.essential){
-          res.json(r_essential);
+        	doJson(res,r_essential,'r_essential'); //res.json(r_essential);
         }else{
-          res.json(fountainCollection);
+        	doJson(res,fountainCollection,'fountainCollection'); //res.json(fountainCollection);
         }
         
         // also create list of processing errors (for proximap#206)
@@ -131,9 +131,9 @@ export class Controller {
     // otherwise, get the data from storage
     else{
       if(req.query.essential){
-        res.json(cityCache.get(req.query.city + '_essential'));
+    	  doJson(res,cityCache.get(req.query.city + '_essential'),'fromCache essential'); //res.json(cityCache.get(req.query.city + '_essential'));
       }else{
-        res.json(cityCache.get(req.query.city));
+    	  doJson(res,cityCache.get(req.query.city), 'fromCache'); //res.json(cityCache.get(req.query.city));
       }
     }
   }
@@ -144,7 +144,7 @@ export class Controller {
    * it simply returns the object created by fountain.properties.js
    */
   getPropertyMetadata(req, res) {
-    res.json(fountain_property_metadata);
+	  doJson(res,fountain_property_metadata,'getPropertyMetadata'); //res.json(fountain_property_metadata);
     l.info("controller.js: getPropertyMetadata sent "+new Date().toISOString());
   }
   
@@ -153,7 +153,7 @@ export class Controller {
    */
   getLocationMetadata(req, res) {
     // let gak = locations.gak;
-    res.json(locations);
+	  doJson(res,locations,'getLocationMetadata'); //res.json(locations);
     l.info("controller.js: getLocationMetadata sent "+new Date().toISOString());
   }
   
@@ -171,7 +171,7 @@ export class Controller {
     }
     cityCache.get(key, (err, value) => {
       if (!err) {
-        res.json(value)
+    	  doJson(res,value,'cityCache.get '+key); //res.json(value);
         l.info("controller.js: getProcessingErrors !err sent "+new Date().toISOString());
       } else {
         let errMsg = 'Error with cache: ' + err;
@@ -183,6 +183,22 @@ export class Controller {
   }
 }
 export default new Controller();
+
+function doJson(resp, obj, dbg) {
+	//TODO consider using https://github.com/timberio/timber-js/issues/69 or rather https://github.com/davidmarkclements/fast-safe-stringify
+	try {
+		if (null == obj) {
+			let errS = 'controller.js doJson null == obj: '+dbg+' '+new Date().toISOString(); 
+	        l.error(errS);
+		}
+		let res = resp.json(obj);
+		return res;
+	} catch (err) {
+		let errS = 'controller.js doJson errors: '+err+' '+dbg+' '+new Date().toISOString(); 
+        l.error(errS);
+		console.trace(errS);
+	}
+}
 
 /**
  * Function to respond to request by returning the fountain as defined by the provided identifier
@@ -205,10 +221,11 @@ function byId(req, res, dbg){
           }
           return f.properties['id_'+req.query.database].value === req.query.idval
         });
-      res.json(fountain)
+      doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
       l.info('controller.js byId: of '+cityS+' res.json '+dbg+' '+new Date().toISOString());
   }catch (e) {
-    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} `+cityS+ ' '+dbg+' '+new Date().toISOString());
+    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
+    l.error(e.stack);
   }
   
 }
@@ -245,7 +262,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
       l.error(`Error collecting Wikidata data: ${e}`);
       res.status(500).send(e.stack);
     });
-  
+  let debugAll = true;
   // When both OSM and Wikidata data have been collected, continue with joint processing
   Promise.all([osmPromise, wikidataPromise])
 
@@ -256,7 +273,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
     .then(r => conflate({
       osm: r.osm,
       wikidata: r.wikidata
-    },dbg))
+    },dbg, debugAll))
 
     // return only the fountain that is closest to the coordinates of the query
     .then(r => {
@@ -279,7 +296,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
     // Update cache with newly processed fountain
     .then(r=>{
       let closest = updateCacheWithFountain(cityCache, r[0], req.query.city);
-      res.json(closest);
+      doJson(res,closest,'after updateCacheWithFountain'); //  res.json(closest);
   })
     .catch(e=>{
       l.error(`Error collecting data: ${e}`);

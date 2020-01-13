@@ -26,10 +26,11 @@ const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 class WikimediaService {
 
-  addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg) {
+  addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll) {
     let i = -1;
     if (null != imgListWithSource && null != imgListWithSource.imgs) {
       i++;
+      let duplicateCount = 0;
       for(let foFeaImg of imgListWithSource.imgs) {
         let imgNam = foFeaImg.value;
         let pTit = imgNam.toLowerCase();
@@ -51,13 +52,20 @@ class WikimediaService {
             imgUrls.push(img);
             i++;
           } else {
-            l.info('fillGallery.foFeaImgs: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+        	  if (debugAll) {
+        		  l.info('fillGallery.foFeaImgs: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+        	  }
+        	  duplicateCount++;
           }
         } else {
             l.info('fillGallery.foFeaImgs: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
         }    
       };
-      if (1 < imgListWithSource.imgs.length) {
+      if (0 < duplicateCount //&& debugAll
+    		  ) {
+		  l.info('fillGallery.foFeaImgs: '+duplicateCount+' duplicates found among ' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+      }
+      if (1 < imgListWithSource.imgs.length && debugAll) {
         if(process.env.NODE_ENV !== 'production') {
           l.info('fillGallery.foFeaImgs: added '+imgListWithSource.imgs.length+' ' +dbg);
         }
@@ -66,11 +74,15 @@ class WikimediaService {
     return i;  
   }
 
-  fillGallery(fountain, dbg, city){
+  fillGallery(fountain, dbg, city, debugAll){
     let dbgIdWd = null;
+//    if (debugAll) {
+//       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+//    }
     if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
       dbgIdWd = fountain.properties.id_wikidata.value;
     }
+    let url = 'unkUrl';
     let lastCatName = 'undefCatNam';
     let lastCatUrl =  'undefCatUrl';
     // fills gallery with images from wikidata, wikimedia commons,
@@ -96,11 +108,11 @@ class WikimediaService {
       let fProps = fountain.properties;
       let foFeaImgs = fProps.featured_image_name;
       let foFeaImgsV = foFeaImgs.value;
-      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd);
+      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll);
       let imgNoInfoPomise = null;
       if(_.isNull(fountain.properties.wiki_commons_name.value)) {
         // if not, resolve with empty
-        if(process.env.NODE_ENV !== 'production') {
+        if(process.env.NODE_ENV !== 'production' && debugAll) {
           l.info('wikimedia.service.js: no commons category defined "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
         }
         imgNoInfoPomise = new Promise((resolve, reject)=>resolve(false));
@@ -108,7 +120,7 @@ class WikimediaService {
         let catName = fountain.properties.wiki_commons_name.value;
         lastCatName = catName;
         // if there is a gallery, then fetch all images in category
-        let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
+        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
         lastCatUrl = url;
         // make array of image promises
         let imgValsCumul = [];
@@ -117,7 +129,7 @@ class WikimediaService {
             let category_members = r.data.query['categorymembers'];
             let cI = 0;
             let cTot = category_members.length;
-            if(process.env.NODE_ENV !== 'production') {
+            if(process.env.NODE_ENV !== 'production' && debugAll) {
               l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
             }
             // fetch information for each image
@@ -132,7 +144,7 @@ class WikimediaService {
               imgValsCumul.push(imgLikeFromWikiMedia);
               let imgs = { src: 'wd',
                 imgs: imgVals };
-              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd);
+              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"', debugAll);
             };
             return Promise.all(imgValsCumul);
         }).catch(err=> {
@@ -161,7 +173,9 @@ class WikimediaService {
       .then(cr => {
       let imgPromise = null;
       if (0 < imgUrlSet.size) {
-        l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+imgUrlSet.size+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+    	if (debugAll) {
+    		l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+imgUrlSet.size+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+    	}
         let galValPromises = [];
         let k = 0;
         for(let img of imgUrls) {
@@ -171,9 +185,13 @@ class WikimediaService {
                 + '\n'+giiErr.stack);
             }));
         }
-        l.info('wikimedia.service.js: fillGallery galValPromises.length '+galValPromises.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        if (debugAll) {
+        	l.info('wikimedia.service.js: fillGallery galValPromises.length '+galValPromises.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        }
         Promise.all(galValPromises).then(r => {
-          l.info('wikimedia.service.js: fillGallery galValPromises.r.length '+r.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+          if (debugAll) {
+        		l.info('wikimedia.service.js: fillGallery galValPromises.r.length '+r.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+          }
           galVal = galVal.concat(r);
           fountain.properties.gallery.value = galVal;
           fountain.properties.gallery.status = PROP_STATUS_OK;
@@ -183,7 +201,9 @@ class WikimediaService {
         });
       } else {
          //could check the qualifiers as per https://github.com/water-fountains/proximap/issues/294
-        l.info("wikimedia.service.js: fillGallery "+dbgIdWd+" has no img ");
+    	if (debugAll) {
+    		l.info("wikimedia.service.js: fillGallery "+dbgIdWd+" has no img "+city+ ' '+new Date().toISOString());
+    	}
         resolve(fountain);      
       }
       });     

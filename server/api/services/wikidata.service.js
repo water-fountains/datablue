@@ -155,9 +155,11 @@ class WikidataService {
       });
       // l.debug(url);
       // get data
+      let data = null;
       return http.get(url)
       // parse into an easier to read format
         .then(r=>{
+          data = r.data;
           return wdk.simplify.entity(
             r.data.entities[qid],
             {
@@ -199,6 +201,7 @@ class WikidataService {
           // report error to log and save to data
           l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbgHere);
           l.info(`stack: ${err.stack}`);
+          l.info(`url: ${url}\n`);
           fountain.properties.artist_name.issues.push({
             data: err,
               context: {

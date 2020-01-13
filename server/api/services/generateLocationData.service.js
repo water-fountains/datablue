@@ -21,7 +21,8 @@ import {
   * @param {string} locationName - the code name of the location for which fountains should be processed
   */
 function generateLocationData(locationName){
-    l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `+ new Date().toISOString());
+	const start = new Date();
+    l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `+ start.toISOString());
     return new Promise((resolve, reject)=>{
       // get bounding box of location
       if(!locations.hasOwnProperty(locationName)){
@@ -42,6 +43,8 @@ function generateLocationData(locationName){
         .idsByBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax,locationName)
         .then(r=>WikidataService.byIds(r, locationName));
       
+      let debugAll = -1 != locationName.indexOf('test');
+      
       // conflate
       Promise.all([osmPromise, wikidataPromise])
       // get any missing wikidata fountains for #212
@@ -49,12 +52,14 @@ function generateLocationData(locationName){
         .then(r => conflate({
           osm: r.osm,
           wikidata: r.wikidata
-        },locationName))
-        .then(r => defaultCollectionEnhancement(r, locationName))
+        },locationName, debugAll))
+        .then(r => defaultCollectionEnhancement(r, locationName, debugAll))
         .then(r => createUniqueIds(r))
         .then(r => {
-          l.info('generateLocationData.service.js: successfully processed all (size '+r.length+
-        		  `) fountains from ${locationName} `);
+          const end = new Date();
+          const elapse = (end - start)/1000;
+          l.info('generateLocationData.service.js: after '+elapse.toFixed(1)+' secs successfully processed all (size '+r.length+
+        		  `) fountains from ${locationName} \nstart: `+start.toISOString()+'\nend:   '+end.toISOString());
           resolve({
             type: 'FeatureCollection',
             features: r

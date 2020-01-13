@@ -27,7 +27,7 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // This service finds matching fountains from osm and wikidata
 // and merges their properties
 
-export function conflate(ftns, dbg) {
+export function conflate(ftns, dbg,debugAll) {
   return new Promise((resolve, reject)=>{
     
     let conflated = {
@@ -40,18 +40,18 @@ export function conflate(ftns, dbg) {
     if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
 
       // first conflate by wikidata identifiers (QID)
-      conflated.wikidata = conflateByWikidata(ftns,dbg);
+      conflated.wikidata = conflateByWikidata(ftns,dbg,debugAll);
 
       // then conflate by coordinates
-      conflated.coord = conflateByCoordinates(ftns,dbg);
+      conflated.coord = conflateByCoordinates(ftns,dbg, debugAll);
     }
     
     // process remaining fountains that were not matched by either QID or coordinates
     let unmatched = {};
     unmatched.osm = _.map(ftns.osm, f_osm =>{
-      return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched')});
+      return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched.osm', null,debugAll,dbg)});
     unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
-      return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched')});
+      return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched.wikidata',null, debugAll,dbg)});
     
     // append the matched (conflated) and unmatched fountains to the list "conflated_fountains_all"
     let conflated_fountains_all = _.concat(
@@ -70,13 +70,15 @@ export function conflate(ftns, dbg) {
  * This function finds matching pairs of fountains between osm and wikidata. It returns the list of matches and removes the matched fountains from the 'ftns' argument
  * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByWikidata(ftns,dbg) {
+function conflateByWikidata(ftns,dbg, debugAll) {
   // Holder for conflated (matched) fountains
   let conflated_fountains = [];
   // Holders for matched fountain indexes
   let matched_idx_osm = [];
   let matched_idx_wd = [];
-  //l.info(ftns+' ftns conflateByWikidata '+dbg);
+  if (debugAll) {
+	  l.info('conflate.data.service.js conflateByWikidata: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+  }
   // loop through OSM fountains
   for(const [idx_osm, f_osm] of ftns.osm.entries()){
     
@@ -104,7 +106,7 @@ function conflateByWikidata(ftns,dbg) {
           {
             osm: ftns.osm[idx_osm],
             wikidata: ftns.wikidata[idx_wd]
-          }, 'merged by wikidata id', d));
+          }, 'merged by wikidata id', d, debugAll,dbg));
       // document the indexes of the matched fountains so the fountains can be removed from the lists
       matched_idx_osm.push(idx_osm);
       matched_idx_wd.push(idx_wd);
@@ -112,7 +114,7 @@ function conflateByWikidata(ftns,dbg) {
   }
   
   // remove matched fountains from lists
-  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd);
+  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg);
   
   return conflated_fountains;
 }
@@ -123,7 +125,10 @@ function conflateByWikidata(ftns,dbg) {
  * @param {[number]} matched_idx_osm - List of matched OSM IDs
  * @param {[number]} matched_idx_wd - List of matched wikidata IDs
  */
-function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd) {
+function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg) {
+  if (debugAll) {
+		  l.info('conflate.data.service.js cleanFountainCollections: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+  }
   matched_idx_osm = _.orderBy(matched_idx_osm);
   for (let i = matched_idx_osm.length -1; i >= 0; i--)
     ftns.osm.splice(matched_idx_osm[i],1);
@@ -139,7 +144,10 @@ function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd) {
  * Find matching fountains based on coordinates alone
  * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByCoordinates(ftns,dbg) {
+function conflateByCoordinates(ftns,dbg, debugAll) {
+	if (debugAll) {
+		  l.info('conflate.data.service.js conflateByCoordinates: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+	}
   // Holder for conflated fountains
   let conflated_fountains = [];
   // Temporary holders for matched fountain indexes
@@ -170,7 +178,7 @@ function conflateByCoordinates(ftns,dbg) {
         {
           osm: ftns.osm[idx_osm],
           wikidata: ftns.wikidata[idx_wd]
-        }, `merged by location`, dMin));
+        }, `merged by location`, dMin, debugAll,dbg));
       // document the indexes for removal
       matched_idx_osm.push(idx_osm);
       matched_idx_wd.push(idx_wd);
@@ -178,14 +186,17 @@ function conflateByCoordinates(ftns,dbg) {
     }
   }
   // remove matched fountains from lists
-  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd);
+  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg);
   
   
   return conflated_fountains;
 }
 
 
-function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null){
+function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, debugAll, dbg){
+  if (debugAll) {
+		  l.info('conflate.data.service.js mergeFountainProperties: '+fountains+' ftns, '+mergeNotes+' '+dbg+' '+new Date().toISOString());
+  }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
   let mergedProperties = {};

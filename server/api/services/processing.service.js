@@ -15,32 +15,52 @@ import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
 
-export function defaultCollectionEnhancement(fountainCollection,dbg) {
+export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
   l.info('processing.service.js defaultCollectionEnhancement: '+dbg+' '+new Date().toISOString());
   return new Promise((resolve, reject)=>{
-    fillImageGalleries(fountainCollection,dbg)
-      .then(r => fillOutNames(r))
+    fillImageGalleries(fountainCollection,dbg, debugAll)
+      .then(r => fillOutNames(r,dbg))
       .then(r => fillWikipediaSummaries(r,dbg))
       .then(r => fillArtistNames(r,dbg))
-      .then(r => fillOperatorInfo(r))
+      .then(r => fillOperatorInfo(r,dbg))
       .then(r => resolve(r))
       .catch(err=>reject(err))
   })
 }
 
 
-export function fillImageGalleries(fountainCollection, city){
+export function fillImageGalleries(fountainCollection, city, debugAll){
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
-  
+	l.info('processing.service.js starting fillImageGalleries: '+city+' debugAll '+debugAll+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
     let promises = [];
     let i = 0;
     let tot = fountainCollection.length;
+    let step = 1;
+    if (50 < tot) {
+    	step = 10;
+        if (300 < tot) {
+        	step = 50;
+            if (600 < tot) {
+            	step = 100;
+                if (1000 < tot) {
+                	step = 200;
+                    if (2000 < tot) {
+                    	step = 500;
+                    }
+                }
+            }
+        }
+    }
+    let dbgAll = debugAll;
     _.forEach(fountainCollection, fountain =>{
       i=i+1;
-      let dbg = i+'/'+tot;
-      promises.push(WikimediaService.fillGallery(fountain, dbg, city));
+      if (!debugAll) {
+    	  dbgAll = 0 ==i % step;
+      }
+      const dbg = i+'/'+tot;
+      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll));
     });
     
     Promise.all(promises)
@@ -54,7 +74,7 @@ export function fillImageGalleries(fountainCollection, city){
 export function fillArtistNames(fountainCollection,dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with artist names if only QID was given
-  
+	l.info('processing.service.js starting fillArtistNames: '+dbg+' '+new Date().toISOString());
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
@@ -72,7 +92,7 @@ export function fillArtistNames(fountainCollection,dbg){
 export function fillOperatorInfo(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with operator information if that information is available in Wikidata
-  
+  l.info('processing.service.js starting fillOperatorInfo: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
@@ -88,6 +108,7 @@ export function fillOperatorInfo(fountainCollection, dbg){
 
 export function fillWikipediaSummaries(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
+	l.info('processing.service.js starting fillWikipediaSummaries: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
     let promises = [];
     // loop through fountains
@@ -202,8 +223,9 @@ export function essenceOf(fountainCollection) {
   
 }
 
-export function fillOutNames(fountainCollection) {
+export function fillOutNames(fountainCollection,dbg) {
   // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
+	l.info('processing.service.js starting fillOutNames: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
     let langs = ['en','de','fr', 'it', 'tr'];
     fountainCollection.forEach(f => {
