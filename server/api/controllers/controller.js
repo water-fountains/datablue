@@ -88,7 +88,8 @@ export class Controller {
   // Function to return detailed fountain information
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req, res){
-    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city+' '+new Date().toISOString())      
+	  const start = new Date();
+    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city+' '+start.toISOString())      
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
@@ -97,10 +98,14 @@ export class Controller {
       // byId will look into the fountain cache and return the fountain with the given identifier
       byId(req, res,req.query.idval)
     }
+    const end = new Date();
+    const elapse = (end - start)/1000;
+    l.info('controller.js getSingle: finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
   }
   
   // Function to return all fountain information for a location.
   byLocation(req, res){
+	  const start = new Date();
     // if a refresh is requested or if no data is in the cache, then reprocessess the fountains
     if(req.query.refresh || cityCache.keys().indexOf(req.query.city) === -1){
       l.info(`controller.js byLocation: refresh: ${req.query.refresh} , city: `+req.query.city)      
@@ -122,6 +127,9 @@ export class Controller {
         
         // also create list of processing errors (for proximap#206)
         cityCache.set(req.query.city + '_errors', extractProcessingErrors(fountainCollection));
+        const end = new Date();
+        const elapse = (end - start)/1000;
+        l.info('controller.js byLocation generateLocationData: finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
       })
         .catch(error =>{
           if(error.message){res.statusMessage = error.message;}
@@ -135,6 +143,9 @@ export class Controller {
       }else{
     	  doJson(res,cityCache.get(req.query.city), 'fromCache'); //res.json(cityCache.get(req.query.city));
       }
+      const end = new Date();
+      const elapse = (end - start)/1000;
+      l.info('controller.js byLocation: finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
     }
   }
   
@@ -192,9 +203,16 @@ function doJson(resp, obj, dbg) {
 	        l.error(errS);
 		}
 		let res = resp.json(obj);
+	    if(process.env.NODE_ENV !== 'production') {
+	    	//res.length and res.length() are not working
+	    	// https://github.com/expressjs/express/blob/5.0/lib/response.js   https://github.com/expressjs/express/issues/4158
+            l.info('controller.js doJson length: keys '+Object.keys(obj).length+
+            		//'\n responseData.data.length '+resp.responseData.data.length+
+            		' -  '+dbg+' '+new Date().toISOString());
+	    }
 		return res;
 	} catch (err) {
-		let errS = 'controller.js doJson errors: '+err+' '+dbg+' '+new Date().toISOString(); 
+		let errS = 'controller.js doJson errors: "'+err+'" '+dbg+' '+new Date().toISOString(); 
         l.error(errS);
 		console.trace(errS);
 	}

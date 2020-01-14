@@ -130,7 +130,6 @@ class WikidataService {
   
   fillArtistName(fountain,dbg){
     // created for proximap/#129
-    let dbgHere = dbg + ' '+fountain.properties.id_wikidata.value;
     // intialize
     fountain.properties.artist_name.derived = {
       website: {
@@ -138,10 +137,12 @@ class WikidataService {
         wikidata: null,
       }
     };
-    
+	const idWd = fountain.properties.id_wikidata.value;
     // if there is a wikidata entity, then fetch more information with a query
     if(fountain.properties.artist_name.source === 'wikidata'){
-  
+      if (null == idWd) {
+    		console.log(i+" null == idWd");
+      }
       let qid = fountain.properties.artist_name.value;
       
       // enter wikidata url
@@ -198,8 +199,9 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
+        	// https://github.com/maxlath/wikibase-sdk/issues/64  creator of https://www.wikidata.org/wiki/Q76901204  ("Europuddle" in ch-zh)
           // report error to log and save to data
-          l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbgHere);
+          l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbg);
           l.info(`stack: ${err.stack}`);
           l.info(`url: ${url}\n`);
           fountain.properties.artist_name.issues.push({

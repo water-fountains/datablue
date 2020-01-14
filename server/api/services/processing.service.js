@@ -77,8 +77,12 @@ export function fillArtistNames(fountainCollection,dbg){
 	l.info('processing.service.js starting fillArtistNames: '+dbg+' '+new Date().toISOString());
   return new Promise((resolve, reject) => {
     let promises = [];
+    let i = 0;
     _.forEach(fountainCollection, fountain =>{
-      promises.push(WikidataService.fillArtistName(fountain,dbg));
+    	i++;
+    	const idWd = fountain.properties.id_wikidata.value;
+        let dbgHere = dbg + ' '+ idWd+ ' '+i+'/'+fountainCollection.length;	
+        promises.push(WikidataService.fillArtistName(fountain,dbgHere));
     });
     
     Promise.all(promises)
