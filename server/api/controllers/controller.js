@@ -204,11 +204,14 @@ function doJson(resp, obj, dbg) {
 		}
 		let res = resp.json(obj);
 	    if(process.env.NODE_ENV !== 'production') {
-	    	//res.length and res.length() are not working
-	    	// https://github.com/expressjs/express/blob/5.0/lib/response.js   https://github.com/expressjs/express/issues/4158
-            l.info('controller.js doJson length: keys '+Object.keys(obj).length+
+	    	// https://nodejs.org/dist/latest-v12.x/docs/api/http.html#http_class_http_serverresponse Event finish
+	    	resp.finish = resp.close = function (event) {
+	    		//not working  :(  https://github.com/water-fountains/datablue/issues/40
+	    		//https://github.com/expressjs/express/issues/4158 https://github.com/expressjs/express/blob/5.0/lib/response.js   
+	    		l.info('controller.js doJson length: keys '+Object.keys(obj).length+
             		//'\n responseData.data.length '+resp.responseData.data.length+
             		' -  '+dbg+' '+new Date().toISOString());
+	    	}
 	    }
 		return res;
 	} catch (err) {
@@ -234,11 +237,13 @@ function byId(req, res, dbg){
       let fountain = _.find(
        cty.features,
         f=>{
-          if (null== f) {
-             l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
-          }
           return f.properties['id_'+req.query.database].value === req.query.idval
         });
+      if (null== fountain) {
+          l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
+      } else {
+     	  l.info('controller.js byId breakpoint: of '+cityS+' '+dbg+' '+new Date().toISOString());
+      }
       doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
       l.info('controller.js byId: of '+cityS+' res.json '+dbg+' '+new Date().toISOString());
   }catch (e) {
