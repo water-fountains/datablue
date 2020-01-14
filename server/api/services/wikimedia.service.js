@@ -171,7 +171,6 @@ class WikimediaService {
       imgNoInfoPomise
       // Promise.all(imgNoInfoPomise)
       .then(cr => {
-      let imgPromise = null;
       if (0 < imgUrlSet.size) {
     	if (debugAll) {
     		l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+imgUrlSet.size+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
@@ -180,7 +179,7 @@ class WikimediaService {
         let k = 0;
         for(let img of imgUrls) {
         	k++;
-        	galValPromises.push(this.getImageInfo('File:'+img.val, k+'/'+imgUrls.length+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
+        	galValPromises.push(getImageInfo('File:'+img.val, k+'/'+imgUrls.length+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
                 l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString()
                 + '\n'+giiErr.stack);
             }));
@@ -232,38 +231,7 @@ class WikimediaService {
           })
     ;
   }
-  
-  getImageInfo(pageTitle, dbg){
-    return new Promise((resolve, reject) =>{
-      let newImage = {};
-      newImage.s = 'wd';
-      newImage.pgTit = pageTitle.replace('File:','').replace(/ /g, '_');
-      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
-      const timeoutSecs = 1;
-      let timeout = timeoutSecs*1000; 
-      api.get(url, {timeout: timeout})
-        .then(response => {
-        let keys = Object.keys(response.data.query.pages);
-        let key = keys[0];
-        let pags =response.data.query.pages;
-        let data = pags[key];
-        if(data.hasOwnProperty('imageinfo')){
-          newImage.metadata = makeMetadata(data.imageinfo[0]);
-          resolve(newImage);
-        } else{
-          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`);
-          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
-          resolve(newImage);
-        }
-      }).catch(error=>{
-        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`);
-        newImage.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
-        resolve(newImage);
-      });
-    });
     
-  }
-  
   sanitizeTitle(title){
     // this doesn't cover all situations, but the following doesn't work either
     // return encodeURI(title.replace(/ /g, '_'));
@@ -309,5 +277,37 @@ function makeMetadata(data){
   
   return metadata;
 }
+
+export function getImageInfo(pageTitle, dbg){
+    return new Promise((resolve, reject) =>{
+      let newImage = {};
+      newImage.s = 'wd';
+      newImage.pgTit = pageTitle.replace('File:','').replace(/ /g, '_');
+      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
+      const timeoutSecs = 1;
+      let timeout = timeoutSecs*1000; 
+      api.get(url, {timeout: timeout})
+        .then(response => {
+        let keys = Object.keys(response.data.query.pages);
+        let key = keys[0];
+        let pags =response.data.query.pages;
+        let data = pags[key];
+        if(data.hasOwnProperty('imageinfo')){
+          newImage.metadata = makeMetadata(data.imageinfo[0]);
+          resolve(newImage);
+        } else{
+          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`);
+          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
+          resolve(newImage);
+        }
+      }).catch(error=>{
+        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`);
+        newImage.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
+        resolve(newImage);
+      });
+    });
+    
+  }
+
 
 export default new WikimediaService();
