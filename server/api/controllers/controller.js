@@ -16,10 +16,11 @@ const NodeCache = require( "node-cache" );
 import {conflate} from "../services/conflate.data.service";
 import applyImpliedPropertiesOsm from "../services/applyImplied.service";
 import {
-  createUniqueIds, essenceOf, defaultCollectionEnhancement, fillInMissingWikidataFountains
+  essenceOf, defaultCollectionEnhancement, fillInMissingWikidataFountains
 } from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
 import {extractProcessingErrors} from "./processing-errors.controller";
+import {getImageInfo} from "../services/wikimedia.service";
 const haversine = require("haversine");
 const _ = require('lodash');
 
@@ -239,13 +240,57 @@ function byId(req, res, dbg){
         f=>{
           return f.properties['id_'+req.query.database].value === req.query.idval
         });
+      let imgMetaPromises = [];
+	  let lazyAdded = 0;
+	  let name = 'unkNamById';
+	  let gl = -1;
       if (null== fountain) {
           l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
       } else {
-     	  l.info('controller.js byId breakpoint: of '+cityS+' '+dbg+' '+new Date().toISOString());
+    	  const props = fountain.properties;
+    	  if (null != props) {
+    		  name = props.name.value;
+    		  const gal = props.gallery
+    		  if (null != gal && null != gal.value) {
+    			  gl = gal.value.length;
+        		  if (0 < gl) {
+//        	          l.info('controller.js byId: of '+cityS+' found gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+        			  let i = 0;
+        			  let lzAtt = '';
+        			  for(const img of gal.value) {
+        				  let imMetaDat = img.metadata; 
+        				  if (null == imMetaDat) {
+        					  lzAtt += i+',';
+        					  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
+        					  imgMetaPromises.push(getImageInfo(img.pgTit, i+'/'+gl+' '+dbg+' '+cityS,'').catch(giiErr=>{
+        			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
+        			                + '\n'+giiErr.stack);
+        			            }));
+        					  lazyAdded++;
+        				  }
+        				  i++;
+        			  }
+        			  if (1 > lazyAdded) {
+        				  const noLazy = new Promise((resolve, reject)=>resolve(true));
+        				  imgMetaPromises.push(noLazy);
+//    					  l.info('controller.js byId do sth to have lazy img metadata promise happy: tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
+        			  } else {
+    					  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
+        			  }
+        		      Promise.all(imgMetaPromises).then(r => {
+        				  if (0 < lazyAdded) {
+        					  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r+' '+new Date().toISOString());
+        				  }
+        		          resolve(fountain);      
+        		        }, err => {
+        		            l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
+        		        });
+    			  }
+    		  }
+    	  }
       }
       doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
-      l.info('controller.js byId: of '+cityS+' res.json '+dbg+' '+new Date().toISOString());
+      l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
   }catch (e) {
     l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
     l.error(e.stack);

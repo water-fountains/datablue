@@ -283,11 +283,11 @@ export function getImageInfo(pageTitle, dbg){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.s = 'wd';
-      newImage.pgTit = pageTitle;//.replace(/ /g, '_');
+      newImage.pgTit = pageTitle;
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
-      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url+' '+new Date().toISOString());
+//      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url+' '+new Date().toISOString());
       api.get(url, {timeout: timeout})
         .then(response => {
         let keys = Object.keys(response.data.query.pages);
