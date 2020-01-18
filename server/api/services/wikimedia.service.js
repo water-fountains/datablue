@@ -177,9 +177,10 @@ class WikimediaService {
     	}
         let galValPromises = [];
         let k = 0;
-        for(let img of imgUrls) {
-        	k++;
-        	galValPromises.push(getImageInfo('File:'+img.val, k+'/'+imgUrls.length+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
+        const imgL = imgUrls.length;
+        for(;k < 6 && k < imgL;k++) { //6 since only 5 imgs are on the gallery-preview
+        	const img = imgUrls[k];
+        	galValPromises.push(getImageInfo(img.val, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
                 l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString()
                 + '\n'+giiErr.stack);
             }));
@@ -282,10 +283,11 @@ export function getImageInfo(pageTitle, dbg){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.s = 'wd';
-      newImage.pgTit = pageTitle.replace('File:','').replace(/ /g, '_');
-      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
+      newImage.pgTit = pageTitle;//.replace(/ /g, '_');
+      let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
+      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url+' '+new Date().toISOString());
       api.get(url, {timeout: timeout})
         .then(response => {
         let keys = Object.keys(response.data.query.pages);
