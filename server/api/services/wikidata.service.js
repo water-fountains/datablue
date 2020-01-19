@@ -154,7 +154,7 @@ class WikidataService {
         format: 'json',
         props: ['labels', 'sitelinks', 'claims']
       });
-      // l.debug(url);
+//      l.debug(url+' '+new Date().toISOString());
       // get data
       let data = null;
       return http.get(url)
@@ -199,7 +199,7 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
-        	// https://github.com/maxlath/wikibase-sdk/issues/64  creator of https://www.wikidata.org/wiki/Q76901204  ("Europuddle" in ch-zh)
+        	// https://github.com/maxlath/wikibase-sdk/issues/64 or rather https://phabricator.wikimedia.org/T243138 creator of https://www.wikidata.org/wiki/Q76901204  ("Europuddle" in ch-zh)
           // report error to log and save to data
           l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbg);
           l.info(`stack: ${err.stack}`);
