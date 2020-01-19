@@ -137,6 +137,7 @@ class WikidataService {
         wikidata: null,
       }
     };
+    dbg += ' '+fountain.properties.name.value;
 	const idWd = fountain.properties.id_wikidata.value;
     // if there is a wikidata entity, then fetch more information with a query
     if(fountain.properties.artist_name.source === 'wikidata'){
@@ -215,7 +216,7 @@ class WikidataService {
             timeStamp: new Date(),
             type: 'data_processing',
               level: 'error',
-              message: `Failed to fetch Wikidata entity information. Url: ${url} `+dbg,
+              message: `Failed to fetch Wikidata artist name entity information. Url: ${url} `+dbg,
           });
           return fountain});
     }else{
