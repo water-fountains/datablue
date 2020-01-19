@@ -90,18 +90,21 @@ export class Controller {
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req, res){
 	  const start = new Date();
+	  let what = 'unkWhat';
     l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city+' '+start.toISOString())      
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
       reprocessFountainAtCoords(req, res,req.query.city)
+      what = 'reprocessFountainAtCoords';
     }else{
       // byId will look into the fountain cache and return the fountain with the given identifier
       byId(req, res,req.query.idval)
+      what = 'byId';
     }
     const end = new Date();
     const elapse = (end - start)/1000;
-    l.info('controller.js getSingle: finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
+    l.info('controller.js getSingle: '+what+' finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
   }
   
   // Function to return all fountain information for a location.
