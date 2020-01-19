@@ -184,7 +184,7 @@ class WikimediaService {
         const imgL = imgUrls.length;
         for(;k < 6 && k < imgL;k++) { //6 since only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
-        	galValPromises.push(getImageInfo(img.val, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd,'').catch(giiErr=>{
+        	galValPromises.push(getImageInfo(img.val, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
                 l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString()
                 + '\n'+giiErr.stack);
             }));
@@ -284,7 +284,7 @@ function makeMetadata(data){
   return metadata;
 }
 
-export function getImageInfo(pageTitle, dbg){
+export function getImageInfo(pageTitle, dbg, showDetails){
     return new Promise((resolve, reject) =>{
       let newImage = {};
       newImage.s = 'wd';
@@ -301,6 +301,9 @@ export function getImageInfo(pageTitle, dbg){
         let data = pags[key];
         if(data.hasOwnProperty('imageinfo')){
           newImage.metadata = makeMetadata(data.imageinfo[0]);
+          if (showDetails) {
+        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' '+url+' '+new Date().toISOString());
+          }
           resolve(newImage);
         } else{
           l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`);

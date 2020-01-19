@@ -227,9 +227,11 @@ function doJson(resp, obj, dbg) {
  */
 function byId(req, res, dbg){
   let cityS = req.query.city;
-  try{
-      l.info('controller.js byId: '+cityS+' '+dbg);
-      let cty = cityCache.get(cityS);
+  let name = 'unkNamById';
+//  l.info('controller.js byId: '+cityS+' '+dbg+' '+new Date().toISOString());
+  let cty = cityCache.get(cityS);
+  return new Promise((resolve, reject) => {
+//	  l.info('controller.js byId in promise: '+cityS+' '+dbg+' '+new Date().toISOString());
       if (null== cty) {
         l.info('controller.js byId: '+cityS+' not found in cache '+dbg+' - start city lazy load');
         generateLocationData(cityS);
@@ -242,60 +244,66 @@ function byId(req, res, dbg){
         });
       let imgMetaPromises = [];
 	  let lazyAdded = 0;
-	  let name = 'unkNamById';
 	  let gl = -1;
       if (null== fountain) {
           l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
       } else {
     	  const props = fountain.properties;
+//    	  l.info('controller.js byId fountain: '+cityS+' '+dbg+' '+new Date().toISOString());
     	  if (null != props) {
     		  name = props.name.value;
     		  const gal = props.gallery
+//        	  l.info('controller.js byId props: '+cityS+' '+dbg+' '+new Date().toISOString());
     		  if (null != gal && null != gal.value) {
     			  gl = gal.value.length;
+//            	  l.info('controller.js byId gl: '+cityS+' '+dbg+' '+new Date().toISOString());
         		  if (0 < gl) {
 //        	          l.info('controller.js byId: of '+cityS+' found gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
         			  let i = 0;
         			  let lzAtt = '';
+        			  const showDetails = true;
         			  for(const img of gal.value) {
         				  let imMetaDat = img.metadata; 
         				  if (null == imMetaDat) {
         					  lzAtt += i+',';
         					  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-        					  imgMetaPromises.push(getImageInfo(img.pgTit, i+'/'+gl+' '+dbg+' '+cityS,'').catch(giiErr=>{
+        					  imgMetaPromises.push(getImageInfo(img.pgTit, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails).catch(giiErr=>{
         			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
         			                + '\n'+giiErr.stack);
         			            }));
         					  lazyAdded++;
+        				  } else {
+            				  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
         				  }
         				  i++;
         			  }
-        			  if (1 > lazyAdded) {
-        				  const noLazy = new Promise((resolve, reject)=>resolve(true));
-        				  imgMetaPromises.push(noLazy);
-//    					  l.info('controller.js byId do sth to have lazy img metadata promise happy: tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
-        			  } else {
+        			  if (0 < lazyAdded) {
     					  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
         			  }
         		      Promise.all(imgMetaPromises).then(r => {
         				  if (0 < lazyAdded) {
-        					  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r+' '+new Date().toISOString());
+        					  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
         				  }
+        				  doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
+        				  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
         		          resolve(fountain);      
         		        }, err => {
         		            l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
         		        });
-    			  }
-    		  }
+    			  } else {
+                      l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg+' '+new Date().toISOString());
+            	  }
+    		  } else {
+                  l.info('controller.js byId: of '+cityS+' gallery null || null == gal.val  '+dbg+' '+new Date().toISOString());
+        	  }
+    	  } else {
+              l.info('controller.js byId: of '+cityS+' no props '+dbg+' '+new Date().toISOString());
     	  }
       }
-      doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
-      l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
-  }catch (e) {
+  }).catch (e=> {
     l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
     l.error(e.stack);
-  }
-  
+  })  
 }
 
 
