@@ -85,6 +85,7 @@ class WikimediaService {
     let url = 'unkUrl';
     let lastCatName = 'undefCatNam';
     let lastCatUrl =  'undefCatUrl';
+    let name = fountain.properties.name.value;
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
     return new Promise((resolve, reject) => {
@@ -110,14 +111,18 @@ class WikimediaService {
       let foFeaImgsV = foFeaImgs.value;
       let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll);
       let imgNoInfoPomise = null;
-      if(_.isNull(fountain.properties.wiki_commons_name.value)) {
+      if(_.isNull(fountain.properties.wiki_commons_name.value) || _.isNull(fountain.properties.wiki_commons_name.value.cats) || 0 == fountain.properties.wiki_commons_name.value.cats.length) {
         // if not, resolve with empty
         if(process.env.NODE_ENV !== 'production' && debugAll) {
           l.info('wikimedia.service.js: no commons category defined "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
         }
         imgNoInfoPomise = new Promise((resolve, reject)=>resolve(false));
       }else{
-        let catName = fountain.properties.wiki_commons_name.value;
+        let catNames = fountain.properties.wiki_commons_name.value.cats;
+        if (1 < catNames.length) {
+            l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'"'+new Date().toISOString());
+        }
+        let catName = catNames[0].value;
         lastCatName = catName;
         // if there is a gallery, then fetch all images in category
         url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;

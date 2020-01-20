@@ -1342,11 +1342,17 @@ let fountain_properties = {
           it: 'Solo il primo valore ritornato è utilizzato.',
           tr: 'Yalnızca gönderilen ilk değer kullanılır.'
         },
-        value_translation: commons => {
-          return commons[0].value;
+        value_translation: values => {
+            let cat = { src: 'wd',
+                        cats: values };
+            return cat;
         },
         value_translation_extra: text=>{
-          return text.replace('Category:', '')
+        	const txt = text.replace('Category:', '');
+            let cat = { src: 'wd',
+                    cats: [] };
+            cat.cats.push({value:txt});
+            return cat;
         }
       },
       osm: {

@@ -258,14 +258,24 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
           temp.sources[src_name].raw = value;
           try{
             // use one translation (or the alternative translation if the additional data source was used)
-            temp.sources[src_name].extracted = useExtra?cfg.value_translation_extra(value):cfg.value_translation(value);
+        	  if (useExtra) {
+        		  temp.sources[src_name].extracted = cfg.value_translation_extra(value); 
+        	  } else {
+        		  temp.sources[src_name].extracted = cfg.value_translation(value); 
+        	        if('wiki_commons_name' == src_name && cfg.hasOwnProperty('src_path_extra')){
+        	            let valueE = _.get(fountains[src_name], cfg.src_path_extra, null);
+        	            if (null != valueE) {
+        	                l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `+new Date().toISOString());
+        	            }
+        	          }
+        	  }
             // if extracted value is not null, change status to ok
             if(temp.sources[src_name].extracted !== null){
               temp.sources[src_name].status = PROP_STATUS_OK;
             }
           }catch(err) {
             temp.sources[src_name].status = PROP_STATUS_ERROR;
-            let warning = `Lost in translation of "${p.id}" from "${src_name}": ${err.stack}`;
+            let warning = `conflate.data.service.js: Lost in translation of "${p.id}" from "${src_name}": ${err.stack}`;
             temp.sources[src_name].comments.push(warning);
             l.error(warning);
           }
