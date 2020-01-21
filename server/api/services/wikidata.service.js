@@ -43,7 +43,8 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    return doSparqlRequest(sparql,locationName);
+       let res = doSparqlRequest(sparql,locationName); 
+    return res;
   }
   
   idsByBoundingBox(latMin, lngMin, latMax, lngMax, locationName){
@@ -66,7 +67,8 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    return doSparqlRequest(sparql,locationName);
+      let res = doSparqlRequest(sparql,locationName);
+    return res;
   }
   
   
@@ -95,7 +97,7 @@ class WikidataService {
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
           .then(responses => {
-            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for '+locationName+' '+new Date().toISOString());
+            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for loc "'+locationName+'" '+new Date().toISOString());
             // holder for data of all fountains
             let dataAll = [];
             responses.forEach(r => {
@@ -113,13 +115,22 @@ class WikidataService {
               // concatenate the fountains from each chunk into "dataAll"
               dataAll = dataAll.concat(data);
             });
+            if (1 == chkCnt) {
+               let dataAllSize = -1;
+               if (null != dataAll) {
+            	   dataAllSize = dataAll.length;
+               }
+               l.info('wikidata.service.js byIds: dataAll '+dataAllSize+' for loc "'+locationName+'" '+new Date().toISOString());
+            }
             // return dataAll to 
             resolve(dataAll);
           })
           .catch(e=>{
+            l.error('wikidata.service.js byIds: catch e '+e.stack+' for loc "'+locationName+'" '+new Date().toISOString());
             reject(e)
           });
       }catch (error){
+        l.error('wikidata.service.js byIds: catch error '+error.stack+' for loc "'+locationName+'" '+new Date().toISOString());
         reject(error);
       }
       
@@ -310,8 +321,7 @@ function doSparqlRequest(sparql, location){
         l.error(error.message+' '+new Date().toISOString());
         // consume response data to free up memory
         res.resume();
-        return reject(error);
-        
+        return reject(error);        
       }
 
 
@@ -324,7 +334,6 @@ function doSparqlRequest(sparql, location){
         l.error('Error occurred simplifying wikidata results.'+e+' '+new Date().toISOString());
         reject(e);
       }
-
     })
         .catch(error=>{
             l.error(`Request to Wikidata Failed. Url: ${url}`+' '+new Date().toISOString());

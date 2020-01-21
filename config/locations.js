@@ -336,10 +336,14 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: {
-	        "latMin": 39.117,
-	        "lngMin": 27.17,
-	        "latMax": 39.12,
-	        "lngMax": 27.19
+	        "latMin": 47.3602,
+	        "lngMin": 8.5054,
+	        "latMax": 47.3604,
+	        "lngMax": 8.5055
+//	        "latMin": 39.117,
+//	        "lngMin": 27.17,
+//	        "latMax": 39.12,
+//	        "lngMax": 27.19
 	    },
 	    "operator_fountain_catalog_qid": 'undefined',
 	    issue_api:{

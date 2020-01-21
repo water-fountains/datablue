@@ -44,12 +44,14 @@ class OsmService {
         if(error){
           reject(error);
         }else if(data.features.length === 0){
-          reject(new Error(NO_FOUNTAIN_AT_LOCATION));
+          l.info('osm.service.js byBoundingBox - NO_FOUNTAIN_AT_LOCATION: '+query+' '+new Date().toISOString());
+          //reject(new Error(NO_FOUNTAIN_AT_LOCATION));
+          resolve(data.features);
         }else{
           if (process.env.NODE_ENV !== 'production') {
-            l.info('osm.service byBoundingBox: '+query+' '+new Date().toISOString());
+            l.info('osm.service.js byBoundingBox: '+query+' '+new Date().toISOString());
           }
-          l.info('osm.service byBoundingBox: resulted in '+data.features.length+' fountains '+new Date().toISOString());
+          l.info('osm.service.js byBoundingBox: resulted in '+data.features.length+' fountains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})

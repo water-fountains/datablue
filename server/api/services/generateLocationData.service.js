@@ -34,7 +34,8 @@ function generateLocationData(locationName){
         .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
         .then(r => applyImpliedPropertiesOsm(r))
         .catch(e=>{
-          l.error(`Error collecting OSM data: ${JSON.stringify(e)}`);
+          l.error(`generateLocationDataService.js: Error collecting OSM data - generateLocationData: ${e.stack} `+
+        		  ' latMi '+bbox.latMin+', lngMi '+bbox.lngMin+', latMx '+bbox.latMax+', lngMx '+ bbox.lngMax);
           reject(e);
         });
       
