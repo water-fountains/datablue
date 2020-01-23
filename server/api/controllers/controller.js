@@ -300,6 +300,7 @@ function byId(req, res, dbg){
         		        });
     			  } else {
                       l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg+' '+new Date().toISOString());
+    				  doJson(res,fountain, 'byId '+dbg); 
             	  }
     		  } else {
                   l.info('controller.js byId: of '+cityS+' gallery null || null == gal.val  '+dbg+' '+new Date().toISOString());
