@@ -261,13 +261,18 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
         	  if (useExtra) {
         		  temp.sources[src_name].extracted = cfg.value_translation_extra(value); 
         	  } else {
-        		  temp.sources[src_name].extracted = cfg.value_translation(value); 
-        	        if('wiki_commons_name' == src_name && cfg.hasOwnProperty('src_path_extra')){
-        	            let valueE = _.get(fountains[src_name], cfg.src_path_extra, null);
+        		  let v = cfg.value_translation(value);
+        		  temp.sources[src_name].extracted = v;
+        	      if('wiki_commons_name' == temp.id){
+        	        if(cfg.hasOwnProperty('src_path_extra')){
+        	    		let valueE = _.get(fountains[src_name], cfg.src_path_extra, null);
         	            if (null != valueE) {
-        	                l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `+new Date().toISOString());
+        	              const vE = cfg.value_translation_extra(valueE); 
+        	              v.push(...vE);
+        	              l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `+new Date().toISOString());
         	            }
-        	          }
+            	     }
+        	      }
         	  }
             // if extracted value is not null, change status to ok
             if(temp.sources[src_name].extracted !== null){

@@ -270,8 +270,13 @@ function byId(req, res, dbg){
         				  if (null == imMetaDat) {
         					  lzAtt += i+',';
         					  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-        					  imgMetaPromises.push(getImageInfo(img.pgTit, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails).catch(giiErr=>{
-        			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
+        					  let nImg = {
+        							src: img.s,
+        							val:img.pgTit,
+        					  	    cat:img.s
+        					  }
+        					  imgMetaPromises.push(getImageInfo(nImg, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails).catch(giiErr=>{
+        			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
         			                + '\n'+giiErr.stack);
         			            }));
         					  lazyAdded++;

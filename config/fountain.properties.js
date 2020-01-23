@@ -1343,16 +1343,28 @@ let fountain_properties = {
           tr: 'Yalnızca gönderilen ilk değer kullanılır.'
         },
         value_translation: values => {
-            let cat = { src: 'wd',
-                        cats: values };
-            return cat;
+        	let cats = [];
+        	if (null != values) {
+        		for(let i = 0; i < values.length;i++) {
+        			let c = values[i].value; //we don't need the qualifiers here
+                    let cat = { s: 'wd',
+                            	c: c };
+                    cats.push(cat);
+        		}
+        	}
+            return cats;
         },
         value_translation_extra: text=>{
-        	const txt = text.replace('Category:', '');
-            let cat = { src: 'wd',
-                    cats: [] };
-            cat.cats.push({value:txt});
-            return cat;
+        	let cats = [];
+        	if (null != text) {
+            	const txt = text.replace('Category:', '');
+            	if (null != txt && txt.trim()!= '') {
+                    let cat = { s: 'wd',
+                            	c: txt };
+                    cats.push(cat);
+        		}
+        	}
+            return cats;
         }
       },
       osm: {
@@ -1372,12 +1384,20 @@ let fountain_properties = {
           tr: ['Özellik', 'wikimedia_commons']
         },
         value_translation: text=>{
+          let cats = [];
           if(text.includes('Category:')){
-            return text.replace('Category:', '')
-          }else{
-            return null;
-          }}
+        	if (null != text) {
+            	const txt = text.replace('Category:', '');
+            	if (null != txt && txt.trim()!= '') {
+                    let cat = { s: 'osm',
+                            	c: txt };
+                    cats.push(cat);
+        		}
+        	}
+          }
+          return cats;
         }
+      }
     }
   },
   wikipedia_en_url: {

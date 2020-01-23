@@ -336,10 +336,12 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: {
+	    	// Schule Friesenberg with multiple Categories
 	        "latMin": 47.3602,
 	        "lngMin": 8.5054,
 	        "latMax": 47.3604,
 	        "lngMax": 8.5055
+	      //5 fountains of Bergama
 //	        "latMin": 39.117,
 //	        "lngMin": 27.17,
 //	        "latMax": 39.12,

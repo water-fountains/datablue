@@ -26,7 +26,7 @@ const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
 
 class WikimediaService {
 
-  addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll) {
+  addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat) {
     let i = -1;
     if (null != imgListWithSource && null != imgListWithSource.imgs) {
       i++;
@@ -38,7 +38,7 @@ class WikimediaService {
         // only use photo media, not videos
         let ext = pTit.substring(dotPos+1);
         if(['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)<0){
-          l.info(ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
+          l.info('wikimedia.service.js addToImgList '+ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
           //https://github.com/lukasz-galka/ngx-gallery/issues/296 to handle svg, ogv, webm
           continue;
         }
@@ -47,33 +47,46 @@ class WikimediaService {
             imgUrlSet.add(imgNam);
             let img = {
               src: imgListWithSource.src,
-              val: foFeaImg.value
+              val: foFeaImg.value,
+              cat: cat
             }
             imgUrls.push(img);
             i++;
           } else {
         	  if (debugAll) {
-        		  l.info('fillGallery.foFeaImgs: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+        		  l.info('wikimedia.service.js addToImgList foFeaImg: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
         	  }
         	  duplicateCount++;
           }
         } else {
-            l.info('fillGallery.foFeaImgs: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
+            l.info('wikimedia.service.js addToImgList foFeaImg: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
         }    
       };
       if (0 < duplicateCount //&& debugAll
     		  ) {
-		  l.info('fillGallery.foFeaImgs: '+duplicateCount+' duplicates found among ' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+		  l.info('wikimedia.service.js addToImgList foFeaImg: '+duplicateCount+' duplicates found among ' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
       }
       if (1 < imgListWithSource.imgs.length && debugAll) {
         if(process.env.NODE_ENV !== 'production') {
-          l.info('fillGallery.foFeaImgs: added '+imgListWithSource.imgs.length+' ' +dbg);
+          l.info('wikimedia.service.js addToImgList foFeaImg: added '+imgListWithSource.imgs.length+' ' +dbg);
         }
       }
     }
     return i;  
   }
-
+  
+  getName(f) {
+    if(f.properties.name.value === null){
+    	  let langs = ['en','de','fr', 'it', 'tr'];
+      for(let lang of langs){
+        if(f.properties[`name_${lang}`].value !== null){
+        	return f.properties[`name_${lang}`].value;
+        }
+      }
+    } 
+    return f.properties.name.value;
+  }
+    
   fillGallery(fountain, dbg, city, debugAll){
     let dbgIdWd = null;
 //    if (debugAll) {
@@ -85,16 +98,17 @@ class WikimediaService {
     let url = 'unkUrl';
     let lastCatName = 'undefCatNam';
     let lastCatUrl =  'undefCatUrl';
-    let name = fountain.properties.name.value;
+    let name = this.getName(fountain);
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
+    let fProps = fountain.properties;
     return new Promise((resolve, reject) => {
       // initialize default gallery
       // setTimeout(()=>{
       //   l.info(`fountain ran out of time getting information. Osm ID: ${fountain.properties.id_osm.value}`);
       //   reject('ran out of time')
       // }, 1000);
-      fountain.properties.gallery = {
+      fProps.gallery = {
         value: [],
         issues: [],
         status: PROP_STATUS_WARNING,
@@ -103,26 +117,26 @@ class WikimediaService {
         comments: ''
       };
 
-      let galVal = fountain.properties.gallery.value;
+      let galVal = fProps.gallery.value;
       let imgUrls = [];
       let imgUrlSet = new Set();
-      let fProps = fountain.properties;
       let foFeaImgs = fProps.featured_image_name;
       let foFeaImgsV = foFeaImgs.value;
-      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll);
+      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll,'wd:p18');
       let imgNoInfoPomise = null;
-      if(_.isNull(fountain.properties.wiki_commons_name.value) || _.isNull(fountain.properties.wiki_commons_name.value.cats) || 0 == fountain.properties.wiki_commons_name.value.cats.length) {
+      let noCats = _.isNull(fProps.wiki_commons_name.value) || 0 == fProps.wiki_commons_name.value.length; 
+      if(noCats) {
         // if not, resolve with empty
         if(process.env.NODE_ENV !== 'production' && debugAll) {
           l.info('wikimedia.service.js: no commons category defined "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
         }
         imgNoInfoPomise = new Promise((resolve, reject)=>resolve(false));
       }else{
-        let catNames = fountain.properties.wiki_commons_name.value.cats;
+        let catNames = fProps.wiki_commons_name.value;
         if (1 < catNames.length) {
-            l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'"'+new Date().toISOString());
+            l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
         }
-        let catName = catNames[0].value;
+        let catName = catNames[0].c;
         lastCatName = catName;
         // if there is a gallery, then fetch all images in category
         url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
@@ -149,7 +163,7 @@ class WikimediaService {
               imgValsCumul.push(imgLikeFromWikiMedia);
               let imgs = { src: 'wd',
                 imgs: imgVals };
-              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"', debugAll);
+              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"', debugAll,catName);
             };
             return Promise.all(imgValsCumul);
         }).catch(err=> {
@@ -158,13 +172,13 @@ class WikimediaService {
               `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
                + ' url '+url+'\n'+err.stack);
             // add gallery as value of fountain gallery property
-            fountain.properties.gallery.issues.push({
+            fProps.gallery.issues.push({
               data: err,
               context: {
-                fountain_name: fountain.properties.name.value,
+                fountain_name: fProps.name.value,
                 property_id: 'gallery',
-                id_osm: fountain.properties.id_osm.value,
-                id_wikidata: fountain.properties.id_wikidata.value
+                id_osm: fProps.id_osm.value,
+                id_wikidata: fProps.id_wikidata.value
               },
               timeStamp: new Date(),
               type: 'data_processing',
@@ -181,19 +195,30 @@ class WikimediaService {
     	if (debugAll) {
     		l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+totImgFound+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
     	}
-    	if (50 < totImgFound) {
-    		l.info('wikimedia.service.js: fillGallery only showing first 50 out of imgUrlSet.size '+totImgFound+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+    	const maxImgShown = 40;
+    	if (maxImgShown < totImgFound) {
+    		l.info('wikimedia.service.js: fillGallery only showing first '+maxImgShown+' out of imgUrlSet.size '+totImgFound+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
     	}
         let galValPromises = [];
         let k = 0;
         const imgL = imgUrls.length;
-        for(;k < 6 && k < imgL;k++) { //6 since only 5 imgs are on the gallery-preview
+        const maxImgPreFetched = 5;
+        for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
-        	galValPromises.push(getImageInfo(img.val, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
-                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString()
+        	galValPromises.push(getImageInfo(img, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
+                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
                 + '\n'+giiErr.stack);
             }));
         }
+        for(;maxImgPreFetched <= k && k < imgL && k < maxImgShown;k++) { //between 6 && 50 imgs are on the gallery-preview
+        	const img = imgUrls[k];
+            let newImage = {
+                    s: img.src,
+                    pgTit: img.val,
+                    c: img.cat
+            };
+        	galValPromises.push(newImage);
+        }        
         if (debugAll) {
         	l.info('wikimedia.service.js: fillGallery galValPromises.length '+galValPromises.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
         }
@@ -289,11 +314,14 @@ function makeMetadata(data){
   return metadata;
 }
 
-export function getImageInfo(pageTitle, dbg, showDetails){
+export function getImageInfo(img, dbg, showDetails){
+	let pageTitle = img.val;
     return new Promise((resolve, reject) =>{
       let newImage = {};
-      newImage.s = 'wd';
+      newImage.s = img.src;
       newImage.pgTit = pageTitle;
+      newImage.c = img.cat;
+      //TODO: could also say which category it was
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
@@ -307,16 +335,18 @@ export function getImageInfo(pageTitle, dbg, showDetails){
         if(data.hasOwnProperty('imageinfo')){
           newImage.metadata = makeMetadata(data.imageinfo[0]);
           if (showDetails) {
-        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' '+url+' '+new Date().toISOString());
+        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.cat+'" '+new Date().toISOString());
           }
           resolve(newImage);
         } else{
-          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`);
+          l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`
+        		  + '\n cat "'+img.cat+'"');
           newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
           resolve(newImage);
         }
       }).catch(error=>{
-        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`);
+        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`+
+        		'\ncat "'+img.cat+'"');
         newImage.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
         resolve(newImage);
       });
