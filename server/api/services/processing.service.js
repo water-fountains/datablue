@@ -53,6 +53,7 @@ export function fillImageGalleries(fountainCollection, city, debugAll){
             }
         }
     }
+    let allMap = new Map();
     let dbgAll = debugAll;
     _.forEach(fountainCollection, fountain =>{
       i=i+1;
@@ -60,7 +61,7 @@ export function fillImageGalleries(fountainCollection, city, debugAll){
     	  dbgAll = 0 ==i % step;
       }
       const dbg = i+'/'+tot;
-      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll));
+      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, allMap));
     });
     
     Promise.all(promises)
