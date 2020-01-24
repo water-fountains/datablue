@@ -134,7 +134,7 @@ export function fillWikipediaSummaries(fountainCollection, dbg){
           promises.push(new Promise((resolve, reject) => {
             WikipediaService.getSummary(fountain.properties[urlParam].value, dbgHere+' '+lang+' '+dbgIdWd)
               .then(summary => {
-                // add suumary as derived information to url property
+                // add summary as derived information to url property
                 fountain.properties[urlParam].derived = {
                   summary: summary
                 };
