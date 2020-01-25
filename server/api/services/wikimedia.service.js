@@ -198,6 +198,7 @@ class WikimediaService {
     	  catName = cat.c;
           lastCatName = catName;
           const imgNoInfoPomise = this.getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps,debugAll);
+          //TODO we might prioritize categories with small number of images to have greater variety of images?
           imgNoInfoPomises.push(imgNoInfoPomise);
         }
       }
