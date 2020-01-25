@@ -202,8 +202,7 @@ class WikimediaService {
           imgNoInfoPomises.push(imgNoInfoPomise);
         }
       }
-//      imgNoInfoPomise
-       Promise.all(imgNoInfoPomises)
+      Promise.all(imgNoInfoPomises)
       .then(cr => {
     	  let totImgFound = imgUrlSet.size; 
       if (0 < totImgFound) {
@@ -277,7 +276,7 @@ class WikimediaService {
           fountain.properties.gallery.status = PROP_STATUS_OK;
           fountain.properties.gallery.comments = '';
           fountain.properties.gallery.source = 'wiCommns';
-          fountain.properties.gallery.totImgs = totImgFound; //display in GUI if > 50
+          fountain.properties.gallery.totImgs = totImgFound; //TODO display in GUI if > maxImgShown
           resolve(fountain);      
         });
       } else {
