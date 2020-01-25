@@ -104,7 +104,7 @@ export class Controller {
     }
     const end = new Date();
     const elapse = (end - start)/1000;
-    l.info('controller.js getSingle: '+what+' finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
+    //l.info('controller.js getSingle: '+what+' finished after '+elapse.toFixed(1)+' secs\nend:   '+end.toISOString());
   }
   
   // Function to return all fountain information for a location.
@@ -270,18 +270,13 @@ function byId(req, res, dbg){
         				  if (null == imMetaDat) {
         					  lzAtt += i+',';
         					  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-        					  let nImg = {
-        							src: img.s,
-        							val:img.pgTit,
-        					  	    cat:img.s
-        					  }
-        					  imgMetaPromises.push(getImageInfo(nImg, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails).catch(giiErr=>{
+        					  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, new Map()).catch(giiErr=>{
         			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
         			                + '\n'+giiErr.stack);
         			            }));
         					  lazyAdded++;
         				  } else {
-            				  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+//            				  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
         				  }
         				  i++;
         			  }
@@ -301,6 +296,7 @@ function byId(req, res, dbg){
     			  } else {
                       l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg+' '+new Date().toISOString());
     				  doJson(res,fountain, 'byId '+dbg); 
+    		          resolve(fountain);      
             	  }
     		  } else {
                   l.info('controller.js byId: of '+cityS+' gallery null || null == gal.val  '+dbg+' '+new Date().toISOString());
@@ -309,7 +305,8 @@ function byId(req, res, dbg){
               l.info('controller.js byId: of '+cityS+' no props '+dbg+' '+new Date().toISOString());
     	  }
       }
-  }).catch (e=> {
+//      l.info('controller.js byId: end of '+cityS+' '+dbg+' '+new Date().toISOString());
+    }).catch (e=> {
     l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
     l.error(e.stack);
   })  

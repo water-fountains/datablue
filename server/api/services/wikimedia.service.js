@@ -87,7 +87,7 @@ class WikimediaService {
     return f.properties.name.value;
   }
     
-  fillGallery(fountain, dbg, city, debugAll){
+  fillGallery(fountain, dbg, city, debugAll, allMap){
     let dbgIdWd = null;
 //    if (debugAll) {
 //       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
@@ -122,7 +122,7 @@ class WikimediaService {
       let imgUrlSet = new Set();
       let foFeaImgs = fProps.featured_image_name;
       let foFeaImgsV = foFeaImgs.value;
-      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll,'wd:p18');
+      let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll,{n:'wd:p18'});
       let imgNoInfoPomise = null;
       let noCats = _.isNull(fProps.wiki_commons_name.value) || 0 == fProps.wiki_commons_name.value.length; 
       if(noCats) {
@@ -136,10 +136,12 @@ class WikimediaService {
         if (1 < catNames.length) {
             l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
         }
-        let catName = catNames[0].c;
+        let cat = catNames[0];
+        let catName = cat.c;
         lastCatName = catName;
         // if there is a gallery, then fetch all images in category
-        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=20&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
+        const imgsPerCat = 20;
+        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=${imgsPerCat}&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
         lastCatUrl = url;
         // make array of image promises
         let imgValsCumul = [];
@@ -148,8 +150,10 @@ class WikimediaService {
             let category_members = r.data.query['categorymembers'];
             let cI = 0;
             let cTot = category_members.length;
+            cat.l = cTot;
             if(process.env.NODE_ENV !== 'production' && debugAll) {
-              l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+              l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+
+            		  dbgIdWd+' '+new Date().toISOString());
             }
             // fetch information for each image, max 50
             for(; cI < cTot && cI < 50;cI++) {
@@ -163,7 +167,8 @@ class WikimediaService {
               imgValsCumul.push(imgLikeFromWikiMedia);
               let imgs = { src: 'wd',
                 imgs: imgVals };
-              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"', debugAll,catName);
+              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
+            		  debugAll,{n:catName,l:cTot});
             };
             return Promise.all(imgValsCumul);
         }).catch(err=> {
@@ -195,29 +200,39 @@ class WikimediaService {
     	if (debugAll) {
     		l.info('wikimedia.service.js: fillGallery imgUrlSet.size '+totImgFound+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
     	}
-    	const maxImgShown = 40;
+    	const maxImgShown = 50;
     	if (maxImgShown < totImgFound) {
-    		l.info('wikimedia.service.js: fillGallery only showing first '+maxImgShown+' out of imgUrlSet.size '+totImgFound+' "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+    		l.info('wikimedia.service.js: fillGallery only showing first '+maxImgShown+' out of imgUrlSet.size '+totImgFound+' "'+dbg+'" '+city+' '+dbgIdWd+' '+new Date().toISOString());
     	}
         let galValPromises = [];
         let k = 0;
         const imgL = imgUrls.length;
-        const maxImgPreFetched = 5;
+        const maxImgPreFetched = 4;
         for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
-        	galValPromises.push(getImageInfo(img, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
-                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
-                + '\n'+giiErr.stack);
-            }));
+        	const imgFromMap = allMap.get(img.val);
+        	if (null != imgFromMap) {
+        		galValPromises.push(imgFromMap.i);
+        		let callers = imgFromMap.c;
+        		l.info('wikimedia.service.js: fillGallery img "'+img.val+'" already in other fountain(s) "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
+        		for(let clr of callers) {
+            		l.info('wikimedia.service.js: fillGallery img also in  "'+clr+'" '+new Date().toISOString());
+        		}
+        		callers.push(dbg);
+        	} else {
+        		let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+        		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
+        			l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
+        					+ '\n'+giiErr.stack);
+                     	     }
+        		        )
+        		   );
+        	}
         }
         for(;maxImgPreFetched <= k && k < imgL && k < maxImgShown;k++) { //between 6 && 50 imgs are on the gallery-preview
         	const img = imgUrls[k];
-            let newImage = {
-                    s: img.src,
-                    pgTit: img.val,
-                    c: img.cat
-            };
-        	galValPromises.push(newImage);
+    		let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+        	galValPromises.push(nImg);
         }        
         if (debugAll) {
         	l.info('wikimedia.service.js: fillGallery galValPromises.length '+galValPromises.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
@@ -227,6 +242,27 @@ class WikimediaService {
         		l.info('wikimedia.service.js: fillGallery galValPromises.r.length '+r.length+' '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
           }
           galVal = galVal.concat(r);
+          try {
+        	  if (null != galVal && 0 < galVal.length) {
+        		  for(let i=0; i < galVal.length && i < maxImgPreFetched;i++) {
+        			  let img = galVal[i];
+        			  if (null != img) {
+        				  let imMetaDat = img.metadata; 
+        				  if (null != imMetaDat) {
+        					  const fromMap = allMap.get(img.pgTit);
+        					  if (null == fromMap) {
+        						  let callers = new Set();
+        						  callers.add(dbg);
+        						  allMap.set(img.pgTit,{i:img,
+        							              clrs:callers});
+        					  }
+        				  }
+        			  }
+        		  }
+        	  }
+          } catch (err) {
+        	  l.info('wikimedia.service.js fillGallery: map operation failed '+err.stack);
+          }
           fountain.properties.gallery.value = galVal;
           fountain.properties.gallery.status = PROP_STATUS_OK;
           fountain.properties.gallery.comments = '';
@@ -315,12 +351,8 @@ function makeMetadata(data){
 }
 
 export function getImageInfo(img, dbg, showDetails){
-	let pageTitle = img.val;
+	let pageTitle = img.pgTit;
     return new Promise((resolve, reject) =>{
-      let newImage = {};
-      newImage.s = img.src;
-      newImage.pgTit = pageTitle;
-      newImage.c = img.cat;
       //TODO: could also say which category it was
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
@@ -333,22 +365,22 @@ export function getImageInfo(img, dbg, showDetails){
         let pags =response.data.query.pages;
         let data = pags[key];
         if(data.hasOwnProperty('imageinfo')){
-          newImage.metadata = makeMetadata(data.imageinfo[0]);
+          img.metadata = makeMetadata(data.imageinfo[0]);
           if (showDetails) {
-        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.cat+'" '+new Date().toISOString());
+        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.c+'" '+new Date().toISOString());
           }
-          resolve(newImage);
+          resolve(img);
         } else{
           l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`
-        		  + '\n cat "'+img.cat+'"');
-          newImage.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
-          resolve(newImage);
+        		  + '\n cat "'+img.c+'"');
+          img.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
+          resolve(img);
         }
       }).catch(error=>{
         l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`+
-        		'\ncat "'+img.cat+'"');
-        newImage.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
-        resolve(newImage);
+        		'\ncat "'+img.c+'"');
+        img.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
+        resolve(img);
       });
     });
     
