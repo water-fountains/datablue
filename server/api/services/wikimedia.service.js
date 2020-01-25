@@ -86,6 +86,62 @@ class WikimediaService {
     } 
     return f.properties.name.value;
   }
+  
+  getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps, debugAll) {
+	  let catName = cat.c;
+      // if there is a gallery, then fetch all images in category
+      const imgsPerCat = 20;
+      let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=${imgsPerCat}&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
+      // make array of image promises
+      let imgValsCumul = [];
+      let imgNoInfoPomise = api.get(url, {timeout: 1000})
+        .then(r => {
+          let category_members = r.data.query['categorymembers'];
+          let cI = 0;
+          let cTot = category_members.length;
+          cat.l = cTot;
+          if(process.env.NODE_ENV !== 'production' && debugAll) {
+            l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+
+          		  dbgIdWd+' '+new Date().toISOString());
+          }
+          // fetch information for each image, max 50
+          for(; cI < cTot && cI < 50;cI++) {
+            let page = category_members[cI];
+            let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cTot;  
+            let imgLikeFromWikiMedia = {
+                    value: page.title.replace('File:','')
+                  }
+            let imgVals = [];
+            imgVals.push(imgLikeFromWikiMedia);
+            imgValsCumul.push(imgLikeFromWikiMedia);
+            let imgs = { src: 'wd',
+              imgs: imgVals };
+            let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
+          		  debugAll,{n:catName,l:cTot});
+          };
+          return Promise.all(imgValsCumul);
+      }).catch(err=> {
+          // If there is an error getting the category members, then reject with error
+          l.error('fillGallery.categorymembers = api.get:\n'+
+            `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
+             + ' url '+url+'\n'+err.stack);
+          // add gallery as value of fountain gallery property
+          fProps.gallery.issues.push({
+            data: err,
+            context: {
+              fountain_name: fProps.name.value,
+              property_id: 'gallery',
+              id_osm: fProps.id_osm.value,
+              id_wikidata: fProps.id_wikidata.value
+            },
+            timeStamp: new Date(),
+            type: 'data_processing',
+            level: 'error',
+            message: `Failed to fetch category members from Wikimedia Commons. Url: ${url} `+dbg,  
+          });
+      });
+      return imgNoInfoPomise;
+  }
     
   fillGallery(fountain, dbg, city, debugAll, allMap){
     let dbgIdWd = null;
@@ -123,77 +179,30 @@ class WikimediaService {
       let foFeaImgs = fProps.featured_image_name;
       let foFeaImgsV = foFeaImgs.value;
       let added = this.addToImgList(foFeaImgsV, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd, debugAll,{n:'wd:p18'});
-      let imgNoInfoPomise = null;
+      let imgNoInfoPomises = [];
       let noCats = _.isNull(fProps.wiki_commons_name.value) || 0 == fProps.wiki_commons_name.value.length; 
       if(noCats) {
         // if not, resolve with empty
         if(process.env.NODE_ENV !== 'production' && debugAll) {
           l.info('wikimedia.service.js: no commons category defined "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
         }
-        imgNoInfoPomise = new Promise((resolve, reject)=>resolve(false));
+        imgNoInfoPomises.push(new Promise((resolve, reject)=>resolve(false)));
       }else{
         let catNames = fProps.wiki_commons_name.value;
         if (1 < catNames.length) {
             l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
         }
-        let cat = catNames[0];
-        let catName = cat.c;
-        lastCatName = catName;
-        // if there is a gallery, then fetch all images in category
-        const imgsPerCat = 20;
-        url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=${imgsPerCat}&cmtitle=Category:${this.sanitizeTitle(encodeURIComponent(catName))}&prop=imageinfo&format=json`;
-        lastCatUrl = url;
-        // make array of image promises
-        let imgValsCumul = [];
-        imgNoInfoPomise = api.get(url, {timeout: 1000})
-          .then(r => {
-            let category_members = r.data.query['categorymembers'];
-            let cI = 0;
-            let cTot = category_members.length;
-            cat.l = cTot;
-            if(process.env.NODE_ENV !== 'production' && debugAll) {
-              l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+
-            		  dbgIdWd+' '+new Date().toISOString());
-            }
-            // fetch information for each image, max 50
-            for(; cI < cTot && cI < 50;cI++) {
-              let page = category_members[cI];
-              let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cTot;  
-              let imgLikeFromWikiMedia = {
-                      value: page.title.replace('File:','')
-                    }
-              let imgVals = [];
-              imgVals.push(imgLikeFromWikiMedia);
-              imgValsCumul.push(imgLikeFromWikiMedia);
-              let imgs = { src: 'wd',
-                imgs: imgVals };
-              let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
-            		  debugAll,{n:catName,l:cTot});
-            };
-            return Promise.all(imgValsCumul);
-        }).catch(err=> {
-            // If there is an error getting the category members, then reject with error
-            l.error('fillGallery.categorymembers = api.get:\n'+
-              `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
-               + ' url '+url+'\n'+err.stack);
-            // add gallery as value of fountain gallery property
-            fProps.gallery.issues.push({
-              data: err,
-              context: {
-                fountain_name: fProps.name.value,
-                property_id: 'gallery',
-                id_osm: fProps.id_osm.value,
-                id_wikidata: fProps.id_wikidata.value
-              },
-              timeStamp: new Date(),
-              type: 'data_processing',
-              level: 'error',
-              message: `Failed to fetch category members from Wikimedia Commons. Url: ${url} `+dbg,  
-            });
-        });
+  	    let catName = 'unkCatNam';
+        for(let i = 0;i < catNames.length; i++) {
+          const cat = catNames[i];
+    	  catName = cat.c;
+          lastCatName = catName;
+          const imgNoInfoPomise = this.getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps,debugAll);
+          imgNoInfoPomises.push(imgNoInfoPomise);
+        }
       }
-      imgNoInfoPomise
-      // Promise.all(imgNoInfoPomise)
+//      imgNoInfoPomise
+       Promise.all(imgNoInfoPomises)
       .then(cr => {
     	  let totImgFound = imgUrlSet.size; 
       if (0 < totImgFound) {
@@ -210,7 +219,7 @@ class WikimediaService {
         const maxImgPreFetched = 4;
         for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
-        	const imgFromMap = allMap.get(img.val);
+        	const imgFromMap = allMap.get(img.src+'_'+img.val);
         	if (null != imgFromMap) {
         		galValPromises.push(imgFromMap.i);
         		let callers = imgFromMap.c;
@@ -253,7 +262,7 @@ class WikimediaService {
         					  if (null == fromMap) {
         						  let callers = new Set();
         						  callers.add(dbg);
-        						  allMap.set(img.pgTit,{i:img,
+        						  allMap.set(img.s+'_'+img.pgTit,{i:img,
         							              clrs:callers});
         					  }
         				  }
