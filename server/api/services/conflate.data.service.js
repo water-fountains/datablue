@@ -269,7 +269,10 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
         	            if (null != valueE) {
         	              const vE = cfg.value_translation_extra(valueE); 
         	              v.push(...vE);
-        	              l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `+new Date().toISOString());
+        	              if (debugAll) {
+        	            	  l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
+        	            			  +new Date().toISOString());
+        	              }
         	            }
             	     }
         	      }

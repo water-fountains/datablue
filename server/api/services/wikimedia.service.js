@@ -62,7 +62,7 @@ class WikimediaService {
             l.info('wikimedia.service.js addToImgList foFeaImg: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
         }    
       };
-      if (0 < duplicateCount //&& debugAll
+      if (0 < duplicateCount && debugAll
     		  ) {
 		  l.info('wikimedia.service.js addToImgList foFeaImg: '+duplicateCount+' duplicates found among ' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
       }
@@ -190,7 +190,10 @@ class WikimediaService {
       }else{
         let catNames = fProps.wiki_commons_name.value;
         if (1 < catNames.length) {
-            l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
+        	if (debugAll || 2 < catNames.length) {
+        		l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '
+        				+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
+        	}
         }
   	    let catName = 'unkCatNam';
         for(let i = 0;i < catNames.length; i++) {
@@ -216,7 +219,7 @@ class WikimediaService {
         let galValPromises = [];
         let k = 0;
         const imgL = imgUrls.length;
-        const maxImgPreFetched = 4;
+        const maxImgPreFetched = 0; //as long as we don't filter for pre-fetched info, why prefetch ? https://github.com/water-fountains/datablue/issues/41
         for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
         	const imgFromMap = allMap.get(img.src+'_'+img.val);
@@ -282,7 +285,8 @@ class WikimediaService {
       } else {
          //could check the qualifiers as per https://github.com/water-fountains/proximap/issues/294
     	if (debugAll) {
-    		l.info("wikimedia.service.js: fillGallery "+dbgIdWd+" has no img "+city+ ' '+new Date().toISOString());
+    		l.info("wikimedia.service.js: fillGallery "+dbgIdWd+" has no img "+city+ 
+    				' '+dbg+' '+new Date().toISOString());
     	}
         resolve(fountain);      
       }
