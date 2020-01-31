@@ -246,6 +246,36 @@ export const locations = {
       url_template: null
     }
   },
+  "in-ch": {
+	    name: 'Chennai',
+	    description: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    description_more: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    bounding_box: {
+	      "latMin": 12.8901,
+	      "lngMin": 80.0285,
+	      "latMax": 13.2894,
+	      "lngMax": 80.3746
+	    },
+	    "operator_fountain_catalog_qid": 'undefined',
+	    issue_api:{
+	      operator: null,
+	      qid: null,
+	      thumbnail_url: ``,
+	      url_template: null
+	    }
+	  },
   "us-nyc": {
     name: 'New York',
     description: {
@@ -336,16 +366,21 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: {
+	    	//Klusdörfli without P18 nor coordinates 47.36518, 8.568826
+	        "latMin": 47.3644,
+	        "lngMin": 8.56875,
+	        "latMax": 47.3652,
+	        "lngMax": 8.56885
 	    	// Schule Friesenberg with multiple Categories
 //	        "latMin": 47.3602,
 //	        "lngMin": 8.5054,
 //	        "latMax": 47.3604,
 //	        "lngMax": 8.5055
 	    	// 2x Schule Friesenberg with multiple Categories 
-	        "latMin": 47.3584,
-	        "lngMin": 8.5054,
-	        "latMax": 47.3604,
-	        "lngMax": 8.5058
+//	        "latMin": 47.3584,
+//	        "lngMin": 8.5054,
+//	        "latMax": 47.3604,
+//	        "lngMax": 8.5058
 	    	// Schule Friesenberg with 1 Category, no P18: 47.358684, 8.505754
 //	        "latMin": 47.3584,
 //	        "lngMin": 8.5054,
