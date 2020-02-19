@@ -212,7 +212,7 @@ export function essenceOf(fountainCollection) {
         withGallery++;
       }
     }
-    
+    props.panCur = (fPrps.pano_url.comments?"n":"y");
     // create feature for fountain
     newCollection.features.push({
       type: 'Feature',
