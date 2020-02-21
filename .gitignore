@@ -4,3 +4,4 @@ server/common/build.info.js
 .env
 .idea
 /.project
+/nbproject/private/

@@ -349,6 +349,36 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
       url_template: null
     }
   },
+  "sr-bg": {
+        name: 'Belgrade',
+        description: {
+            en: ``,
+            de: ``,
+            fr: ``,
+            it: ``,
+            tr: ``,
+        },
+        description_more: {
+            en: ``,
+            de: ``,
+            fr: ``,
+            it: ``,
+            tr: ``,
+        },
+        bounding_box: {
+            "latMin": 44.725000,
+            "lngMin": 20.354100,
+            "latMax": 44.880300,
+            "lngMax": 20.484000
+        },
+        "operator_fountain_catalog_qid": 'undefined',
+        issue_api:{
+            operator: null,
+            qid: null,
+            thumbnail_url: ``,
+            url_template: null
+        }
+  },
   "test": {
 	    name: 'Test-City (not in Prod)',
 	    description: {
