@@ -310,7 +310,7 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
     
   });
   // process panorama and image url
-  addDefaultPanoUrls(mergedProperties);
+//  addDefaultPanoUrls(mergedProperties);
   
   mergedProperties['conflation_info'] = {
     'merge_notes': mergeNotes,
@@ -338,31 +338,4 @@ function properties2GeoJson(collection){
     }
     
   })
-}
-
-
-function processImageUrl(fountain, widthPx=640) {
-  if (fountain.featured_image_name.value === null){
-    return `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.coords.value[1]},${fountain.coords.value[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`;
-  }else{
-    // construct url of thumbnail
-    let imgName = fountain.featured_image_name.value.replace(/ /g, '_');
-    
-    let h = md5(imgName);
-    return `//upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.substring(0,2)}/${imgName}/${widthPx}px-${imgName}`;
-  }
-}
-
-
-function addDefaultPanoUrls(fountain) {
-  if(fountain.pano_url.value === null){
-    fountain.pano_url.value = [
-      {url: `//instantstreetview.com/@${fountain.coords.value[1]},${fountain.coords.value[0]},0h,0p,1z`,
-      //a first step towards https://github.com/water-fountains/proximap/issues/137
-      source_name: 'Google Street View' // (+)'
-    }
-    ];
-    fountain.pano_url.status = PROP_STATUS_INFO;
-    fountain.pano_url.comments = 'URL for Google Street View is automatically generated from coordinates'
-  }
 }
