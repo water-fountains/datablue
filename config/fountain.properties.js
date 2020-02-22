@@ -1362,12 +1362,16 @@ let fountain_properties = {
         value_translation: values => {
         	let cats = [];
         	if (null != values) {
+        	    let catSet = new Set();
         		for(let i = 0; i < values.length;i++) {
         			let c = values[i].value; //we don't need the qualifiers here
-                    let cat = { s: 'wd',
+        			if (!catSet.has(c)) {
+        				catSet.add(c);
+        				let cat = { s: 'wd',
                             	c: c,
                             	l:-1};
-                    cats.push(cat);
+        				cats.push(cat);
+        			}
         		}
         	}
             return cats;

@@ -266,14 +266,20 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
         	      if('wiki_commons_name' == temp.id){
         	        if(cfg.hasOwnProperty('src_path_extra')){
         	    		let valueE = _.get(fountains[src_name], cfg.src_path_extra, null);
-        	            if (null != valueE) {
-        	              const vE = cfg.value_translation_extra(valueE); 
-        	              v.push(...vE);
-        	              if (debugAll) {
-        	            	  l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
-        	            			  +new Date().toISOString());
-        	              }
-        	            }
+        	    		if (null != valueE && null != v && 0 < valueE.trim()) {
+        	    			let catSet = new Set();
+        	    			for(let c of v) {
+        	    				catSet.add(c.c);
+        	    			}
+        	    			const vE = cfg.value_translation_extra(valueE); 
+        	    			if (null != vE && !catSet.has(valueE)) {
+        	    				v.push(...vE);
+        	    				if (debugAll) {
+        	    					l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
+        	    							+new Date().toISOString());
+        	    				}
+        	    			}
+        	    		}
             	     }
         	      }
         	  }
