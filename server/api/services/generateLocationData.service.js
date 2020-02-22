@@ -34,8 +34,11 @@ function generateLocationData(locationName){
         .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
         .then(r => applyImpliedPropertiesOsm(r))
         .catch(e=>{
+        	if ("getaddrinfo" == e.syscall) {
+        		l.info('Are you offline from the internet? '+ new Date().toISOString());
+        	}
           l.error(`generateLocationDataService.js: Error collecting OSM data - generateLocationData: ${e.stack} `+
-        		  ' latMi '+bbox.latMin+', lngMi '+bbox.lngMin+', latMx '+bbox.latMax+', lngMx '+ bbox.lngMax);
+        		  ' latMi '+bbox.latMin+', lngMi '+bbox.lngMin+', latMx '+bbox.latMax+', lngMx '+ bbox.lngMax+' '+ new Date().toISOString());
           reject(e);
         });
       
@@ -66,8 +69,9 @@ function generateLocationData(locationName){
             features: r
           })
         })
-        .catch(error => {
-          reject(error);
+        .catch(err => {
+        	l.error('generateLocationData.service.js - Promise.all([osmPromise, wikidataPromise]): ' + err.stack+' '+ new Date().toISOString());
+          reject(err);
         })
       
     });
