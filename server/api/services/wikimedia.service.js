@@ -33,6 +33,9 @@ class WikimediaService {
       let duplicateCount = 0;
       for(let foFeaImg of imgListWithSource.imgs) {
         let imgNam = foFeaImg.value;
+        if (null == foFeaImg.typ) {
+        	foFeaImg.typ = imgListWithSource.type;
+        }
         let pTit = imgNam.toLowerCase();
         let dotPos = pTit.lastIndexOf(".");
         // only use photo media, not videos
@@ -42,12 +45,14 @@ class WikimediaService {
           //https://github.com/lukasz-galka/ngx-gallery/issues/296 to handle svg, ogv, webm
           continue;
         }
-        if ('wd'==imgListWithSource.src) {
+        if ('wm'==foFeaImg.typ) {
+        //if ('wd'==imgListWithSource.src ||'osm'==imgListWithSource.src) {
           if (!imgUrlSet.has(imgNam)) {
             imgUrlSet.add(imgNam);
             let img = {
               src: imgListWithSource.src,
               val: foFeaImg.value,
+              typ:'wm',
               cat: cat
             }
             imgUrls.push(img);
@@ -98,31 +103,32 @@ class WikimediaService {
         .then(r => {
           let category_members = r.data.query['categorymembers'];
           let cI = 0;
-          let cTot = category_members.length;
-          cat.l = cTot;
+          cat.l = category_members.length;
           if(process.env.NODE_ENV !== 'production' && debugAll) {
-            l.info('wikimedia.service.js fillGallery: category "'+catName+'" has '+cTot+' images '+dbg+' '+city+' '+
+            l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
           		  dbgIdWd+' '+new Date().toISOString());
           }
           // fetch information for each image, max 50
-          for(; cI < cTot && cI < 50;cI++) {
+          for(; cI < cat.l && cI < 50;cI++) {
             let page = category_members[cI];
-            let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cTot;  
+            let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cat.l;  
             let imgLikeFromWikiMedia = {
-                    value: page.title.replace('File:','')
+                    value: page.title.replace('File:',''),
+                    typ:'wm'
                   }
             let imgVals = [];
             imgVals.push(imgLikeFromWikiMedia);
             imgValsCumul.push(imgLikeFromWikiMedia);
             let imgs = { src: 'wd',
-              imgs: imgVals };
+              imgs: imgVals,
+              type:'wm' };
             let addedC = this.addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
-          		  debugAll,{n:catName,l:cTot});
+          		  debugAll,{n:catName,l:cat.l});
           };
           return Promise.all(imgValsCumul);
       }).catch(err=> {
           // If there is an error getting the category members, then reject with error
-          l.error('fillGallery.categorymembers = api.get:\n'+
+          l.error('getImgsOfCat.categorymembers = api.get:\n'+
             `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
              + ' url '+url+'\n'+err.stack);
           // add gallery as value of fountain gallery property
@@ -222,7 +228,7 @@ class WikimediaService {
         const maxImgPreFetched = 0; //as long as we don't filter for pre-fetched info, why prefetch ? https://github.com/water-fountains/datablue/issues/41
         for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
-        	const imgFromMap = allMap.get(img.src+'_'+img.val);
+        	const imgFromMap = allMap.get(img.typ+'_'+img.val);
         	if (null != imgFromMap) {
         		galValPromises.push(imgFromMap.i);
         		let callers = imgFromMap.c;
@@ -232,7 +238,7 @@ class WikimediaService {
         		}
         		callers.push(dbg);
         	} else {
-        		let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+        		let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
         		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
         			l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
         					+ '\n'+giiErr.stack);
@@ -261,11 +267,11 @@ class WikimediaService {
         			  if (null != img) {
         				  let imMetaDat = img.metadata; 
         				  if (null != imMetaDat) {
-        					  const fromMap = allMap.get(img.pgTit);
+        					  const fromMap = allMap.get(img.typ+'_'+img.pgTit);
         					  if (null == fromMap) {
         						  let callers = new Set();
         						  callers.add(dbg);
-        						  allMap.set(img.s+'_'+img.pgTit,{i:img,
+        						  allMap.set(img.typ+'_'+img.pgTit,{i:img,
         							              clrs:callers});
         					  }
         				  }

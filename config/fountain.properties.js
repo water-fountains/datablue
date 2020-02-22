@@ -7,6 +7,8 @@
 
 import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../server/common/constants";
 import {locations} from "./locations";
+import l from '../server/common/logger';
+
 
 const _ = require('lodash');
 
@@ -1087,7 +1089,7 @@ let fountain_properties = {
       it: 'Nome dell\'immaigine principale come documentato in Wikidata. Questo è utile per creare l\'oggetto della galleria, ma altrimenti non viene usato direttamente.',
       tr: 'Esas görüntünün Wikidata\'daki ismi. Bu bir nesne galerisi oluşturmak için gereklidir, aksi takdirde doğrudan kullanılmaz. '
     },
-    src_pref: ['wikidata'],
+    src_pref: ['wikidata','osm'],
     src_config: {
       osm: {
         src_info: {
@@ -1106,11 +1108,25 @@ let fountain_properties = {
           tr: ['Özellik', 'wikimedia_commons']
         },
         value_translation: text=>{
-          if(text.includes('File:')){
-            return text.replace('File:', '')
-          }else{
-            return null;
-          }}
+        	const prefix = 'https://commons.wikimedia.org/wiki/File:';
+        	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
+        		const imgNam = text.substring(prefix.length);
+        		const imgName = decodeURI(imgNam);
+        	    let imgLikeFromWikiData = {
+                      value: imgName,
+                      typ:'wm'
+                    }
+                let imgVals = [];
+                imgVals.push(imgLikeFromWikiData);
+                let imgs = { src: 'osm',
+                  imgs: imgVals,
+                  type:'wm'};
+                return imgs;
+            } else {
+        	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
+        	  return null;
+          }
+        }
       },
       wikidata: {
         src_path: ['claims', 'P18'],
@@ -1130,7 +1146,8 @@ let fountain_properties = {
         },
         value_translation: values => {
           let img = { src: 'wd',
-                      imgs: values };
+                      imgs: values,
+                      type:'wm'};
           return img;
         }
       }
@@ -1336,10 +1353,10 @@ let fountain_properties = {
         },
         src_path_extra: ['sitelinks', 'commonswiki'],
         extraction_info: {
-          en: 'Only the first value returned is used.',
-          de: 'Es wird nur der erste zurückgegebene Wert verwendet.',
-          fr: 'Seule la première valeur retournée est utilisée.',
-          it: 'Solo il primo valore ritornato è utilizzato.',
+          en: 'All values returned is used.',
+          de: 'Alle zurückgegebenen Werte werden verwendet.',
+          fr: 'Tout les valeurs retournées sont utilisées.',
+          it: 'Tutti i valori ritornati sono utilizzati.',
           tr: 'Yalnızca gönderilen ilk değer kullanılır.'
         },
         value_translation: values => {
@@ -1348,7 +1365,8 @@ let fountain_properties = {
         		for(let i = 0; i < values.length;i++) {
         			let c = values[i].value; //we don't need the qualifiers here
                     let cat = { s: 'wd',
-                            	c: c };
+                            	c: c,
+                            	l:-1};
                     cats.push(cat);
         		}
         	}
@@ -1360,7 +1378,8 @@ let fountain_properties = {
             	const txt = text.replace('Category:', '');
             	if (null != txt && txt.trim()!= '') {
                     let cat = { s: 'wd',
-                            	c: txt };
+                            	c: txt,
+                            	l:-1};
                     cats.push(cat);
         		}
         	}
@@ -1390,7 +1409,8 @@ let fountain_properties = {
             	const txt = text.replace('Category:', '');
             	if (null != txt && txt.trim()!= '') {
                     let cat = { s: 'osm',
-                            	c: txt };
+                            	c: txt,
+                            	l:-1};
                     cats.push(cat);
         		}
         	}
