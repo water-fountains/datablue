@@ -334,6 +334,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         			}
         		}
         		if (0 < tmp.extracted.imgs.length) {
+        			//test with ch-zh Q27230145 or rather node/1415970706
         			for(let pSrc_name of p.src_pref){
         				// add the osm images to wikidata if that is the preferred source
         				if(temp.sources[pSrc_name].status === PROP_STATUS_OK && pSrc_name!= src_name){
