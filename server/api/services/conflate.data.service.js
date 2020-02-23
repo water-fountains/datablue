@@ -193,9 +193,9 @@ function conflateByCoordinates(ftns,dbg, debugAll) {
 }
 
 
-function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, debugAll, dbg){
+function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAll, dbg){
   if (debugAll) {
-		  l.info('conflate.data.service.js mergeFountainProperties: '+fountains+' ftns, '+mergeNotes+' '+dbg+' '+new Date().toISOString());
+		  l.info('conflate.data.service.js mergeFountainProperties: '+ftn+' ftns, '+mergeNotes+' '+dbg+' '+new Date().toISOString());
   }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
@@ -228,13 +228,15 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
     
     // loop through sources (osm and wikidata) and extract values
     for(let src_name of ['wikidata', 'osm']){
+      const f = ftn[src_name];
+      const tmp = temp.sources[src_name];
       if(p.src_config[src_name] === null){
         // If property not available, define property as not available for source
-        temp.sources[src_name].status = PROP_STATUS_NOT_AVAILABLE;
+        tmp.status = PROP_STATUS_NOT_AVAILABLE;
     
-      } else if(! fountains[src_name]){
+      } else if(! f){
         // If fountain doesn't exist for that source (e.g. the fountain is only defined in osm, not wikidata), mark status
-        temp.sources[src_name].status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
+        tmp.status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
   
       }else {
         // if property is available (fundamentally) for source, try to get it
@@ -243,29 +245,29 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
         const cfg = p.src_config[src_name];
         
         // Get value of property from source
-        let value = _.get(fountains[src_name], cfg.src_path, null);
+        let value = _.get(f, cfg.src_path, null);
         let useExtra = false;
   
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
         if(value === null && cfg.hasOwnProperty('src_path_extra')){
-          value = _.get(fountains[src_name], cfg.src_path_extra, null);
+          value = _.get(f, cfg.src_path_extra, null);
           useExtra = true;
         }
         
         // If a value was obtained, try to process it
         if(value !== null){
           // save raw value
-          temp.sources[src_name].raw = value;
+          tmp.raw = value;
           try{
             // use one translation (or the alternative translation if the additional data source was used)
         	  if (useExtra) {
-        		  temp.sources[src_name].extracted = cfg.value_translation_extra(value); 
+        		  tmp.extracted = cfg.value_translation_extra(value); 
         	  } else {
         		  let v = cfg.value_translation(value);
-        		  temp.sources[src_name].extracted = v;
+        		  tmp.extracted = v;
         	      if('wiki_commons_name' == temp.id){
         	        if(cfg.hasOwnProperty('src_path_extra')){
-        	    		let valueE = _.get(fountains[src_name], cfg.src_path_extra, null);
+        	    		let valueE = _.get(f, cfg.src_path_extra, null);
         	    		if (null != valueE && null != v && 0 < valueE.trim()) {
         	    			let catSet = new Set();
         	    			for(let c of v) {
@@ -284,18 +286,73 @@ function mergeFountainProperties(fountains, mergeNotes='', mergeDistance=null, d
         	      }
         	  }
             // if extracted value is not null, change status to ok
-            if(temp.sources[src_name].extracted !== null){
-              temp.sources[src_name].status = PROP_STATUS_OK;
+            if(tmp.extracted !== null){
+              tmp.status = PROP_STATUS_OK;
             }
           }catch(err) {
-            temp.sources[src_name].status = PROP_STATUS_ERROR;
+            tmp.status = PROP_STATUS_ERROR;
             let warning = `conflate.data.service.js: Lost in translation of "${p.id}" from "${src_name}": ${err.stack}`;
-            temp.sources[src_name].comments.push(warning);
+            tmp.comments.push(warning);
             l.error(warning);
           }
         }else{
           // If no property data was found, set status to "not defined"
-          temp.sources[src_name].status = PROP_STATUS_NOT_DEFINED;
+          tmp.status = PROP_STATUS_NOT_DEFINED;
+        }
+        if ('osm' == src_name && 'featured_image_name' == p.id) {
+        	const osmProps = f.properties;
+        	if (null != osmProps) {
+        		let osmImgs = [];
+        		if (null != osmProps.image) {
+        			let v = cfg.value_translation(osmProps.image);
+        			if (null != v) {
+        				osmImgs.push(v);
+        			}
+        		}
+        		if (null != osmProps.wikimedia_commons) {
+        			let v = cfg.value_translation(osmProps.wikimedia_commons);
+        			if (null != v) {
+        				osmImgs.push(v);
+        			}
+        		}
+        		let imgsSoFar = new Set();
+        		if (null != tmp.extracted && null != tmp.extracted.imgs) {
+        			for(let v of tmp.extracted.imgs) {
+        				imgsSoFar.add(v.value);
+        			}
+        		} else {
+        			tmp.extracted = { src: 'osm',
+        					imgs: [],
+        					type:'unk'} ;
+        		}
+        		for(let v0 of osmImgs) {
+        			for(let v of v0.imgs) {
+        				if (!imgsSoFar.has(v.value)) {
+        					tmp.extracted.imgs.push(v);
+        					l.info('conflate mergeProps added img "'+ v.value+'" typ '+v.typ+' '+new Date().toISOString());
+        				}
+        			}
+        		}
+        		if (0 < tmp.extracted.imgs.length) {
+        			for(let pSrc_name of p.src_pref){
+        				// add the osm images to wikidata if that is the preferred source
+        				if(temp.sources[pSrc_name].status === PROP_STATUS_OK && pSrc_name!= src_name){
+        					let pTmp = temp.sources[pSrc_name].extracted;
+        					if (null != pTmp && null != pTmp.imgs && 0 < pTmp.imgs.length) {
+        		        		let pImgsSoFar = new Set();
+        						for(let pV of pTmp.imgs) {
+        							pImgsSoFar.add(pV.value.replace(/ /g, '_'));
+        						}
+        						for (let vO of tmp.extracted.imgs) {
+        							if (!pImgsSoFar.has(vO.value)) {
+        								pTmp.imgs.push(vO);
+        							}
+        						}
+        					}
+        				}
+        			}
+        		}
+        	}
         }
       }
     }
