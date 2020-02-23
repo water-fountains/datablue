@@ -20,9 +20,10 @@ import {
 } from "../services/processing.service";
 import {updateCacheWithFountain} from "../services/database.service";
 import {extractProcessingErrors} from "./processing-errors.controller";
-import {getImageInfo} from "../services/wikimedia.service";
+import {getImageInfo,getImgsOfCat} from "../services/wikimedia.service";
 const haversine = require("haversine");
 const _ = require('lodash');
+import {MAX_IMG_SHOWN_IN_GALLERY} from "../../common/constants";
 
 
 // Configuration of Cache after https://www.npmjs.com/package/node-cache
@@ -265,34 +266,69 @@ function byId(req, res, dbg){
         			  let i = 0;
         			  let lzAtt = '';
         			  const showDetails = true;
-        			  for(const img of gal.value) {
-        				  let imMetaDat = img.metadata; 
-        				  if (null == imMetaDat) {
-        					  lzAtt += i+',';
-        					  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-        					  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, new Map()).catch(giiErr=>{
-        			                l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
-        			                + '\n'+giiErr.stack);
-        			            }));
-        					  lazyAdded++;
-        				  } else {
-//            				  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+        			  let imgUrlSet = new Set();
+        			  let catPromises = [];
+        			  let numbOfCats = -1;
+        			  let numbOfCatsLazyAdded = 0;
+    				  let imgUrlsLazyByCat = [];
+        			  if (props.wiki_commons_name && props.wiki_commons_name.value && 0 < props.wiki_commons_name.value.length) {
+        				  numbOfCats = props.wiki_commons_name.value.length;
+        				  for(const cat of props.wiki_commons_name.value) {
+        					  const add = 0 > cat.l;
+        					  if (add) {
+        						  numbOfCatsLazyAdded++;
+        						  if (0 == imgUrlSet.size) {
+        							  for(const img of gal.value) {
+        								  imgUrlSet.add(img.pgTit);
+        							  }
+        						  }
+        						  const catPromise = getImgsOfCat(cat, dbg, cityS, imgUrlSet, imgUrlsLazyByCat, "dbgIdWd", props,true);
+        						  //TODO we might prioritize categories with small number of images to have greater variety of images?
+        						  catPromises.push(catPromise);
+        					  }
+        				  }  
+        			  }         			  
+        			  Promise.all(catPromises).then(r => {
+						  for(let k = 0; k < imgUrlsLazyByCat.length && k < MAX_IMG_SHOWN_IN_GALLERY;k++) { //between 6 && 50 imgs are on the gallery-preview
+							  const img = imgUrlsLazyByCat[k];
+							  let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+							  gal.value.push(nImg);
+						  }   
+        				  if (0 < imgUrlsLazyByCat.length) {
+        					  l.info('controller.js byId lazy img by lazy cat added: attempted '+imgUrlsLazyByCat.length+' in '+numbOfCatsLazyAdded+'/'+
+        							  numbOfCats+' cats, tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
         				  }
-        				  i++;
-        			  }
-        			  if (0 < lazyAdded) {
-    					  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
-        			  }
-        		      Promise.all(imgMetaPromises).then(r => {
+        				  for(const img of gal.value) {
+        					  let imMetaDat = img.metadata; 
+        					  if (null == imMetaDat) {
+        						  lzAtt += i+',';
+        						  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
+        						  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, new Map()).catch(giiErr=>{
+        							  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
+        									  + '\n'+giiErr.stack);
+        						  }));
+        						  lazyAdded++;
+        					  } else {
+//      						  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+        					  }
+        					  i++;
+        				  }
         				  if (0 < lazyAdded) {
-        					  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
+        					  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
         				  }
-        				  doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
-        				  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
-        		          resolve(fountain);      
-        		        }, err => {
-        		            l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
-        		        });
+        				  Promise.all(imgMetaPromises).then(r => {
+        					  if (0 < lazyAdded) {
+        						  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
+        					  }
+        					  doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
+        					  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
+        					  resolve(fountain);      
+        				  }, err => {
+        					  l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
+        				  });
+        			  }, err => {
+    		            l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
+    		        });
     			  } else {
                       l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg+' '+new Date().toISOString());
     				  doJson(res,fountain, 'byId '+dbg); 
