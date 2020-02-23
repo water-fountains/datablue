@@ -6,12 +6,11 @@
  */
 
 import l from '../../common/logger';
-import {FUNCTION_NOT_AVAILABLE, NO_FOUNTAIN_AT_LOCATION} from "./constants";
-const https = require('https');
 const axios = require('axios');
 import { cacheAdapterEnhancer } from 'axios-extensions';
 const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
+import {LANGS} from "../../common/constants";
 
 // Set up caching of http requests
 const http = axios.create({
@@ -191,7 +190,7 @@ class WikidataService {
           }
           // Try to find a useful link
           // Look for Wikipedia entry in different languages
-          for(let lang of ['en', 'fr', 'de', 'it', 'tr']){
+          for(let lang of LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               fountain.properties.artist_name.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
               return fountain;

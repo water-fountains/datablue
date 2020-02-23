@@ -11,10 +11,9 @@ import {getStaticStreetView} from "./google.service";
 const _ = require ('lodash');
 const axios = require ('axios');
 const { ConcurrencyManager } = require("axios-concurrency");
-const md5 = require('js-md5');
 import l from '../../common/logger';
 import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING,
-	MAX_IMG_SHOWN_IN_GALLERY} from "../../common/constants";
+	MAX_IMG_SHOWN_IN_GALLERY, LANGS} from "../../common/constants";
 
 let api = axios.create({});
 
@@ -29,15 +28,16 @@ class WikimediaService {
 
   
   getName(f) {
-    if(f.properties.name.value === null){
-    	  let langs = ['en','de','fr', 'it', 'tr'];
-      for(let lang of langs){
-        if(f.properties[`name_${lang}`].value !== null){
-        	return f.properties[`name_${lang}`].value;
+	  const props = f.properties;
+    if(props.name.value === null){
+      for(let lang of LANGS){
+    	  const pL= props[`name_${lang}`];
+        if(null != pL && pL.value !== null){
+        	return pL.value;
         }
       }
     } 
-    return f.properties.name.value;
+    return props.name.value;
   }
     
   getImgsFromCats(fProps, dbg,city,dbgIdWd,name,imgNoInfoPomises, imgUrlSet, imgUrls,debugAll) {

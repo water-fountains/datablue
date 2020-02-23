@@ -13,16 +13,16 @@ import WikipediaService from './wikipedia.service';
 import WikidataService from './wikidata.service';
 import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
-import {PROP_STATUS_INFO, PROP_STATUS_OK} from "../../common/constants";
+import {PROP_STATUS_INFO, PROP_STATUS_OK,LAZY_ARTIST_NAME_LOADING_i41db, LANGS} from "../../common/constants";
 
 export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
   l.info('processing.service.js defaultCollectionEnhancement: '+dbg+' '+new Date().toISOString());
   return new Promise((resolve, reject)=>{
     fillImageGalleries(fountainCollection,dbg, debugAll)
       .then(r => fillOutNames(r,dbg))
-      .then(r => fillWikipediaSummaries(r,dbg))
-      .then(r => fillArtistNames(r,dbg))
-      .then(r => fillOperatorInfo(r,dbg))
+//      .then(r => fillWikipediaSummaries(r,dbg))
+//      .then(r => fillArtistNames(r,dbg)) as per LAZY_ARTIST_NAME_LOADING_i41db
+//      .then(r => fillOperatorInfo(r,dbg))
       .then(r => resolve(r))
       .catch(err=>reject(err))
   })
@@ -76,6 +76,9 @@ export function fillArtistNames(fountainCollection,dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with artist names if only QID was given
 	l.info('processing.service.js starting fillArtistNames: '+dbg+' '+new Date().toISOString());
+	if (LAZY_ARTIST_NAME_LOADING_i41db) {
+		l.info('processing.service.js fillArtistNames LAZY_ARTIST_NAME_LOADING_i41db: '+LAZY_ARTIST_NAME_LOADING_i41db+' - '+dbg+' '+new Date().toISOString());
+	}
   return new Promise((resolve, reject) => {
     let promises = [];
     let i = 0;
@@ -111,42 +114,49 @@ export function fillOperatorInfo(fountainCollection, dbg){
   })
 }
 
+export function fillWikipediaSummary(fountain, dbg, tot, promises) {
+    // check all languages to see if a wikipedia page is referenced
+    let i = 0;
+    _.forEach(LANGS, lang =>{
+      let urlParam = `wikipedia_${lang}_url`;
+      i=i+1;
+      const dbgHere = i+'/'+tot+' '+dbg;
+      const props = fountain.properties;
+      const pU = props[urlParam];
+      if(null != pU && null != pU.value){
+        // if not Null, get summary and create new property
+        let dbgIdWd = null;
+        if (null != props.id_wikidata && null != props.id_wikidata.value) {
+          dbgIdWd = props.id_wikidata.value;
+        }       
+        promises.push(new Promise((resolve, reject) => {
+          WikipediaService.getSummary(pU.value, dbgHere+' '+lang+' '+dbgIdWd)
+            .then(summary => {
+              // add summary as derived information to url property
+              pU.derived = {
+                summary: summary
+              };
+              resolve();
+            })
+            .catch(error=>{
+              l.error(`Error creating Wikipedia summary: ${error}`);
+              reject(error)
+            })
+        }));
+      }
+    });
+  
+}
+
 export function fillWikipediaSummaries(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
 	l.info('processing.service.js starting fillWikipediaSummaries: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
     let promises = [];
     // loop through fountains
+    let tot = fountainCollection.length;
     _.forEach(fountainCollection, fountain =>{
-      // check all languages to see if a wikipedia page is referenced
-      let i = 0;
-      let tot = fountainCollection.length;
-      _.forEach(['en', 'de', 'fr', 'it', 'tr'], lang =>{
-        let urlParam = `wikipedia_${lang}_url`;
-        i=i+1;
-        let dbgHere = i+'/'+tot+' '+dbg;
-        if(!_.isNull(fountain.properties[urlParam].value)){
-          // if not Null, get summary and create new property
-          let dbgIdWd = null;
-          if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
-            dbgIdWd = fountain.properties.id_wikidata.value;
-          }       
-          promises.push(new Promise((resolve, reject) => {
-            WikipediaService.getSummary(fountain.properties[urlParam].value, dbgHere+' '+lang+' '+dbgIdWd)
-              .then(summary => {
-                // add summary as derived information to url property
-                fountain.properties[urlParam].derived = {
-                  summary: summary
-                };
-                resolve();
-              })
-              .catch(error=>{
-                l.error(`Error creating Wikipedia summary: ${error}`);
-                reject(error)
-              })
-          }));
-        }
-      });
+    	fillWikipediaSummary(fountain, dbg, tot, promises);
     });
     
     Promise.all(promises)
@@ -232,7 +242,6 @@ export function fillOutNames(fountainCollection,dbg) {
   // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
 	l.info('processing.service.js starting fillOutNames: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
-    let langs = ['en','de','fr', 'it', 'tr','sr'];
     let i = 0;
     for(let f of fountainCollection) {
       // if the default name (aka title) if not filled, then fill it from one of the other languages
@@ -246,7 +255,7 @@ export function fillOutNames(fountainCollection,dbg) {
         }
     	i++;
     	if(fProps.name.value === null){
-    		for(let lang of langs){
+    		for(let lang of LANGS){
     			let fPopLng = fProps[`name_${lang}`];
     			if(fPopLng != null && fPopLng.value !== null){
     				// take the first language-specific name that is not null and apply it to the default name
@@ -261,7 +270,7 @@ export function fillOutNames(fountainCollection,dbg) {
     	}
       // fill lang-specific names if null and if a default name exists
     	if(fProps.name.value !== null) {
-    		for (let lang of langs) {
+    		for (let lang of LANGS) {
     			let fPopLng = fProps[`name_${lang}`];
     			if (fPopLng != null && fPopLng.value === null) {
     				fPopLng.value = fProps.name.value;
@@ -290,9 +299,14 @@ export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains
   return new Promise((resolve, reject)=>{
     // Get list of all Wikidata fountain qids referenced by OSM
     let qid_from_osm = _.compact(_.map(osm_fountains, f=>_.get(f,['properties', 'wikidata'])));
-  
+    if(process.env.NODE_ENV !== 'production') {
+        l.info('processing.service.js fillInMissingWikidataFountains osm_fountains '+osm_fountains.length+', qid_from_osm '+qid_from_osm.length+' ' +dbg+' '+new Date().toISOString());
+    }
     // Get list of all Wikidata fountain qids collected
     let qid_from_wikidata = _.map(wikidata_fountains, 'id');
+    if(process.env.NODE_ENV !== 'production') {
+        l.info('processing.service.js fillInMissingWikidataFountains qid_from_wikidata '+qid_from_wikidata.length+' ' +dbg+' '+new Date().toISOString());
+    }
   
     // Get qids not included in wikidata collection
     let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
