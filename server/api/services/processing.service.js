@@ -5,8 +5,6 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import {getStaticStreetView} from "./google.service";
-
 const _ = require ('lodash');
 import WikimediaService from './wikimedia.service';
 import WikipediaService from './wikipedia.service';
