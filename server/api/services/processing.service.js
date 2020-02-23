@@ -232,40 +232,52 @@ export function fillOutNames(fountainCollection,dbg) {
   // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
 	l.info('processing.service.js starting fillOutNames: '+dbg+' '+new Date().toISOString());  
   return new Promise((resolve, reject) => {
-    let langs = ['en','de','fr', 'it', 'tr'];
-    fountainCollection.forEach(f => {
+    let langs = ['en','de','fr', 'it', 'tr','sr'];
+    let i = 0;
+    for(let f of fountainCollection) {
       // if the default name (aka title) if not filled, then fill it from one of the other languages
-      if(f.properties.name.value === null){
-        for(let lang of langs){
-          if(f.properties[`name_${lang}`].value !== null){
-            // take the first language-specific name that is not null and apply it to the default name
-            f.properties.name.value = f.properties[`name_${lang}`].value;
-            f.properties.name.source_name = f.properties[`name_${lang}`].source_name;
-            f.properties.name.source_url = f.properties[`name_${lang}`].source_url;
-            f.properties.name.comments = `Value taken from language ${lang}.`;
-            f.properties.name.status = PROP_STATUS_INFO;
-            break;
-          }
+    	const fProps = f.properties;
+        if(fProps == null){
+        	l.info('processing.service.js fProps == null: '+dbg+' '+i+'/'+fountainCollection.length+' '+new Date().toISOString()); 
+        	continue;
         }
-      }
+        if(fProps.name == null){
+        	l.info('processing.service.js starting properties.name === null: '+dbg+' '+i+'/'+fountainCollection.length+' '+new Date().toISOString());  
+        }
+    	i++;
+    	if(fProps.name.value === null){
+    		for(let lang of langs){
+    			let fPopLng = fProps[`name_${lang}`];
+    			if(fPopLng != null && fPopLng.value !== null){
+    				// take the first language-specific name that is not null and apply it to the default name
+    				fProps.name.value = fPopLng.value;
+    				fProps.name.source_name = fPopLng.source_name;
+    				fProps.name.source_url = fPopLng.source_url;
+    				fProps.name.comments = `Value taken from language ${lang}.`;
+    				fProps.name.status = PROP_STATUS_INFO;
+    				break;
+    			}
+    		}
+    	}
       // fill lang-specific names if null and if a default name exists
-      if(f.properties.name.value !== null) {
-        for (let lang of langs) {
-          if (f.properties[`name_${lang}`].value === null) {
-            f.properties[`name_${lang}`].value = f.properties.name.value;
-            f.properties[`name_${lang}`].source_name = f.properties.name.source_name;
-            f.properties[`name_${lang}`].source_url = f.properties.name.source_url;
-            f.properties[`name_${lang}`].status = PROP_STATUS_INFO;
-            if(f.properties.name.comments === ''){
-              f.properties[`name_${lang}`].comments = 'Value taken from default language.';
-            }else{
-              f.properties[`name_${lang}`].comments = f.properties.name.comments;
-            }
-          }
-        }
-      }
+    	if(fProps.name.value !== null) {
+    		for (let lang of langs) {
+    			let fPopLng = fProps[`name_${lang}`];
+    			if (fPopLng != null && fPopLng.value === null) {
+    				fPopLng.value = fProps.name.value;
+    				fPopLng.source_name = fProps.name.source_name;
+    				fPopLng.source_url = fProps.name.source_url;
+    				fPopLng.status = PROP_STATUS_INFO;
+    				if(fProps.name.comments === ''){
+    					fPopLng.comments = 'Value taken from default language.';
+    				}else{
+    					fPopLng.comments = fProps.name.comments;
+    				}
+    			}
+    		}
+    	}
       
-    });
+    }
     resolve(fountainCollection)
   });
 }
