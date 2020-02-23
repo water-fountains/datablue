@@ -268,7 +268,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         	      if('wiki_commons_name' == temp.id){
         	        if(cfg.hasOwnProperty('src_path_extra')){
         	    		let valueE = _.get(f, cfg.src_path_extra, null);
-        	    		if (null != valueE && null != v && 0 < valueE.trim()) {
+        	    		if (null != valueE && null != v && 0 < valueE.trim().length) {
         	    			let catSet = new Set();
         	    			for(let c of v) {
         	    				catSet.add(c.c);
