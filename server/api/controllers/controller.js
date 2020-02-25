@@ -297,7 +297,7 @@ function byId(req, res, dbg){
     				  Promise.all(catPromises).then(r => {
     					  for(let k = 0; k < imgUrlsLazyByCat.length && k < MAX_IMG_SHOWN_IN_GALLERY;k++) { //between 6 && 50 imgs are on the gallery-preview
     						  const img = imgUrlsLazyByCat[k];
-    						  let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+    						  let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
     						  gal.value.push(nImg);
     					  }   
     					  if (0 < imgUrlsLazyByCat.length) {
@@ -306,7 +306,7 @@ function byId(req, res, dbg){
     					  }
     					  for(const img of gal.value) {
     						  let imMetaDat = img.metadata; 
-    						  if (null == imMetaDat) {
+    						  if (null == imMetaDat && 'wm' == img.t) {
     							  lzAtt += i+',';
     							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
     							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, new Map()).catch(giiErr=>{

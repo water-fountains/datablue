@@ -154,7 +154,7 @@ class WikimediaService {
         }
         for(;maxImgPreFetched <= k && k < imgL && k < MAX_IMG_SHOWN_IN_GALLERY;k++) { //between 6 && 50 imgs are on the gallery-preview
         	const img = imgUrls[k];
-    		let nImg = {s: img.src,pgTit: img.val,c: img.cat};
+    		let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
         	galValPromises.push(nImg);
         }        
         if (debugAll) {
@@ -311,7 +311,28 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
         	  }
         	  duplicateCount++;
           }
-        } else {
+        } else if ('flickr'==foFeaImg.typ) {
+            if (!imgUrlSet.has(imgNam)) {
+              imgUrlSet.add(imgNam);
+              let srce = foFeaImg.src;
+              if (null == srce) {
+            	  srce = imgListWithSource.src;
+              }
+              let img = {
+                src: srce,
+                val: foFeaImg.value,
+                typ:'flickr',
+                cat: cat
+              }
+              imgUrls.push(img);
+              i++;
+            } else {
+          	  if (debugAll) {
+          		  l.info('wikimedia.service.js addToImgList foFeaImg: duplicate  "'+imgNam+'" ' +i + '/' +imgListWithSource.imgs.length + ' - ' +dbg + ' '+new Date().toISOString());
+          	  }
+          	  duplicateCount++;
+            }
+          } else {
             l.info('wikimedia.service.js addToImgList foFeaImg: unknown src "'+imgListWithSource.src+'" "'+imgNam+'" ' +dbg + ' '+new Date().toISOString());
         }    
       };

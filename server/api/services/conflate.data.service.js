@@ -246,6 +246,12 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         
         // Get value of property from source
         let value = _.get(f, cfg.src_path, null);
+        if(value === null && cfg.hasOwnProperty('src_path1')){
+            value = _.get(f, cfg.src_path1, null);
+        }
+        if(value === null && cfg.hasOwnProperty('src_path2')){
+            value = _.get(f, cfg.src_path2, null);
+        }
         let useExtra = false;
   
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that

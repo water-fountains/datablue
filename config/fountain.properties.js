@@ -1100,6 +1100,8 @@ let fountain_properties = {
           tr: 'Değer yalnızca eğer " File: " içerirse kabul edilir.'
         },
         src_path: ['properties', 'wikimedia_commons'],
+        src_path1: ['properties', 'flickr'],
+//        src_path1: ['properties', 'mapillary'],
         src_instructions: {
           en: ['tag', 'wikimedia_commons'],
           de: ['Attribut', 'wikimedia_commons'],
@@ -1109,6 +1111,8 @@ let fountain_properties = {
         },
         value_translation: text=>{
         	const prefix = 'https://commons.wikimedia.org/wiki/File:';
+        	const prefixFlickr = 'https://www.flickr.com/photos/';
+        	const staticFlickr = '^https://.+\.flickr\.com/.+\..+';
         	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
         		const imgNam = text.substring(prefix.length);
         		const imgName = decodeURI(imgNam);
@@ -1121,6 +1125,30 @@ let fountain_properties = {
                 let imgs = { src: 'osm',
                   imgs: imgVals,
                   type:'wm'};
+                return imgs;
+            } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
+        	    let imgFromFlickr = {
+                      value: 'plsOpnInProprtryGUI_i333pm_',
+                      ext: text,
+                      typ:'ext-flickr'
+                    }
+                let imgVals = [];
+                imgVals.push(imgFromFlickr);
+                let imgs = { src: 'osm',
+                  imgs: imgVals,
+                  type:'ext'};
+                return imgs;
+            } else if(text.match(staticFlickr)){ //test with tr-be Q68792383 or rather node/3654842352
+        	    let imgFromFlickr = {
+                      value: text,
+                      typ:'flickr',
+                      src:'osm'
+                    }
+                let imgVals = [];
+                imgVals.push(imgFromFlickr);
+                let imgs = { src: 'osm',
+                  imgs: imgVals,
+                  type:'flickr'};
                 return imgs;
             } else {
         	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
