@@ -216,7 +216,8 @@ export function essenceOf(fountainCollection) {
         strVw++;
       } else {
         props.ph = { s:fGV0.s,
-                     pt:fGV0.pgTit };
+                     pt:fGV0.pgTit,
+                     t:fGV0.t};
         withGallery++;
       }
     }
