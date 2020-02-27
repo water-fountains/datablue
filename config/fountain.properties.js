@@ -1128,8 +1128,7 @@ let fountain_properties = {
                 return imgs;
             } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
         	    let imgFromFlickr = {
-                      value: 'plsOpnInProprtryGUI_i333pm_',
-                      ext: text,
+                      value: text,
                       typ:'ext-flickr'
                     }
                 let imgVals = [];

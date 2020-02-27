@@ -288,7 +288,8 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
         let dotPos = pTit.lastIndexOf(".");
         // only use photo media, not videos
         let ext = pTit.substring(dotPos+1);
-        if(['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)<0){
+        if(['jpg','jpeg', 'png', 'gif','tif','tiff','svg','ogv', 'webm'].indexOf(ext)<0
+        		&& !foFeaImg.typ.startsWith('ext-')){
           l.info('wikimedia.service.js addToImgList '+ext+': skipping "'+page.title+'" '+dbgImg+' '+dbgIdWd+' '+city);
           //https://github.com/lukasz-galka/ngx-gallery/issues/296 to handle svg, ogv, webm
           continue;
@@ -311,7 +312,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
         	  }
         	  duplicateCount++;
           }
-        } else if ('flickr'==foFeaImg.typ) {
+        } else if ('flickr'==foFeaImg.typ || foFeaImg.typ.startsWith('ext-')) {
             if (!imgUrlSet.has(imgNam)) {
               imgUrlSet.add(imgNam);
               let srce = foFeaImg.src;
@@ -321,7 +322,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
               let img = {
                 src: srce,
                 val: foFeaImg.value,
-                typ:'flickr',
+                typ:foFeaImg.typ,
                 cat: cat
               }
               imgUrls.push(img);

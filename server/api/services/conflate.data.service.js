@@ -335,6 +335,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         			for(let v of v0.imgs) {
         				if (!imgsSoFar.has(v.value)) {
         					tmp.extracted.imgs.push(v);
+        					tmp.status = PROP_STATUS_OK;
         					l.info('conflate mergeProps added img "'+ v.value+'" typ '+v.typ+' '+new Date().toISOString());
         				}
         			}
@@ -343,8 +344,9 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         			//test with ch-zh Q27230145 or rather node/1415970706
         			for(let pSrc_name of p.src_pref){
         				// add the osm images to wikidata if that is the preferred source
-        				if(temp.sources[pSrc_name].status === PROP_STATUS_OK && pSrc_name!= src_name){
-        					let pTmp = temp.sources[pSrc_name].extracted;
+        				const tmpSrc = temp.sources[pSrc_name];
+        				if(tmpSrc.status === PROP_STATUS_OK && pSrc_name!= src_name){
+        					let pTmp = tmpSrc.extracted;
         					if (null != pTmp && null != pTmp.imgs && 0 < pTmp.imgs.length) {
         		        		let pImgsSoFar = new Set();
         						for(let pV of pTmp.imgs) {
