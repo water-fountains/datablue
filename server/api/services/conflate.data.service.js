@@ -202,7 +202,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
   let mergedProperties = {};
   // loop through each property in the metadata
   _.forEach(fountain_property_metadata, (p)=>{
-    // foutnain template with default property values copied in
+    // fountain template with default property values copied in
     let temp = {
       id: p.id,
       value: p.value,
