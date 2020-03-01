@@ -24,12 +24,13 @@ import {extractProcessingErrors} from "./processing-errors.controller";
 import {getImageInfo,getImgsOfCat} from "../services/wikimedia.service";
 const haversine = require("haversine");
 const _ = require('lodash');
-import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db} from "../../common/constants";
+import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db,
+	CACHE_FOR_HRS_i45db} from "../../common/constants";
 
 
 // Configuration of Cache after https://www.npmjs.com/package/node-cache
 const cityCache = new NodeCache( {
-  stdTTL: 60*60*2, // time till cache expires, in seconds
+  stdTTL: 60*60*CACHE_FOR_HRS_i45db, // time till cache expires, in seconds
   checkperiod: 30, // how often to check for expiration, in seconds
   deleteOnExpire: false, // on expire, we want the cache to be recreated not deleted
   useClones: false // do not create a clone of the data when fetching from cache
@@ -54,7 +55,7 @@ cityCache.on('expired', (key, value)=>{
     generateLocationData(key)
       .then(fountainCollection=>{
         // save newly generated fountainCollection to the cache
-        cityCache.set(key, fountainCollection, 60*60*2); // expire after two hours
+        cityCache.set(key, fountainCollection, 60*60*CACHE_FOR_HRS_i45db); // expire after two hours
   
         // create a reduced version of the data as well
         cityCache.set(key + '_essential', essenceOf(fountainCollection));
@@ -78,7 +79,7 @@ export class Controller {
         generateLocationData(location_code)
           .then(fountainCollection => {
             // save new data to storage
-            cityCache.set(location_code, fountainCollection, 60 * 60 * 2); // expire after two hours
+            cityCache.set(location_code, fountainCollection, 60 * 60 * CACHE_FOR_HRS_i45db); // expire after two hours
             // create a reduced version of the data as well
             cityCache.set(location_code + '_essential', essenceOf(fountainCollection));
             // also create list of processing errors (for proximap#206)
@@ -118,7 +119,7 @@ export class Controller {
       generateLocationData(req.query.city)
         .then(fountainCollection => {
         // save new data to storage
-        cityCache.set(req.query.city, fountainCollection, 60*60*2);
+        cityCache.set(req.query.city, fountainCollection, 60*60*CACHE_FOR_HRS_i45db);
         
         // create a reduced version of the data as well
         let r_essential = essenceOf(fountainCollection);
