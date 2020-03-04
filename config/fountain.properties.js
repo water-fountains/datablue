@@ -1363,7 +1363,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P373'],
+        src_path: ['claims', 'P373'], //there is also 'topic's main category' (P910) - e.g. Trevi https://www.wikidata.org/wiki/Q185382
         src_instructions: {
           en: ['Statement', 'Commons category'],
           de: ['Aussage', 'Commons-Kategorie'],
