@@ -1056,16 +1056,17 @@ let fountain_properties = {
         value_translation: (list)=>{
           return _.map(list, el=>{
             let url = el.value;
+            let urlLc = url.toLowerCase();
             // determine source from url
             let source_name = 'unknown';
-            if(url.includes('goo.gl/maps')){
+            if(urlLc.includes('goo.gl/maps')){
               source_name = 'Google Street View';
            // }else if(url.includes('instantstreetview')){
               //a first step towards https://github.com/water-fountains/proximap/issues/137
              // source_name = 'Google Street View (+)';
-            }else if(url.includes('mapillary')){
+            }else if(urlLc.includes('mapillary')){
               source_name = 'Mapillary';
-            }else if(url.includes('openstreetcam')){
+            }else if(urlLc.includes('openstreetcam')){
               source_name = 'OpenStreetCam';
             }
             return {
