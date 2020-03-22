@@ -402,15 +402,15 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	    },
 	    bounding_box: {
 	    	// osm wm-image ch-zh Brunnentrog mit Relief "Möve"  https://github.com/water-fountains/proximap/issues/306
-	        "latMin": 47.3655,
-	        "lngMin": 8.54524,
-	        "latMax": 47.3656,
-	        "lngMax": 8.54525
+//	        "latMin": 47.3655,
+//	        "lngMin": 8.54524,
+//	        "latMax": 47.3656,
+//	        "lngMax": 8.54525
 	    	//Klusdörfli without P18 nor coordinates 47.36518, 8.568826
-//	        "latMin": 47.3644,
-//	        "lngMin": 8.56875,
-//	        "latMax": 47.3652,
-//	        "lngMax": 8.56885
+	        "latMin": 47.3644,
+	        "lngMin": 8.56875,
+	        "latMax": 47.3652,
+	        "lngMax": 8.56885
 	    	// Schule Friesenberg with multiple Categories
 //	        "latMin": 47.3602,
 //	        "lngMin": 8.5054,
@@ -440,5 +440,7 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      url_template: null
 	    }
 	  },
-  gak:`${process.env.GOOGLE_API_KEY}`
+  gak:`${process.env.GOOGLE_API_KEY}`,
+  CACHE_FOR_HRS_i45db: 48,
+  LANGS: ['en', 'de', 'fr', 'it', 'tr', 'sr']
 };

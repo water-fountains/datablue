@@ -13,7 +13,9 @@ const axios = require ('axios');
 const { ConcurrencyManager } = require("axios-concurrency");
 import l from '../../common/logger';
 import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING,
-	MAX_IMG_SHOWN_IN_GALLERY, LANGS} from "../../common/constants";
+	MAX_IMG_SHOWN_IN_GALLERY//, LANGS
+	} from "../../common/constants";
+	import {locations} from '../../../config/locations';
 
 let api = axios.create({});
 
@@ -30,7 +32,7 @@ class WikimediaService {
   getName(f) {
 	  const props = f.properties;
     if(props.name.value === null){
-      for(let lang of LANGS){
+      for(let lang of locations.LANGS){
     	  const pL= props[`name_${lang}`];
         if(null != pL && pL.value !== null){
         	return pL.value;
