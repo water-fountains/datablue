@@ -12,6 +12,7 @@ const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
 //import {LANGS} from "../../common/constants";
 import {locations} from '../../../config/locations';
+const sharedConstants = require('./../../common/shared-constants');
 
 // Set up caching of http requests
 const http = axios.create({
@@ -191,7 +192,7 @@ class WikidataService {
           }
           // Try to find a useful link
           // Look for Wikipedia entry in different languages
-          for(let lang of locations.LANGS){
+          for(let lang of sharedConstants.LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               fountain.properties.artist_name.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
               return fountain;

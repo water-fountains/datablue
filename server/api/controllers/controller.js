@@ -25,12 +25,13 @@ import {getImageInfo,getImgsOfCat} from "../services/wikimedia.service";
 const haversine = require("haversine");
 const _ = require('lodash');
 import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db //,CACHE_FOR_HRS_i45db
-	} from "../../common/constants";
+  } from "../../common/constants";
+const sharedConstants = require('./../../common/shared-constants');
 
 
 // Configuration of Cache after https://www.npmjs.com/package/node-cache
 const cityCache = new NodeCache( {
-  stdTTL: 60*60*locations.CACHE_FOR_HRS_i45db, // time till cache expires, in seconds
+  stdTTL: 60*60*sharedConstants.CACHE_FOR_HRS_i45db, // time till cache expires, in seconds
   checkperiod: 30, // how often to check for expiration, in seconds
   deleteOnExpire: false, // on expire, we want the cache to be recreated not deleted
   useClones: false // do not create a clone of the data when fetching from cache

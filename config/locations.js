@@ -440,7 +440,5 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      url_template: null
 	    }
 	  },
-  gak:`${process.env.GOOGLE_API_KEY}`,
-  CACHE_FOR_HRS_i45db: 48,
   LANGS: ['en', 'de', 'fr', 'it', 'tr', 'sr']
 };

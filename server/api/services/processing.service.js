@@ -14,6 +14,7 @@ import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK,LAZY_ARTIST_NAME_LOADING_i41db//, LANGS
 	} from "../../common/constants";
+const sharedConstants = require('./../../common/shared-constants');
 
 export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
   l.info('processing.service.js defaultCollectionEnhancement: '+dbg+' '+new Date().toISOString());
@@ -117,7 +118,7 @@ export function fillOperatorInfo(fountainCollection, dbg){
 export function fillWikipediaSummary(fountain, dbg, tot, promises) {
     // check all languages to see if a wikipedia page is referenced
     let i = 0;
-    _.forEach(locations.LANGS, lang =>{
+    _.forEach(sharedConstants.LANGS, lang =>{
       let urlParam = `wikipedia_${lang}_url`;
       i=i+1;
       const dbgHere = i+'/'+tot+' '+dbg;
@@ -256,7 +257,7 @@ export function fillOutNames(fountainCollection,dbg) {
         }
     	i++;
     	if(fProps.name.value === null){
-    		for(let lang of locations.LANGS){
+    		for(let lang of sharedConstants.LANGS){
     			let fPopLng = fProps[`name_${lang}`];
     			if(fPopLng != null && fPopLng.value !== null){
     				// take the first language-specific name that is not null and apply it to the default name
@@ -271,7 +272,7 @@ export function fillOutNames(fountainCollection,dbg) {
     	}
       // fill lang-specific names if null and if a default name exists
     	if(fProps.name.value !== null) {
-    		for (let lang of locations.LANGS) {
+    		for (let lang of sharedConstants.LANGS) {
     			let fPopLng = fProps[`name_${lang}`];
     			if (fPopLng != null && fPopLng.value === null) {
     				fPopLng.value = fProps.name.value;
