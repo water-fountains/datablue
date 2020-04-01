@@ -72,6 +72,17 @@ class WikidataService {
     return res;
   }
   
+  filterClaims(allClaims, claims) {
+    const newClaims = {};
+    for (let item of claims) {
+      if (Object.keys(allClaims).indexOf(item) !== -1 && Object.keys(allClaims).indexOf('P625') !== -1) {
+        newClaims[item] = allClaims[item];
+      } else if (Object.keys(allClaims).indexOf('P625') !== -1) {
+        newClaims['P625'] = allClaims['P625'];
+      }
+    }
+    return newClaims;
+  }
   
   byIds(qids,locationName) {
     // fetch fountains by their QIDs
@@ -115,7 +126,13 @@ class WikidataService {
               }
               // concatenate the fountains from each chunk into "dataAll"
               dataAll = dataAll.concat(data);
+              
             });
+            
+            dataAll.forEach((element, i) => {
+                element.claims = this.filterClaims(element.claims, ['P856', 'P973', 'P854', 'P2699', 'P625'])
+            })
+          
             if (1 == chkCnt) {
                let dataAllSize = -1;
                if (null != dataAll) {
