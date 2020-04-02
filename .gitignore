@@ -5,3 +5,8 @@ server/common/build.info.js
 .idea
 /.project
 /nbproject/private/
+
+.DS_Store
+nbproject/*
+server/.DS_Store
+server/api/.DS_Store

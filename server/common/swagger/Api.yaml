@@ -45,6 +45,13 @@ paths:
         200:
           description: Returns location metadata.
 
+  /metadata/shared-constants:
+    get:
+      description: "Fetch shared consants between Datablue and Proximap."
+      responses:
+        200:
+          description: Returns shared constants.
+          
   /fountain:
     get:
       description: Fetch detailed fountain information based on coordinates or identifier

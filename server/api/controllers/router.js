@@ -15,4 +15,5 @@ export default express
   .get('/fountains/', controller.byLocation)
   .get('/metadata/fountain_properties/', controller.getPropertyMetadata)
   .get('/metadata/locations/', controller.getLocationMetadata)
+  .get('/metadata/shared-constants/', controller.getSharedConstants)
   .get('/processing-errors/', controller.getProcessingErrors)

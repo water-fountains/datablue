@@ -176,6 +176,11 @@ export class Controller {
     l.info("controller.js: getLocationMetadata sent "+new Date().toISOString());
   }
   
+  getSharedConstants(req, res) {
+    doJson(res,sharedConstants,'getSharedConstants'); //res.json(locations);
+    l.info("controller.js: getSharedConstants sent "+new Date().toISOString());
+  }
+  
   /**
    * Function to extract processing errors from detailed list of fountains
    */
