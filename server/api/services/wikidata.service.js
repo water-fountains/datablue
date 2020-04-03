@@ -163,6 +163,7 @@ class WikidataService {
       
       // create sparql query url
       const url = wdk.getEntities({
+            // make sparql query more precise: https://github.com/water-fountains/proximap/issues/129#issuecomment-597785180
         ids: [qid],
         format: 'json',
         props: ['labels', 'sitelinks', 'claims']
