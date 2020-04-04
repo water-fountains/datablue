@@ -14,5 +14,3 @@ export const PROP_STATUS_NOT_DEFINED = 'PROP_STATUS_NOT_DEFINED';
 export const PROP_STATUS_NOT_AVAILABLE = 'PROP_STATUS_NOT_AVAILABLE';
 export const MAX_IMG_SHOWN_IN_GALLERY = 50;
 export const LAZY_ARTIST_NAME_LOADING_i41db = true;
-//export const LANGS = ['en', 'de', 'fr', 'it', 'tr', 'sr'];
-//export const CACHE_FOR_HRS_i45db = 48;

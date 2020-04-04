@@ -10,7 +10,6 @@ const axios = require('axios');
 import { cacheAdapterEnhancer } from 'axios-extensions';
 const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
-//import {LANGS} from "../../common/constants";
 import {locations} from '../../../config/locations';
 const sharedConstants = require('./../../common/shared-constants');
 

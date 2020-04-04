@@ -439,6 +439,5 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      thumbnail_url: ``,
 	      url_template: null
 	    }
-	  },
-  LANGS: ['en', 'de', 'fr', 'it', 'tr', 'sr']
+	  }
 };
