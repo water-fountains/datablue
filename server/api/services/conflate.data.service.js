@@ -279,13 +279,16 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         	    			for(let c of v) {
         	    				catSet.add(c.c);
         	    			}
-        	    			const vE = cfg.value_translation_extra(valueE); 
-        	    			if (null != vE && !catSet.has(valueE)) {
-        	    				v.push(...vE);
-        	    				if (debugAll) {
-        	    					l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
-        	    							+new Date().toISOString());
-        	    				}
+        	    			const vE = cfg.value_translation_extra(valueE);
+        	    			if (null != vE && 0 < vE.length) {
+        	    			   const vE0c = vE[0].c; //TODO if there is more than 1, for-loop
+        	    			   if (null != vE && !catSet.has(vE0c)) {
+        	    				  v.push(...vE);
+        	    				  if (debugAll) {
+        	    					 l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
+        	    					 		+new Date().toISOString());
+        	    				  }
+        	    			   }
         	    			}
         	    		}
             	     }
