@@ -1441,17 +1441,22 @@ let fountain_properties = {
         },
         value_translation: text=>{
           let cats = [];
-          if(text.includes('Category:')){
-        	if (null != text) {
-            	const txt = text.replace('Category:', '');
-            	if (null != txt && txt.trim()!= '') {
-                    let cat = { s: 'osm',
+      	  if (null != text) {
+            const catPos = text.toLowerCase().indexOf('category:')
+            if (-1 != catPos) {
+              const txt = text.substring(catPos+9);
+              if (null != txt && txt.trim()!= '') {
+                   let cat = { s: 'osm',
                             	c: txt,
                             	l:-1};
-                    cats.push(cat);
-        		}
-        	}
-          }
+                   cats.push(cat);
+        	  }
+        	} else {
+        	  if (process.env.NODE_ENV === 'production') {
+         	  	console.log('wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
+         	  }
+            }
+      	  }
           return cats;
         }
       }
