@@ -403,36 +403,45 @@ export function getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps
     let imgValsCumul = [];
     let imgNoInfoPomise = api.get(url, {timeout: 1000})
       .then(r => {
-        let category_members = r.data.query['categorymembers'];
-        let cI = 0;
-        cat.l = category_members.length;
-        if(process.env.NODE_ENV !== 'production' && debugAll) {
-          l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
+        const rDat = r.data;
+        if (null == rDat.error) {
+          const category_members = rDat.query['categorymembers'];
+          let cI = 0;
+          cat.l = category_members.length;
+          if(process.env.NODE_ENV !== 'production' && debugAll) {
+            l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
         		  dbgIdWd+' '+new Date().toISOString());
-        }
-        // fetch information for each image, max 50
-        for(; cI < cat.l && cI < 50;cI++) {
-          let page = category_members[cI];
-          let dbgImg = "f-"+dbg+"_i-"+cI+"/"+cat.l;  
-          let imgLikeFromWikiMedia = {
+          }
+          // fetch information for each image, max 50
+          for(; cI < cat.l && cI < 50;cI++) {
+            const page = category_members[cI];
+            const dbgImg = "f-"+dbg+"_i-"+cI+"/"+cat.l;  
+            const imgLikeFromWikiMedia = {
                   value: page.title.replace('File:',''),
                   typ:'wm'
                 }
-          let imgVals = [];
-          imgVals.push(imgLikeFromWikiMedia);
-          imgValsCumul.push(imgLikeFromWikiMedia);
-          let imgs = { src: 'wd',
-            imgs: imgVals,
-            type:'wm' };
-          let addedC = addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
+            const imgVals = [];
+            imgVals.push(imgLikeFromWikiMedia);
+            imgValsCumul.push(imgLikeFromWikiMedia);
+            const imgs = { src: 'wd',
+              imgs: imgVals,
+              type:'wm' };
+            const addedC = addToImgList(imgs, imgUrlSet, imgUrls, dbg + ' '+ dbgIdWd+' cat "'+catName+'"',
         		  debugAll,{n:catName,l:cat.l});
-        };
+          };
+        } else {
+            const rdErr = rDat.error;
+            l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" error "'+rdErr.info+'" ('+rdErr.code+
+                    ') has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
+        		    dbgIdWd+' '+new Date().toISOString());          
+            l.info(rdErr.*);
+        }
         return Promise.all(imgValsCumul);
     }).catch(err=> {
         // If there is an error getting the category members, then reject with error
         l.error('getImgsOfCat.categorymembers = api.get:\n'+
           `Failed to fetch category members. Cat "`+catName+'" ' +dbg + ' '+ dbgIdWd 
-           + ' url '+url+'\n'+err.stack);
+           + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
         // add gallery as value of fountain gallery property
         fProps.gallery.issues.push({
           data: err,
