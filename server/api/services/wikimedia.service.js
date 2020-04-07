@@ -431,10 +431,10 @@ export function getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps
           };
         } else {
             const rdErr = rDat.error;
-            l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" error "'+rdErr.info+'" ('+rdErr.code+
-                    ') has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
+            l.info('wikimedia.service.js getImgsOfCat: category "'+catName+'" error \''+rdErr.info+'\' (code "'+rdErr.code+
+                    '") has '+cat.l+' (limit '+imgsPerCat+') images '+dbg+' '+city+' '+
         		    dbgIdWd+' '+new Date().toISOString());          
-            l.info(rdErr.*);
+            l.info(rdErr['*']);
         }
         return Promise.all(imgValsCumul);
     }).catch(err=> {
