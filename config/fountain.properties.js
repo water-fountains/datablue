@@ -1444,7 +1444,7 @@ let fountain_properties = {
       	  if (null != text) {
             const catPos = text.toLowerCase().indexOf('category:')
             if (-1 != catPos) {
-              const txt = text.substring(catPos+9);
+              const txt = decodeURIComponent(text.substring(catPos+9));
               if (null != txt && txt.trim()!= '') {
                    let cat = { s: 'osm',
                             	c: txt,
