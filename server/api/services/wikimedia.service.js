@@ -383,7 +383,7 @@ export function getImageInfo(img, dbg, showDetails){
           resolve(img);
         }
       }).catch(error=>{
-        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" ${dbg} timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`+
+        l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" "${dbg}" timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`+
         		'\ncat "'+img.c+'"');
         img.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
         resolve(img);
