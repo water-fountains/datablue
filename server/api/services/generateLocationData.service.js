@@ -25,10 +25,47 @@ function generateLocationData(locationName){
     l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `+ start.toISOString());
     return new Promise((resolve, reject)=>{
       // get bounding box of location
-      if(!locations.hasOwnProperty(locationName)){
-        reject(new Error(`location not found in config: ${locationName}`))
+      if(!locations.hasOwnProperty(locationName)) {
+    	  const err = `location not found in config: ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
       }
       let bbox = locations[locationName].bounding_box;
+      if (null == bbox) {
+    	  const err = `fatal: null == bbox for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (null == bbox.latMin) {
+    	  const err = `fatal: null == bbox.latMin for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (null == bbox.lngMin) {
+    	  const err = `fatal: null == bbox.lngMin for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (null == bbox.latMax) {
+    	  const err = `fatal: null == bbox.latMax for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (null == bbox.lngMax) {
+    	  const err = `fatal: null == bbox.lngMax for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (bbox.lngMin > bbox.lngMax) {
+    	  const err = `fatal: bbox.lngMin > bbox.lngMax for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
+      if (bbox.latMin > bbox.latMax) {
+    	  const err = `fatal: bbox.latMin > bbox.latMax for ${locationName}`;
+    	  l.error(err +' '+ new Date().toISOString());
+          reject(new Error(err))
+      }
       // get data from Osm
       let osmPromise = OsmService
         .byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)

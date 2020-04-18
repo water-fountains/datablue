@@ -316,7 +316,7 @@ function byId(req, res, dbg){
     						  if (null == imMetaDat && 'wm' == img.t) {
     							  lzAtt += i+',';
     							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-    							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, new Map()).catch(giiErr=>{
+    							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, props).catch(giiErr=>{
     								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
     										  + '\n'+giiErr.stack);
     							  }));

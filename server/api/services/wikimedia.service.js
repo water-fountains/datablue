@@ -149,7 +149,7 @@ class WikimediaService {
         		callers.push(dbg);
         	} else {
         		let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
-        		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false).catch(giiErr=>{
+        		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false,fProps).catch(giiErr=>{
         			l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
         					+ '\n'+giiErr.stack);
                      	     }
@@ -175,7 +175,7 @@ class WikimediaService {
         		  for(let i=0; i < galVal.length && i < maxImgPreFetched;i++) {
         			  let img = galVal[i];
         			  if (null != img) {
-        				  let imMetaDat = img.metadata; 
+        			      let imMetaDat = img.metadata; 
         				  if (null != imMetaDat) {
         					  const fromMap = allMap.get(img.typ+'_'+img.pgTit);
         					  if (null == fromMap) {
@@ -255,6 +255,9 @@ function makeMetadata(data){
     },{
       sourceName: 'LicenseUrl',
       outputName: 'license_url'
+    },{
+      sourceName: 'Categories',
+      outputName: 'wikimedia_categories'
     },
   ];
   let metadata = {};
@@ -357,7 +360,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
   }
 
 
-export function getImageInfo(img, dbg, showDetails){
+export function getImageInfo(img, dbg, showDetails, fProps){
 	let pageTitle = img.pgTit;
     return new Promise((resolve, reject) =>{
       //TODO: could also say which category it was
@@ -373,6 +376,43 @@ export function getImageInfo(img, dbg, showDetails){
         let data = pags[key];
         if(data.hasOwnProperty('imageinfo')){
           img.metadata = makeMetadata(data.imageinfo[0]);
+          const imgMeta = img.metadata; 
+          if (imgMeta && imgMeta.wikimedia_categories && 0 < imgMeta.wikimedia_categories.trim().length) {
+             const categs = imgMeta.wikimedia_categories.trim().split('|');
+             if (null != categs && (null == img.c||null == img.c.n||0 == img.c.n.trim().length||'wd:p18'==img.c.n)) {
+                let i = 0;
+                let catSet = new Set();
+                for(; i < categs.length;i++) {  
+                   const catego = categs[i];
+                   if (null != catego) {
+                     const categoT = catego.trim();
+                     if (0 < categoT.length) {
+                        const categoTlc = categoT.toLowerCase();
+                        if (-1 == categoTlc.indexOf('needing')) {
+                           if (-1 == categoTlc.indexOf('self-published work')) {
+                             if (-1 == categoTlc.indexOf('pages with')) {
+                               catSet.add(categoT);
+                             }
+                           }
+                        }
+                      }
+                   }
+                }
+                const catArr = Array.from(catSet);
+                if (null != catArr && 0 < catArr.length) {
+                   img.c = {n:catArr[0]};
+        	       l.info('wikimedia.service.js getImageInfo: found category '+img.c+' '+dbg+' "'+url+'" #ofCats "'+catArr.length+'" '+new Date().toISOString());
+        	       if (null == fProps.wiki_commons_name) { 
+        	           fProps.wiki_commons_name = {value: []}
+        	       } else if (null == fProps.wiki_commons_name.value) { 
+        			   fProps.wiki_commons_name.value = [];
+        	       } 
+        	       //TODO should iterate through catArr check which are already there and only add new ones
+        		   fProps.wiki_commons_name.value.push({s:'wd',
+        		           c:catArr[0],l:-1});
+                }
+             }
+          }
           if (showDetails) {
         	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.c+'" '+new Date().toISOString());
           }
