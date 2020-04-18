@@ -239,9 +239,10 @@ class WikidataService {
   
   fillOperatorInfo(fountain, dbg){
     // created for proximap/#149
-    if(fountain.properties.operator_name.source === 'wikidata'){
+    const opNam = fountain.properties.operator_name;
+    if(opNam.source === 'wikidata'){
       // create sparql url to fetch operator information from QID
-      let qid = fountain.properties.operator_name.value;
+      let qid = opNam.value;
       const url = wdk.getEntities({
         ids: [qid],
         format: 'json',
@@ -263,10 +264,10 @@ class WikidataService {
           // Get label of operator in English
           let langs = Object.keys(entity.labels);
           if(langs.indexOf('en') >= 0){
-            fountain.properties.operator_name.value = entity.labels.en;
+            opNam.value = entity.labels.en;
           }else{
             // Or get whatever language shows up first
-            fountain.properties.operator_name.value = entity.labels[langs[0]];
+            opNam.value = entity.labels[langs[0]];
           }
           // Try to find a useful link
           // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
@@ -278,7 +279,7 @@ class WikidataService {
               break;
             }
           }
-          fountain.properties.operator_name.derived = {
+          opNam.derived = {
             url: url,
             qid: qid
           };
@@ -286,7 +287,10 @@ class WikidataService {
         })
         .catch(err=>{
           l.error(`Error collecting operator info name: ${err} `+dbg);
-          fountain.properties.operator_name.value = fountain.properties.operator_name.value + '(lookup unsuccessful)';
+          const errInfo = '(lookup unsuccessful)';
+          if (opNam.value && -1 == opNam.value.indexOf(errInfo)) {
+             opNam.value = opNam.value + errInfo;
+          }
           return fountain});
     }else{
       return fountain;
