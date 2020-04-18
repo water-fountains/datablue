@@ -68,7 +68,7 @@ class WikimediaService {
 	  }
   }
     
-  fillGallery(fountain, dbg, city, debugAll, allMap){
+  fillGallery(fountain, dbg, city, debugAll, allMap, numbOfFntsInCollection){
     let dbgIdWd = null;
 //    if (debugAll) {
 //       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
@@ -113,7 +113,7 @@ class WikimediaService {
         }
         imgNoInfoPomises.push(new Promise((resolve, reject)=>resolve(false)));
       } else {
-    	  if (0 < imgUrls.length) {
+    	  if (0 < imgUrls.length && 1 < numbOfFntsInCollection) {
     		  if(process.env.NODE_ENV !== 'production' && debugAll) {
     			  l.info('wikimedia.service.js: lazyLoad no need to analyze commons category now (already '+imgUrls.length+' featured img) "'+dbg+' '+city+' '+dbgIdWd+' '+new Date().toISOString());
     		  }
@@ -301,7 +301,8 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
         }
         if ('wm'==foFeaImg.typ) {
         //if ('wd'==imgListWithSource.src ||'osm'==imgListWithSource.src) {
-          if (!imgUrlSet.has(imgNam)) {
+          const imgNamS = sanitizeTitle(imgNam);
+          if (!imgUrlSet.has(imgNam) && !imgUrlSet.has(imgNamS)) {
             imgUrlSet.add(imgNam);
             let img = {
               src: imgListWithSource.src,

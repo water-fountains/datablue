@@ -62,7 +62,7 @@ export function fillImageGalleries(fountainCollection, city, debugAll){
     	  dbgAll = 0 ==i % step;
       }
       const dbg = i+'/'+tot;
-      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, allMap));
+      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, allMap, tot));
     });
     
     Promise.all(promises)

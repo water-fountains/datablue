@@ -1117,10 +1117,21 @@ let fountain_properties = {
         },
         value_translation: text=>{
         	const prefix = 'https://commons.wikimedia.org/wiki/File:';
+        	const prefixShort = 'file:'; //as per https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons example  
         	const prefixFlickr = 'https://www.flickr.com/photos/';
         	const staticFlickr = '^https://.+\.flickr\.com/.+\..+';
+        	let imWmNam = null;
         	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
-        		const imgNam = text.substring(prefix.length);
+        		imWmNam = text.substring(prefix.length);
+        	} else {
+        		const textLc = text.toLowerCase()
+        		if (textLc.trim().startsWith(prefixShort)) {
+        			const startPos = textLc.indexOf(prefixShort);
+        			imWmNam = text.substring(startPos+prefixShort.length);
+        		}
+        	}
+        	if (null != imWmNam) {
+        		const imgNam = imWmNam;
         		const imgName = decodeURI(imgNam);
         	    let imgLikeFromWikiData = {
                       value: imgName,
@@ -1442,9 +1453,22 @@ let fountain_properties = {
         value_translation: text=>{
           let cats = [];
       	  if (null != text) {
-            const catPos = text.toLowerCase().indexOf('category:')
-            if (-1 != catPos) {
-              const txt = decodeURIComponent(text.substring(catPos+9));
+      	    const txtLc = text.toLowerCase();
+            const catPos = txtLc.indexOf('category:');
+            let isCat = -1 != catPos;
+            let catTxt = '';
+            if (isCat) {
+            	catTxt = text.substring(catPos+9);
+            } else {
+            	if (-1 == txtLc.indexOf('file:')) {
+            		//https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons suggests to either use the File: or Category: syntax
+             	  	console.log('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
+             	  	catTxt = text;
+             	  	isCat = true;
+            	}
+            }
+            if (isCat) {
+              const txt = decodeURIComponent(catTxt);
               if (null != txt && txt.trim()!= '') {
                    let cat = { s: 'osm',
                             	c: txt,
@@ -1453,7 +1477,7 @@ let fountain_properties = {
         	  }
         	} else {
         	  if (process.env.NODE_ENV === 'production') {
-         	  	console.log('wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
+         	  	console.log('fountain.properties.js: wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
          	  }
             }
       	  }
