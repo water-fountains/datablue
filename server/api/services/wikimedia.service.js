@@ -411,11 +411,16 @@ export function getImageInfo(img, dbg, showDetails, fProps){
         	              }
         	          }
         	       }
-        	       //TODO should iterate through catArr check which are already there and only add new ones
-        	       if (!catsSoFar.has(ca)) {
-        		     fProps.wiki_commons_name.value.push({s:'wd',
-        		           c:ca,l:-1});
-        		   }
+        	       for(let k=0;k<catArr.length;k++){
+        	          const cat = catArr[k];
+        	          if (null != cat && 0 < cat.trim().length) {
+        	              const catTr = cat.trim();
+        	              if (!catsSoFar.has(catTr)) {
+        		             fProps.wiki_commons_name.value.push({s:'wd',
+        		                   c:catTr,l:-1});
+        		          }
+        	          }
+        	       }
                 }
              }
           }
