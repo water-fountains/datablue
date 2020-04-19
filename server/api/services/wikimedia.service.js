@@ -15,8 +15,8 @@ import l from '../../common/logger';
 import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING,
 	MAX_IMG_SHOWN_IN_GALLERY//, LANGS
 	} from "../../common/constants";
-	import {locations} from '../../../config/locations';
-        
+import {locations} from '../../../config/locations';
+import {isBlackListed} from './categories.wm';
 const sharedConstants = require('./../../common/shared-constants');
 
 
@@ -385,31 +385,37 @@ export function getImageInfo(img, dbg, showDetails, fProps){
                 for(; i < categs.length;i++) {  
                    const catego = categs[i];
                    if (null != catego) {
-                     const categoT = catego.trim();
-                     if (0 < categoT.length) {
-                        const categoTlc = categoT.toLowerCase();
-                        if (-1 == categoTlc.indexOf('needing')) {
-                           if (-1 == categoTlc.indexOf('self-published work')) {
-                             if (-1 == categoTlc.indexOf('pages with')) {
-                               catSet.add(categoT);
-                             }
-                           }
-                        }
-                      }
+                     if (!isBlackListed(catego)) {
+                        catSet.add(catego.trim());
+                     }
                    }
                 }
                 const catArr = Array.from(catSet);
                 if (null != catArr && 0 < catArr.length) {
-                   img.c = {n:catArr[0]};
+                   const ca = catArr[0];
+                   img.c = {n:ca};
         	       l.info('wikimedia.service.js getImageInfo: found category '+img.c+' '+dbg+' "'+url+'" #ofCats "'+catArr.length+'" '+new Date().toISOString());
         	       if (null == fProps.wiki_commons_name) { 
         	           fProps.wiki_commons_name = {value: []}
         	       } else if (null == fProps.wiki_commons_name.value) { 
         			   fProps.wiki_commons_name.value = [];
         	       } 
+        	       const fPrCats = fProps.wiki_commons_name.value;
+        	       let catsSoFar = new Set();
+        	       for(let j=0;j<fPrCats.length;j++){
+        	          const cat = fPrCats[j];
+        	          if (null != cat && null != cat.c) {
+        	              const catTr = cat.c.trim();
+        	              if (0 < catTr.length) {
+        	                catsSoFar.add(catTr);
+        	              }
+        	          }
+        	       }
         	       //TODO should iterate through catArr check which are already there and only add new ones
-        		   fProps.wiki_commons_name.value.push({s:'wd',
-        		           c:catArr[0],l:-1});
+        	       if (!catsSoFar.has(ca)) {
+        		     fProps.wiki_commons_name.value.push({s:'wd',
+        		           c:ca,l:-1});
+        		   }
                 }
              }
           }
