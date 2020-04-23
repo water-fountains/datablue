@@ -72,6 +72,9 @@ export function isBlackListed(catName) {
         }
       }
     }
+    if(process.env.NODE_ENV !== 'production') {
+       l.info('categories.wm.js isBlackListed: category "'+catName+'" '+new Date().toISOString());                
+    }
   }
   return true;
 }
