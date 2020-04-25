@@ -149,6 +149,7 @@ class WikimediaService {
         		callers.push(dbg);
         	} else {
         		let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
+        		const singleRefresh = false; 
         		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false,fProps).catch(giiErr=>{
         			l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
         					+ '\n'+giiErr.stack);
@@ -272,7 +273,7 @@ function makeMetadata(data){
   return metadata;
 }
 
-function sanitizeTitle(title){
+export function sanitizeTitle(title){
     // this doesn't cover all situations, but the following doesn't work either
     // return encodeURI(title.replace(/ /g, '_'));
     return title
@@ -360,7 +361,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
   }
 
 
-export function getImageInfo(img, dbg, showDetails, fProps){
+export function getImageInfo(img, dbg, showDetails, fProps, singleRefresh){
 	let pageTitle = img.pgTit;
     return new Promise((resolve, reject) =>{
       //TODO: could also say which category it was
