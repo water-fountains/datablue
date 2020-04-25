@@ -7,7 +7,7 @@
  *
  * Each time you change the this file, you need to run
  *     
- *   ~/git/proximap$ npm run sync_datablue locations
+ *   ~/git/proximap$ npm run sync_datablue for=locations
  * 
  */
 
@@ -402,11 +402,21 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: { 
+	    	// Bambi Oberstrass
+	        "latMin": 47.3934,
+	        "lngMin": 8.5447,
+	        "latMax": 47.3936,
+	        "lngMax": 8.5448	    
+	    	// osm wm-category ch-zh Brunnen Sunnehalde Küsnacht with forgotten Category
+//	        "latMin": 47.3288,
+//	        "lngMin": 8.5776,
+//	        "latMax": 47.3290,
+//	        "lngMax": 8.5778	    
 	    	// osm wm-category ch-zh Brunnen Rietwies Zollikon https://github.com/water-fountains/proximap/issues/306
-	        "latMin": 47.3390,
-	        "lngMin": 8.6010,
-	        "latMax": 47.3398,
-	        "lngMax": 8.6018
+//	        "latMin": 47.3390,
+//	        "lngMin": 8.6010,
+//	        "latMax": 47.3398,
+//	        "lngMax": 8.6018
 	    	// osm wm-image ch-zh Brunnentrog mit Relief "Möve"  https://github.com/water-fountains/proximap/issues/306
 //	        "latMin": 47.3655,
 //	        "lngMin": 8.54524,

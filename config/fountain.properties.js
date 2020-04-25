@@ -6,7 +6,7 @@
  * 
  * Each time you change the this file, you need to run
  *     
- *   ~/git/proximap$ npm run fountain_properties * 
+ *   ~/git/proximap$ npm run sync_datablue for=fountains
  * 
  */
 
