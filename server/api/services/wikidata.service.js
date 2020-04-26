@@ -142,20 +142,27 @@ class WikidataService {
   fillArtistName(fountain,dbg){
     // created for proximap/#129
     // intialize
-    fountain.properties.artist_name.derived = {
+    const artNam = fountain.properties.artist_name;
+    if (null != artNam.derived && null != artNam.derived.name
+      && '' != artNam.derived.name.trim()) {
+       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'"'+new Date().toISOString());
+       return fountain;
+    }
+    artNam.derived = {
       website: {
         url: null,
         wikidata: null,
+        name:null,
       }
     };
     dbg += ' '+fountain.properties.name.value;
 	const idWd = fountain.properties.id_wikidata.value;
     // if there is a wikidata entity, then fetch more information with a query
-    if(fountain.properties.artist_name.source === 'wikidata'){
+    if(artNam.source === 'wikidata'){
       if (null == idWd) {
-    		console.log(i+" null == idWd "+new Date().toISOString());
+    	 l.info('wikidata.service.js fillArtistName: null == idWd ' +new Date().toISOString());
       }
-      const qid = fountain.properties.artist_name.value;
+      const qid = artNam.value;
       if (null == qid) {
          l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'" '+new Date().toISOString());
          return fountain;
@@ -166,7 +173,7 @@ class WikidataService {
       }
       
       // enter wikidata url
-      fountain.properties.artist_name.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
+      artNam.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
       
       // create sparql query url
       const url = wdk.getEntities({
@@ -182,8 +189,18 @@ class WikidataService {
       // parse into an easier to read format
         .then(r=>{
           data = r.data;
-          return wdk.simplify.entity(
-            r.data.entities[qid],
+          const entities = data.entities;
+          if (null == entities) {
+             l.info('wikidata.service.js fillArtistName: null == entities "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             return fountain;
+          }
+          l.info('wikidata.service.js fillArtistName: null != entities "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          const eQid = entities[qid];
+          if (null == eQid) {
+             l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             return fountain;
+          }
+          return wdk.simplify.entity(eQid,
             {
               keepQualifiers: true
             })
@@ -191,18 +208,25 @@ class WikidataService {
         // extract useful data for https://github.com/water-fountains/proximap/issues/163
         .then(entity=>{
           // Get label of artist in English
-          let langs = Object.keys(entity.labels);
-          if(langs.indexOf('en') >= 0){
-            fountain.properties.artist_name.value = entity.labels.en;
+          if (null == entity) {
+             l.info('wikidata.service.js fillArtistName: null == entity after wdk.simplify "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             return fountain;
+          }
+          const langs = Object.keys(entity.labels);
+          let artName = null;
+          if(langs.indexOf('en') >= 0) {
+            artName = entity.labels.en;
           }else{
             // Or get whatever language shows up first
-            fountain.properties.artist_name.value = entity.labels[langs[0]];
+            artName = entity.labels[langs[0]];
           }
+          //artNam.value = artName;
+          artNam.derived.name = artName;
           // Try to find a useful link
           // Look for Wikipedia entry in different languages
           for(let lang of sharedConstants.LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
-              fountain.properties.artist_name.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
+              artNam.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
               return fountain;
             }
           }
@@ -212,7 +236,7 @@ class WikidataService {
             // get the url value if the path exists
             let url = _.get(entity.claims, [pid, 0, 'value'], false);
             if(url){
-              fountain.properties.artist_name.derived.website.url = url;
+              artNam.derived.website.url = url;
               return fountain;
             }
           }
@@ -225,7 +249,7 @@ class WikidataService {
           l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbg);
           l.info(`stack: ${err.stack}`);
           l.info(`url: ${url}\n`);
-          fountain.properties.artist_name.issues.push({
+          artNam.issues.push({
             data: err,
               context: {
               fountain_name: fountain.properties.name.value,
