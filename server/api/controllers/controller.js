@@ -22,7 +22,7 @@ import {
 import {updateCacheWithFountain} from "../services/database.service";
 import {extractProcessingErrors} from "./processing-errors.controller";
 import {getImageInfo,getImgsOfCat} from "../services/wikimedia.service";
-import {getCatExtract} from "../services/claims.wm";
+import {getCatExtract,getImgClaims} from "../services/claims.wm";
 const haversine = require("haversine");
 const _ = require('lodash');
 import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db //,CACHE_FOR_HRS_i45db
@@ -319,7 +319,7 @@ function byId(req, res, dbg){
     						  if (null == imMetaDat && 'wm' == img.t) {
     							  lzAtt += i+',';
     							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
-    							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, props, singleRefresh).catch(giiErr=>{
+    							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, props).catch(giiErr=>{
     								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
     										  + '\n'+giiErr.stack);
     							  }));
@@ -327,6 +327,7 @@ function byId(req, res, dbg){
     						  } else {
 //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
     						  }
+    					      getImgClaims(singleRefresh,img, imgMetaPromises, dbg);
     						  i++;
     					  }
     					  if (0 < lazyAdded) {

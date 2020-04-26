@@ -12,15 +12,16 @@ import l from '../../common/logger';
 const axios = require ('axios');
 const { ConcurrencyManager } = require("axios-concurrency");
 import {sanitizeTitle} from "./wikimedia.service";
+const sharedConstants = require('./../../common/shared-constants');
 
 let api = axios.create({});
 
 // a concurrency parameter of 1 makes all api requests sequential
 const MAX_CONCURRENT_REQUESTS = 200;
+const lgthWarnSiz = 1500;
 
 // init your manager.
 const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
-
 
 export function getCatExtract(singleRefresh,cat, promises, dbg) {
    if (!singleRefresh) {
@@ -47,25 +48,25 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
       l.info('claims.wm.js getCatExtract: blank catName '+dbg+' '+new Date().toISOString());          
       return;
    }
-    let encCat = encodeURIComponent(catName);
-    let sanTit = sanitizeTitle(encCat);
+    const encCat = encodeURIComponent(catName);
+    const sanTit = sanitizeTitle(encCat);
     const url = `https://commons.wikimedia.org/w/api.php?action=query&titles=Category:${sanTit}&prop=extracts&format=json&explaintext`;
     const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
 //      l.info('claims.wm.js: getCatExtract '+dbg+' '+url+' '+new Date().toISOString());
     let extractPomise = api.get(url, {timeout: timeout})
       .then(r => {
-        let keys = Object.keys(r.data.query.pages);
-        let key = keys[0];
-        let pags =r.data.query.pages;
-        let data = pags[key];
+        const keys = Object.keys(r.data.query.pages);
+        const key = keys[0];
+        const pags =r.data.query.pages;
+        const data = pags[key];
         if (null != data) {
            const extract = data.extract;
            if (null != extract) {
               const extTr = extract.trim();
               const extTrLgth = extTr.length;
               if (0 < extTrLgth) {
-                 if (1500 < extTrLgth) {
+                 if (lgthWarnSiz < extTrLgth) {
                      l.info('claims.wm.js getCatExtract: category "'+catName+'" very long extract '+extTrLgth+' should we shorten ? '+dbg+' '+new Date().toISOString());
                  }
                  cat.e = extTr;
@@ -75,10 +76,75 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
         }
         return extractPomise;
     }).catch(err=> {
-        // If there is an error getting the category members, then reject with error
         l.error('claims.wm.js getCatExtract.categorymembers = api.get:\n'+
-          `Failed to fetch category members. Cat "`+catName+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
+          `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
     });
     promises.push(extractPomise);
     return extractPomise;
+}
+
+
+export function getImgClaims(singleRefresh,img, promises, dbg) {
+   if (!singleRefresh) {
+      return;
+   }
+   if (null == img) {
+      l.info('claims.wm.js getImgClaims: null == img '+dbg+' '+new Date().toISOString());          
+      return;
+   }
+   if (null == promises) {
+      l.info('claims.wm.js getImgClaims: null == promises '+dbg+' '+new Date().toISOString());          
+      return;
+   }
+   let fn = img.pgTit;
+   if (null == fn) {
+      l.info('claims.wm.js getImgClaims: null == img.pgTit  '+dbg+' '+new Date().toISOString());          
+      return;
+   }
+   if (0 == fn.trim().length) {
+      l.info('claims.wm.js getImgClaims: blank fn '+dbg+' '+new Date().toISOString());          
+      return;
+   }
+    const encFn = encodeURIComponent(fn);
+    const sanFn = sanitizeTitle(encFn);
+    const url = `https://commons.wikimedia.org/w/api.php?action=wbgetentities&format=json&sites=commonswiki&titles=File%3A${sanFn}`;
+    const timeoutSecs = 1;
+      let timeout = timeoutSecs*1000; 
+//      l.info('claims.wm.js: getImgClaims '+dbg+' '+url+' '+new Date().toISOString());
+    let claimsPomise = api.get(url, {timeout: timeout})
+      .then(r => {
+        const entities = r.data.entities;
+        const keys = Object.keys(entities);
+        const key = keys[0];
+        const data = entities[key];
+        if (null != data) {
+           const labels = data.labels;
+           if (null != labels) {
+    		  for(const lang of sharedConstants.LANGS){
+    			const label = labels[lang];
+    			if(null != label){
+    			   const lVal = label.value;
+    			   if(null !=lVal){
+    			      const lvTr = lVal.trim();
+    			      const lvTrLght = lvTr.length;
+    			      if (0 < lvTrLght) {
+                        if (lgthWarnSiz < lvTrLght) {
+                           l.info('claims.wm.js getImgClaims: img "'+fn+'" has a very long claim '+lvTrLght+' should we shorten ? '+dbg+' '+new Date().toISOString());
+                        }
+                        img[`claim_${lang}`] = lvTr;
+                        l.info('claims.wm.js getImgClaims: img "'+fn+'" added claim of length '+lvTrLght+' '+dbg+' '+new Date().toISOString());
+    			      }
+    			   }
+                }
+              }
+           }
+        }
+        return claimsPomise;
+    }).catch(err=> {
+        // If there is an error getting the category members, then reject with error
+        l.error('claims.wm.js getImgClaims.claims = api.get:\n'+
+          `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
+    });
+    promises.push(claimsPomise);
+    return claimsPomise;
 }

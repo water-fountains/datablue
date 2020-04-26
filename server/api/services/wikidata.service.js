@@ -153,9 +153,17 @@ class WikidataService {
     // if there is a wikidata entity, then fetch more information with a query
     if(fountain.properties.artist_name.source === 'wikidata'){
       if (null == idWd) {
-    		console.log(i+" null == idWd");
+    		console.log(i+" null == idWd "+new Date().toISOString());
       }
-      let qid = fountain.properties.artist_name.value;
+      const qid = fountain.properties.artist_name.value;
+      if (null == qid) {
+         l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'" '+new Date().toISOString());
+         return fountain;
+      }
+      if (0 == qid.trim().length) {
+         l.info('wikidata.service.js fillArtistName: blank qid for "'+idWd+'" '+new Date().toISOString());
+         return fountain;
+      }
       
       // enter wikidata url
       fountain.properties.artist_name.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;

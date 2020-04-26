@@ -135,6 +135,7 @@ class WikimediaService {
         let galValPromises = [];
         let k = 0;
         const imgL = imgUrls.length;
+        const showDetails = false;
         const maxImgPreFetched = 0; //as long as we don't filter for pre-fetched info, why prefetch ? https://github.com/water-fountains/datablue/issues/41
         for(;k < maxImgPreFetched && k < imgL;k++) { //only 5 imgs are on the gallery-preview
         	const img = imgUrls[k];
@@ -149,8 +150,7 @@ class WikimediaService {
         		callers.push(dbg);
         	} else {
         		let nImg = {s: img.src,pgTit: img.val,c: img.cat,t:img.typ};
-        		const singleRefresh = false; 
-        		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, false,fProps).catch(giiErr=>{
+        		galValPromises.push(getImageInfo(nImg, k+'/'+imgL+' '+dbg+' '+city+' '+dbgIdWd, showDetails,fProps).catch(giiErr=>{
         			l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.val+'" '+dbg+' '+city+' '+dbgIdWd+' cat "'+img.cat+'" '+new Date().toISOString()
         					+ '\n'+giiErr.stack);
                      	     }
@@ -361,7 +361,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
   }
 
 
-export function getImageInfo(img, dbg, showDetails, fProps, singleRefresh){
+export function getImageInfo(img, dbg, showDetails, fProps){
 	let pageTitle = img.pgTit;
     return new Promise((resolve, reject) =>{
       //TODO: could also say which category it was
