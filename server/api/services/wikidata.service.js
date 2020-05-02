@@ -185,6 +185,7 @@ class WikidataService {
 //      l.debug(url+' '+new Date().toISOString());
       // get data
       let data = null;
+      let eQid = null;
       return http.get(url)
       // parse into an easier to read format
         .then(r=>{
@@ -195,22 +196,25 @@ class WikidataService {
              return fountain;
           }
           l.info('wikidata.service.js fillArtistName: null != entities "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
-          const eQid = entities[qid];
+          eQid = entities[qid];
           if (null == eQid) {
              l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
              return fountain;
           }
           l.info('wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "'+eQid+'", qid  "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
-          return wdk.simplify.entity(eQid,
+          const simplified = wdk.simplify.entity(eQid,
             {
               keepQualifiers: true
-            })
+            });
+          l.info('wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          return simplified;
         })
         // extract useful data for https://github.com/water-fountains/proximap/issues/163
         .then(entity=>{
+          l.info('wikidata.service.js fillArtistName: after2 wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
           // Get label of artist in English
           if (null == entity) {
-             l.info('wikidata.service.js fillArtistName: null == entity after wdk.simplify "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillArtistName: null == entity after wdk.simplify "'+qid+'" for idWd "'+idWd+'"  "'+url+'" '+new Date().toISOString());
              return fountain;
           }
           const langs = Object.keys(entity.labels);
@@ -228,11 +232,13 @@ class WikidataService {
           for(let lang of sharedConstants.LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               artNam.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
+              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
               return fountain;
             }
           }
           // for https://github.com/water-fountains/proximap/issues/163
           // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
+          l.info('wikidata.service.js fillArtistName: as no langWiki URLs found, going for P856, P973, P854, P2699 - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
           for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
             // get the url value if the path exists
             let url = _.get(entity.claims, [pid, 0, 'value'], false);
@@ -240,6 +246,7 @@ class WikidataService {
               artNam.derived.website.url = url;
               return fountain;
             }
+            l.info('wikidata.service.js fillArtistName: as url found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
           }
           // if no url found, then link to wikidata entry
           return fountain;
