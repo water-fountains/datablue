@@ -43,7 +43,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-       let res = doSparqlRequest(sparql,locationName); 
+       let res = doSparqlRequest(sparql,locationName, 'idsByCenter'); 
     return res;
   }
   
@@ -67,7 +67,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-      let res = doSparqlRequest(sparql,locationName);
+      let res = doSparqlRequest(sparql,locationName, 'idsByBoundingBox');
     return res;
   }
   
@@ -200,6 +200,7 @@ class WikidataService {
              l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
              return fountain;
           }
+          l.info('wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "'+eQid+'", qid  "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
           return wdk.simplify.entity(eQid,
             {
               keepQualifiers: true
@@ -318,7 +319,7 @@ class WikidataService {
           return fountain;
         })
         .catch(err=>{
-          l.error(`Error collecting operator info name: ${err} `+dbg);
+          l.error(`wikidata.service.ts fillOperatorInfo: Error collecting operator info name: ${err.stack} `+dbg);
           const errInfo = '(lookup unsuccessful)';
           if (opNam.value && -1 == opNam.value.indexOf(errInfo)) {
              opNam.value = opNam.value + errInfo;
@@ -344,7 +345,7 @@ function chunk (arr, len) {
   return chunks;
 }
 
-function doSparqlRequest(sparql, location){
+function doSparqlRequest(sparql, location, dbg){
   return new Promise((resolve, reject)=> {
     // create url from SPARQL
     const url = wdk.sparqlQuery(sparql);
@@ -354,8 +355,8 @@ function doSparqlRequest(sparql, location){
         .then(res => {
 
       if (res.status !== 200) {
-        let error = new Error(`Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
-        l.error(error.message+' '+new Date().toISOString());
+        let error = new Error(`wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
+        l.error('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '+error.message+' '+new Date().toISOString());
         // consume response data to free up memory
         res.resume();
         return reject(error);        
@@ -364,16 +365,16 @@ function doSparqlRequest(sparql, location){
 
       try {
         let simplifiedResults = wdk.simplifySparqlResults(res.data);
-        l.info('wikidata.service.js doSparqlRequest: '//+simplifiedResults+' '
+        l.info('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '//+simplifiedResults+' '
              +simplifiedResults.length+' ids found for '+location+' '+new Date().toISOString());
         resolve(simplifiedResults);
       } catch (e) {
-        l.error('Error occurred simplifying wikidata results.'+e+' '+new Date().toISOString());
+        l.error('wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.'+e.stack+' '+dbg+',  location '+location+' '+new Date().toISOString());
         reject(e);
       }
     })
         .catch(error=>{
-            l.error(`Request to Wikidata Failed. Url: ${url}`+' '+new Date().toISOString());
+            l.error(`'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}`+' '+dbg+',  location '+location+' '+new Date().toISOString());
           reject(error)
         });
 
