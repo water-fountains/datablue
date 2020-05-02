@@ -312,11 +312,13 @@ export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains
   
     // Get qids not included in wikidata collection
     let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
-    if (null == missing_qids) {
+    if (null == missing_qids || 0 == missing_qids.length) {
         l.info('processing.service.js fillInMissingWikidataFountains: none for '+dbg+' '+new Date().toISOString());
-    } else {
-        l.info('processing.service.js fillInMissingWikidataFountains: '+missing_qids.length+' for '+dbg+' '+missing_qids+' '+new Date().toISOString());
+        resolve({
+          osm: osm_fountains,
+          wikidata: wikidata_fountains});
     }
+    l.info('processing.service.js fillInMissingWikidataFountains: '+missing_qids.length+' for '+dbg+' '+missing_qids+' '+new Date().toISOString());
 
     // Fetch fountains with missing qids and add them to the wikidata_fountains collection
     WikidataService.byIds(missing_qids, dbg)

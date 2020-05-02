@@ -77,7 +77,7 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
         return extractPomise;
     }).catch(err=> {
         l.error('claims.wm.js getCatExtract.categorymembers = api.get:\n'+
-          `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
+          `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
     });
     promises.push(extractPomise);
     return extractPomise;
@@ -111,6 +111,7 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
 //      l.info('claims.wm.js: getImgClaims '+dbg+' '+url+' '+new Date().toISOString());
+    l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg+' '+new Date().toISOString());          
     let claimsPomise = api.get(url, {timeout: timeout})
       .then(r => {
         const entities = r.data.entities;

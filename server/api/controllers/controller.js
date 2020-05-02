@@ -410,7 +410,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
   Promise.all([osmPromise, wikidataPromise])
 
     // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
-    .then(r=>fillInMissingWikidataFountains(r[0], r[1]))
+    .then(r=>fillInMissingWikidataFountains(r[0], r[1], dbg))
 
     // Conflate osm and wikidata fountains together
     .then(r => conflate({
