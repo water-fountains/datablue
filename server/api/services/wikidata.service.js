@@ -145,7 +145,7 @@ class WikidataService {
     const artNam = fountain.properties.artist_name;
     if (null != artNam.derived && null != artNam.derived.name
       && '' != artNam.derived.name.trim()) {
-       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'"'+new Date().toISOString());
+       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'" '+new Date().toISOString());
        return fountain;
     }
     artNam.derived = {
@@ -275,7 +275,7 @@ class WikidataService {
     const opNam = fountain.properties.operator_name;
     if (null != opNam && null != opNam.derived && null != opNam.derived.name &&
           0 < opNam.derived.name.trim().length) {
-       l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.opNam+'"'+new Date().toISOString());
+       l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.derived.name+'" '+new Date().toISOString());
        return fountain;
     }
     if(opNam.source === 'wikidata'){
