@@ -18,7 +18,7 @@ export function updateCacheWithFountain(cache, fountain, cityname) {
   const cacheTimeInSecs = 60*60*CACHE_FOR_HRS_i45db;
   if(fountains){
     // replace fountain
-    [fountains, fountain] = replaceFountain(fountains, fountain);
+    [fountains, fountain] = replaceFountain(fountains, fountain, cityname);
     // send to cache
     cache.set(cityname, fountains, cacheTimeInSecs);
     // create a reduced version of the data as well
@@ -30,7 +30,7 @@ export function updateCacheWithFountain(cache, fountain, cityname) {
   return fountain;
 }
 
-function replaceFountain(fountains, fountain) {
+function replaceFountain(fountains, fountain, cityname) {
 //    update cache with fountain and assign correct datablue id
   
   let distances = [];
@@ -41,6 +41,7 @@ function replaceFountain(fountains, fountain) {
       //replace fountain
       fountain.properties.id = fountains.features[j].properties.id;
       fountains.features[j] = fountain;
+      l.info('database.services.js replaceFountain: ismatch ftn '+j+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
       return [fountains, fountain];
     }else{
       // compute distance otherwise
@@ -57,12 +58,14 @@ function replaceFountain(fountains, fountain) {
     let key = _.indexOf(distances, min_d);
     //replace fountain
     fountain.properties.id = f.properties.id;
+    l.info('database.services.js replaceFountain: replaced with distance '+min_d+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
     fountains.features[key] = fountain;
     return [fountains, fountain];
   }else{
     // fountain was not found; just add it to the list
     fountain.properties.id = _.max(fountains.features.map(f=>{return f.properties.id}))+1;
     fountains.features.push(fountain);
+    l.info('database.services.js replaceFountain: added with distance '+min_d+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
     return [fountains, fountain];
   }
 }
