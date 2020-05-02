@@ -273,6 +273,11 @@ class WikidataService {
   fillOperatorInfo(fountain, dbg){
     // created for proximap/#149
     const opNam = fountain.properties.operator_name;
+    if (null != opNam && null != opNam.derived && null != opNam.derived.name &&
+          0 < opNam.derived.name.trim().length) {
+       l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.opNam+'"'+new Date().toISOString());
+       return fountain;
+    }
     if(opNam.source === 'wikidata'){
       // create sparql url to fetch operator information from QID
       let qid = opNam.value;
@@ -286,21 +291,36 @@ class WikidataService {
       return http.get(url)
         // parse into an easier to read format
         .then(r=>{
+          if (null == r || null == r.data  || null == r.data.entities ) {
+            l.info('wikidata.service.js fillOperatorInfo: null == r || null == r.data  || null == r.data.entities for "'+url+'"'+new Date().toISOString());
+            return fountain;
+          }
+          const eQid = r.data.entities[qid];
+          if (null == eQid) {
+             l.info('wikidata.service.js fillOperatorInfo: null == eQid "'+qid+'" for "'+dbg+'" '+new Date().toISOString());
+             return fountain;
+          }
           return wdk.simplify.entity(
-          r.data.entities[qid],
-          {
-            keepQualifiers: true
-          })
+             eQid, { keepQualifiers: true})
         })
         // extract useful data
         .then(entity=>{
+          if (null == entity) {
+             l.info('wikidata.service.js fillOperatorInfo: null == entity after wdk.simplify "'+qid+'" for dbg "'+dbg+'" '+new Date().toISOString());
+             return fountain;
+          }
           // Get label of operator in English
           let langs = Object.keys(entity.labels);
+          opNam.derived = {
+            name: '',
+            url: '',
+            qid: qid
+          };
           if(langs.indexOf('en') >= 0){
-            opNam.value = entity.labels.en;
+            opNam.derived.name = entity.labels.en;
           }else{
             // Or get whatever language shows up first
-            opNam.value = entity.labels[langs[0]];
+            opNam.derived.name = entity.labels[langs[0]];
           }
           // Try to find a useful link
           // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
@@ -312,10 +332,7 @@ class WikidataService {
               break;
             }
           }
-          opNam.derived = {
-            url: url,
-            qid: qid
-          };
+          opNam.derived.url = url;
           return fountain;
         })
         .catch(err=>{
