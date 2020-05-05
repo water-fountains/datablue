@@ -327,7 +327,7 @@ function byId(req, res, dbg){
     						  } else {
 //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
     						  }
-    					      getImgClaims(singleRefresh,img, imgMetaPromises, dbg);
+    					      getImgClaims(singleRefresh,img, imgMetaPromises, i+': '+dbg);
     						  i++;
     					  }
     					  if (0 < lazyAdded) {

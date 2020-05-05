@@ -175,6 +175,31 @@ class WikidataService {
       // enter wikidata url
       artNam.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
       
+      let newQueryMiro = false;
+      if (newQueryMiro) {
+         const sparql = `
+        SELECT ?place
+        WHERE
+        {
+          SERVICE wikibase:box {
+            # this service allows points within a box to be queried (https://en.wikibooks.org/wiki/SPARQL/SERVICE_-_around_and_box) 
+            ?place wdt:P625 ?location .
+            bd:serviceParam wikibase:cornerWest "Point(${lngMin} ${latMin})"^^geo:wktLiteral.
+            bd:serviceParam wikibase:cornerEast "Point(${lngMax} ${latMax})"^^geo:wktLiteral.
+          } .
+          
+          # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
+          FILTER (EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q43483 } || EXISTS { ?place p:P31/ps:P31/wdt:P279* wd:Q483453 }).
+          
+          # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "en,de,fr,it,tr" .
+          }
+        }`;
+        let res = doSparqlRequest(sparql,locationName, 'fillArtistName');
+        l.info('wikidata.service.js fillArtistName: new Miro response '+res' "'+idWd+'" '+new Date().toISOString());
+      }
+      
       // create sparql query url
       const url = wdk.getEntities({
             // make sparql query more precise: https://github.com/water-fountains/proximap/issues/129#issuecomment-597785180
@@ -244,9 +269,10 @@ class WikidataService {
             let url = _.get(entity.claims, [pid, 0, 'value'], false);
             if(url){
               artNam.derived.website.url = url;
+              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' based on pid '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
               return fountain;
             }
-            l.info('wikidata.service.js fillArtistName: as url found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+            l.info('wikidata.service.js fillArtistName: url not found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
           }
           // if no url found, then link to wikidata entry
           return fountain;
@@ -271,8 +297,9 @@ class WikidataService {
               message: `Failed to fetch Wikidata artist name entity information. Url: ${url} `+dbg,
           });
           return fountain});
-    }else{
-      return fountain;
+    } else {
+       l.info('wikidata.service.js fillArtistName: source '+artNam.source+' "'+dbg+'" '+new Date().toISOString());
+       return fountain;
     }
   }
   

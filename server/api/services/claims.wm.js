@@ -109,11 +109,11 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     const sanFn = sanitizeTitle(encFn);
     const url = `https://commons.wikimedia.org/w/api.php?action=wbgetentities&format=json&sites=commonswiki&titles=File%3A${sanFn}`;
     const timeoutSecs = 1;
-      let timeout = timeoutSecs*1000; 
-//      l.info('claims.wm.js: getImgClaims '+dbg+' '+url+' '+new Date().toISOString());
-    l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg+' '+new Date().toISOString());          
+    const timeout = timeoutSecs*1000; 
+    //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg+' '+new Date().toISOString());          
     let claimsPomise = api.get(url, {timeout: timeout})
       .then(r => {
+        l.info('claims.wm.js getImgClaims: got response for '+url+' '+dbg+' '+new Date().toISOString());          
         const entities = r.data.entities;
         const keys = Object.keys(entities);
         const key = keys[0];
