@@ -1135,7 +1135,8 @@ let fountain_properties = {
         		const imgName = decodeURI(imgNam);
         	    let imgLikeFromWikiData = {
                       value: imgName,
-                      typ:'wm'
+                      typ:'wm',
+                      src: 'osm'
                     }
                 let imgVals = [];
                 imgVals.push(imgLikeFromWikiData);
@@ -1146,7 +1147,8 @@ let fountain_properties = {
             } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
         	    let imgFromFlickr = {
                       value: text,
-                      typ:'ext-flickr'
+                      typ:'ext-flickr',
+                      src: 'osm'
                     }
                 let imgVals = [];
                 imgVals.push(imgFromFlickr);
