@@ -363,13 +363,12 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
 
 export function getImageInfo(img, dbg, showDetails, fProps){
 	let pageTitle = img.pgTit;
-    const iiPr = new Promise((resolve, reject) =>{
       //TODO: could also say which category it was
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
 //      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url+' '+new Date().toISOString());
-      api.get(url, {timeout: timeout})
+     const iiPr =  api.get(url, {timeout: timeout})
         .then(response => {
         let keys = Object.keys(response.data.query.pages);
         let key = keys[0];
@@ -428,21 +427,20 @@ export function getImageInfo(img, dbg, showDetails, fProps){
           if (showDetails) {
         	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.c+'" '+new Date().toISOString());
           }
-          resolve(img);
+          return;
         } else{
           l.warn(`wikimedia.service.js getImageInfo: http request when getting metadata for "${pageTitle}" ${dbg} did not return useful data in ${timeoutSecs} secs. Url: ${url}`
         		  + '\n cat "'+img.c+'"');
           img.description = `Error processing image metadata from Wikimedia Commons. Request did not return relevant information. Url: ${url}`;
-          resolve(img);
+          return;
         }
       }).catch(error=>{
         l.warn(`wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" "${dbg}" timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}`+
         		'\ncat "'+img.c+'"');
         img.description = `http request when getting metadata for ${pageTitle} timed out after ${timeoutSecs} seconds or failed. Error message: ${error}. Url: ${url}`;
-        resolve(img);
+        return;
       });
-    });
-    iiPr.caller = 'getImageInfo '+dbg;
+    iiPr.caller = 'getImageInfo '+dbg; //20200506 seems not to be visible
     iiPr.img = img;
     return iiPr;
   }

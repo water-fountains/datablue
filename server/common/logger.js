@@ -22,5 +22,45 @@ if(process.env.TIMBER_KEY && process.env.TIMBER_SOURCE_ID){
   });
   logger.info('logger.js: pino logger '+new Date().toISOString());
 }
-const l = logger;
-export default l;
+class l {
+  getCaller() {
+        let calr = 'callerNotFound';
+        const stack = new Error().stack;
+        if (null != stack) {
+           const stackArr = stack.split('at ');
+           if (null != stackArr && 4 <= stackArr.length) {
+             const calr0 = stackArr[3];
+             if (null != calr0) {
+                 const calArr = calr0.split('webpack:');
+                 if (null != calArr && 0 < calArr.length) {
+                     calr = calArr[1];   
+                     if (null != calr) {
+                       const newLgth = calr.trim().length-1;
+                       calr = calr.substring(0,newLgth);
+                     }                 
+                 }
+             }
+           }
+        }
+        return calr;
+  }
+  info (str, trace) {
+     if (null == trace || !trace) {
+        let calr = this.getCaller();
+        console.log(str+' '+calr);
+     } else {
+        console.trace(str);
+     }
+     //return logger.info(str);
+  }
+  error (str, trace) {
+     if (null == trace || !trace) {
+        let calr = this.getCaller();
+        console.log(str+' '+calr);
+     } else {
+        console.trace(str);
+     }
+     //return logger.error(str);
+  }
+}
+export default new l();

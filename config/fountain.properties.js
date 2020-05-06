@@ -1462,7 +1462,7 @@ let fountain_properties = {
             } else {
             	if (-1 == txtLc.indexOf('file:')) {
             		//https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons suggests to either use the File: or Category: syntax
-             	  	console.log('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
+             	  	l.info('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
              	  	catTxt = text;
              	  	isCat = true;
             	}
@@ -1477,7 +1477,7 @@ let fountain_properties = {
         	  }
         	} else {
         	  if (process.env.NODE_ENV === 'production') {
-         	  	console.log('fountain.properties.js: wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
+         	  	l.info('fountain.properties.js: wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
          	  }
             }
       	  }
