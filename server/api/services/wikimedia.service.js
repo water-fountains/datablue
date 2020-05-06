@@ -363,7 +363,7 @@ function addToImgList(imgListWithSource, imgUrlSet, imgUrls, dbg, debugAll, cat)
 
 export function getImageInfo(img, dbg, showDetails, fProps){
 	let pageTitle = img.pgTit;
-    return new Promise((resolve, reject) =>{
+    const iiPr = new Promise((resolve, reject) =>{
       //TODO: could also say which category it was
       let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:'+pageTitle)}&prop=imageinfo&iiprop=extmetadata&format=json`;
       const timeoutSecs = 1;
@@ -442,7 +442,9 @@ export function getImageInfo(img, dbg, showDetails, fProps){
         resolve(img);
       });
     });
-    
+    iiPr.caller = 'getImageInfo '+dbg;
+    iiPr.img = img;
+    return iiPr;
   }
 
 export function getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps, debugAll) {

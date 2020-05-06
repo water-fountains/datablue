@@ -74,13 +74,15 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
               }
            }
         }
-        return extractPomise;
+        return;
     }).catch(err=> {
         l.error('claims.wm.js getCatExtract.categorymembers = api.get:\n'+
           `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
     });
+    extractPomise.cat = cat;
+    extractPomise.caller = 'getCatExtract '+dbg;
     promises.push(extractPomise);
-    return extractPomise;
+    return;
 }
 
 
@@ -111,7 +113,7 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     const timeoutSecs = 1;
     const timeout = timeoutSecs*1000; 
     //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg+' '+new Date().toISOString());          
-    let claimsPomise = api.get(url, {timeout: timeout})
+    let claimsPromise = api.get(url, {timeout: timeout})
       .then(r => {
         l.info('claims.wm.js getImgClaims: got response for '+url+' '+dbg+' '+new Date().toISOString());          
         const entities = r.data.entities;
@@ -140,12 +142,14 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
               }
            }
         }
-        return claimsPomise;
+        return;
     }).catch(err=> {
         // If there is an error getting the category members, then reject with error
         l.error('claims.wm.js getImgClaims.claims = api.get:\n'+
           `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
     });
-    promises.push(claimsPomise);
-    return claimsPomise;
+    claimsPromise.img = img;
+    claimsPromise.caller = 'getImgClaims '+dbg;
+    promises.push(claimsPromise);
+    return;
 }

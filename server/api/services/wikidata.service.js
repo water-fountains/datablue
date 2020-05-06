@@ -197,7 +197,7 @@ class WikidataService {
           }
         }`;
         let res = doSparqlRequest(sparql,locationName, 'fillArtistName');
-        l.info('wikidata.service.js fillArtistName: new Miro response '+res' "'+idWd+'" '+new Date().toISOString());
+        l.info('wikidata.service.js fillArtistName: new Miro response '+res+' "'+idWd+'" '+new Date().toISOString());
       }
       
       // create sparql query url
