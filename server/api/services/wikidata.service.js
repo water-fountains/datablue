@@ -152,8 +152,8 @@ class WikidataService {
       website: {
         url: null,
         wikidata: null,
-        name:null,
-      }
+      },
+      name:null
     };
     dbg += ' '+fountain.properties.name.value;
 	const idWd = fountain.properties.id_wikidata.value;
