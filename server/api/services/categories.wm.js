@@ -40,6 +40,11 @@ blackLiRe.push(/pd old/);  //Q27132067
 blackLiRe.push(/cc-pd-mark/);  //Q27132067
 blackLiRe.push(/.*built in .+ in .+/);  //Q55166175
 blackLiRe.push(/.*selected for .+/);  //Q55167899
+blackLiRe.push(/.*images reviewed by .+/);  //Q1759793  "Flickr images reviewed by FlickreviewR"
+blackLiRe.push(/.*files uploaded.+/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
+blackLiRe.push(/.*from .+ via bot.*/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
+
+
 
 
 
