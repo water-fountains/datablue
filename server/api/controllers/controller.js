@@ -33,7 +33,7 @@ const sharedConstants = require('./../../common/shared-constants');
 // Configuration of Cache after https://www.npmjs.com/package/node-cache
 const cityCache = new NodeCache( {
   stdTTL: 60*60*sharedConstants.CACHE_FOR_HRS_i45db, // time till cache expires, in seconds
-  checkperiod: 30, // how often to check for expiration, in seconds
+  checkperiod: 600, // how often to check for expiration, in seconds - default: 600 
   deleteOnExpire: false, // on expire, we want the cache to be recreated not deleted
   useClones: false // do not create a clone of the data when fetching from cache
 } );
@@ -46,28 +46,12 @@ const cityCache = new NodeCache( {
 * - "ch-zh_errors": contains a list of errors encountered when processing "ch-zh". 
 */
 
-
 // when cached data expires, regenerate it (ignore non-essential)
 cityCache.on('expired', (key, value)=>{
   // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if(!key.includes('_essential') && !key.includes('_errors')){
-    l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`);
-    
-    // trigger a reprocessing of the location's data, based on the key.
-    generateLocationData(key)
-      .then(fountainCollection=>{
-        // save newly generated fountainCollection to the cache
-        cityCache.set(key, fountainCollection, 60*60*locations.CACHE_FOR_HRS_i45db); // expire after two hours
-  
-        // create a reduced version of the data as well
-        cityCache.set(key + '_essential', essenceOf(fountainCollection));
-  
-        // also create list of processing errors (for proximap#206)
-        cityCache.set(key + '_errors', extractProcessingErrors(fountainCollection))
-
-      }).catch(error =>{
-      l.error(`controller.js unable to set Cache. Error: ${error.stack}`)
-    })
+    l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`+new Date().toISOString());
+    this.generateLocationDataAndCache(key, cityCache);
   }
 });
 
@@ -229,7 +213,7 @@ function doJson(resp, obj, dbg) {
 	    }
 		return res;
 	} catch (err) {
-		let errS = 'controller.js doJson errors: "'+err+'" '+dbg+' '+new Date().toISOString(); 
+		const errS = 'controller.js doJson errors: "'+err+'" '+dbg+' '+new Date().toISOString(); 
         l.error(errS);
 		console.trace(errS);
 	}
@@ -442,7 +426,39 @@ function reprocessFountainAtCoords(req, res, dbg) {
       doJson(res,closest,'after updateCacheWithFountain'); //  res.json(closest);
   })
     .catch(e=>{
-      l.error(`Error collecting data: ${e}`);
+      l.error(`Error collecting data: ${e.stack}`);
       res.status(500).send(e.stack);
     });
+}
+
+export function generateLocationDataAndCache(key, cityCache) {
+    // trigger a reprocessing of the location's data, based on the key.
+    generateLocationData(key)
+      .then(fountainCollection=>{
+        // save newly generated fountainCollection to the cache
+        let ftns = -1;
+        if (null != fountainCollection && null != fountainCollection.features) {
+           ftns = fountainCollection.features.length;
+        }
+        cityCache.set(key, fountainCollection, 60*60*locations.CACHE_FOR_HRS_i45db); // expire after two hours
+  
+        // create a reduced version of the data as well
+        const essence = essenceOf(fountainCollection);
+        cityCache.set(key + '_essential', essence);
+        let ess = -1;
+        if (null != essence && null != essence.features) {
+           ess = essence.features.length;
+        }
+  
+        // also create list of processing errors (for proximap#206)
+        const procErrs = extractProcessingErrors(fountainCollection);
+        cityCache.set(key + '_errors', procErrs);
+        let prcErr = -1;
+        if (null != procErrs && null != procErrs.features) {
+           prcErr = procErrs.features.length;
+        }
+        l.info(`generateLocationDataAndCache setting cache of ${key} `+' ftns: '+ftns+' ess: '+ess+' prcErr: '+prcErr+' '+new Date().toISOString());
+      }).catch(error =>{
+      l.error(`controller.js unable to set Cache. Error: ${error.stack}`+new Date().toISOString());
+    })
 }
