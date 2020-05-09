@@ -229,22 +229,27 @@ function byId(req, res, dbg){
   let cty = cityCache.get(cityS);
   return new Promise((resolve, reject) => {
 //	  l.info('controller.js byId in promise: '+cityS+' '+dbg+' '+new Date().toISOString());
+      let ctyPromises = [];
       if (null== cty) {
         l.info('controller.js byId: '+cityS+' not found in cache '+dbg+' - start city lazy load');
-        generateLocationData(cityS);
-        cty = cityCache.get(cityS);
+        const genLocPrms = generateLocationDataAndCache(cityS, cityCache);
+        ctyPromises.push(genLocPrms);
       }
-      let fountain = _.find(
-       cty.features,
-        f=>{
-          return f.properties['id_'+req.query.database].value === req.query.idval
+      Promise.all(ctyPromises).then(r => {
+        if (null== cty) {
+          cty = cityCache.get(cityS);
+        }
+        let fountain = _.find(
+           cty.features,
+           f=>{
+              return f.properties['id_'+req.query.database].value === req.query.idval
         });
-      let imgMetaPromises = [];
-	  let lazyAdded = 0;
-	  let gl = -1;
-      if (null== fountain) {
+        let imgMetaPromises = [];
+	    let lazyAdded = 0;
+	    let gl = -1;
+        if (null== fountain) {
           l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
-      } else {
+        } else {
     	  const props = fountain.properties;
 //    	  l.info('controller.js byId fountain: '+cityS+' '+dbg+' '+new Date().toISOString());
     	  if (null != props) {
@@ -349,11 +354,14 @@ function byId(req, res, dbg){
     	  } else {
               l.info('controller.js byId: of '+cityS+' no props '+dbg+' '+new Date().toISOString());
     	  }
-      }
+        }
 //      l.info('controller.js byId: end of '+cityS+' '+dbg+' '+new Date().toISOString());
+      }, err => {
+    	  l.error(`controller.js byId: Failed on genLocPrms: ${err.stack} .`+dbg+' '+cityS);
+      });
     }).catch (e=> {
-    l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
-    l.error(e.stack);
+      l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
+      l.error(e.stack);
   })  
 }
 
@@ -433,7 +441,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
 
 export function generateLocationDataAndCache(key, cityCache) {
     // trigger a reprocessing of the location's data, based on the key.
-    generateLocationData(key)
+    const genLocPrms = generateLocationData(key)
       .then(fountainCollection=>{
         // save newly generated fountainCollection to the cache
         let ftns = -1;
@@ -458,7 +466,9 @@ export function generateLocationDataAndCache(key, cityCache) {
            prcErr = procErrs.features.length;
         }
         l.info(`generateLocationDataAndCache setting cache of ${key} `+' ftns: '+ftns+' ess: '+ess+' prcErr: '+prcErr+' '+new Date().toISOString());
+        return fountainCollection;
       }).catch(error =>{
       l.error(`controller.js unable to set Cache. Error: ${error.stack}`+new Date().toISOString());
     })
+    return genLocPrms;
 }

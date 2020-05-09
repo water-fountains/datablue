@@ -402,11 +402,16 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: { 
+	    	// Q68792383 Bergama 39.1261, 27.1810
+	        // "latMin": 39.1258,
+	        // "lngMin": 27.1807,
+	        // "latMax": 39.1265,
+	        // "lngMax": 27.1814	    
 	    	// Bambi Oberstrass
-	        "latMin": 47.3934,
-	        "lngMin": 8.5447,
-	        "latMax": 47.3936,
-	        "lngMax": 8.5448	    
+	        //"latMin": 47.3934,
+	        //"lngMin": 8.5447,
+	        //"latMax": 47.3936,
+	        //"lngMax": 8.5448	    
 	    	// osm wm-category ch-zh Brunnen Sunnehalde Küsnacht with forgotten Category
 //	        "latMin": 47.3288,
 //	        "lngMin": 8.5776,
@@ -423,10 +428,10 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 //	        "latMax": 47.3656,
 //	        "lngMax": 8.54525
 	    	//Klusdörfli without P18 nor coordinates 47.36518, 8.568826
-//	        "latMin": 47.3644,
-//	        "lngMin": 8.56875,
-//	        "latMax": 47.3652,
-//	        "lngMax": 8.56885
+	        "latMin": 47.3644,
+	        "lngMin": 8.56875,
+	        "latMax": 47.3652,
+	        "lngMax": 8.56885
 	    	// Schule Friesenberg with multiple Categories
 //	        "latMin": 47.3602,
 //	        "lngMin": 8.5054,
