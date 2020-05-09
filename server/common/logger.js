@@ -47,7 +47,7 @@ class l {
   info (str, trace) {
      if (null == trace || !trace) {
         let calr = this.getCaller();
-        console.log(str+' '+calr);
+        console.log('i: '+str+' '+calr);
      } else {
         console.trace(str);
      }
@@ -56,7 +56,7 @@ class l {
   error (str, trace) {
      if (null == trace || !trace) {
         let calr = this.getCaller();
-        console.log(str+' '+calr);
+        console.log('e: '+str+' '+calr);
      } else {
         console.trace(str);
      }
