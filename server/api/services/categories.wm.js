@@ -46,7 +46,8 @@ blackLiRe.push(/.*files uploaded.+/);  //Q1759793  "Files uploaded from Flickr b
 blackLiRe.push(/.*from .+ via bot.*/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
 blackLiRe.push(/.*uploaded via campaign.*/);  //Q27229664  "Uploaded via Campaign:wlm-ch"
 blackLiRe.push(/.*license migration.*/); // Q3076151 fr-paris fontaine de Mars
-blackLiRe.push(/.*mérimée with.*/); // Q3076151 fr-paris fontaine de Mars  "maintenance" is another one
+blackLiRe.push(/.*mérimée with.*/); // Q3076151 fr-paris fontaine de Mars - "maintenance" is another one
+blackLiRe.push(/.*base mérimée.*/); // Q3076151 fr-paris fontaine de Mars
 
 export function isBlackListed(catName) {
   if (null == catName) {
