@@ -11,6 +11,7 @@ const blackListed = new Set();
 blackListed.add('drinking fountains');
 blackListed.add('fountains');
 blackListed.add('media with locations');
+blackListed.add('gfdl'); // Q3076151 fr-paris fontaine de Mars
 
 const blackLiRe = [];
 blackLiRe.push(/20\d\d in zürich/);  //too broad
@@ -44,7 +45,8 @@ blackLiRe.push(/.*images reviewed by .+/);  //Q1759793  "Flickr images reviewed 
 blackLiRe.push(/.*files uploaded.+/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
 blackLiRe.push(/.*from .+ via bot.*/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
 blackLiRe.push(/.*uploaded via campaign.*/);  //Q27229664  "Uploaded via Campaign:wlm-ch"
-
+blackLiRe.push(/.*license migration.*/); // Q3076151 fr-paris fontaine de Mars
+blackLiRe.push(/.*mérimée with.*/); // Q3076151 fr-paris fontaine de Mars  "maintenance" is another one
 
 export function isBlackListed(catName) {
   if (null == catName) {
