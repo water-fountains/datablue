@@ -53,6 +53,7 @@ blackLiRe.push(/.*fop-switzerland.*/); //Q29684816 ch-bs Pisoni    FoP-Switzerla
 blackLiRe.push(/.*user:.+\/.*/); //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:User:Mattes/Contributions/Topics/Buildings_and_structures
 blackLiRe.push(/.*work by .+\d{4}.*/); //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:Work_by_Mattes_2012
 blackLiRe.push(/.*items with .+ permission.*/); //Q683514 ch-bs Fasnachtsbrunnen   https://commons.wikimedia.org/wiki/Category:Items_with_OTRS_permission_confirmed
+blackLiRe.push(/.* drinking fountains.*/); //Q55170978 ch-zh "Outdoor drinking fountains"
 
 
 export function isBlackListed(catName) {
