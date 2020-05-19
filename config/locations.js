@@ -402,6 +402,11 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: { 
+	    	// osm-node/7514807132 Gstadstr.56 Zollikon ch-zh for "year" and external google image 47.3396, 8.5704
+	         "latMin": 47.3396,
+	         "lngMin": 8.5704,
+	         "latMax": 47.3397,
+	         "lngMax": 8.5705	    
 	    	// Q68792383 Bergama 39.1261, 27.1810
 	        // "latMin": 39.1258,
 	        // "lngMin": 27.1807,
@@ -428,10 +433,10 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 //	        "latMax": 47.3656,
 //	        "lngMax": 8.54525
 	    	//Klusdörfli without P18 nor coordinates 47.36518, 8.568826
-	        "latMin": 47.3644,
-	        "lngMin": 8.56875,
-	        "latMax": 47.3652,
-	        "lngMax": 8.56885
+	        //"latMin": 47.3644,
+	        //"lngMin": 8.56875,
+	        //"latMax": 47.3652,
+	        //"lngMax": 8.56885
 	    	// Schule Friesenberg with multiple Categories
 //	        "latMin": 47.3602,
 //	        "lngMin": 8.5054,

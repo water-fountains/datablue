@@ -744,7 +744,7 @@ let fountain_properties = {
         }
       },
       osm: {
-        src_path: ['properties', 'start_date'],
+        src_path: ['properties', 'start_date'], //as per https://wiki.openstreetmap.org/wiki/Key:start_date
         src_instructions: {
           en: ['tag', 'start_date'],
           de: ['Attribut', 'start_date'],
@@ -752,7 +752,27 @@ let fountain_properties = {
           it: ['Attributo', 'start_date'],
           tr: ['Özellik', 'start_date']
         },
-        value_translation: identity
+        src_path_extra: ['properties', 'year'], //is not on wiki, could also go for https://wiki.openstreetmap.org/wiki/Key:year_of_construction
+        extraction_info: {
+            en: ['tag', 'year'],
+            de: ['Attribut', 'year'],
+            fr: ['Attribut', 'year'],
+            it: ['Attributo', 'year'],
+            tr: ['Özellik', 'year']
+        },
+        value_translation: identity,
+        value_translation_extra: text=>{
+        	if (null != text) {
+        		const txt = text.trim();
+            	if (txt.match(/\d{2,4}/)) {
+                	if (txt.match(/\d{2,4}/)) {
+                       return txt;
+                	}
+              	  l.info('fountain.properties.js osm year not a number "'+text+'" '+new Date().toISOString());
+        		}
+        	}
+            return null;
+        }
       }
     }
   },
