@@ -23,6 +23,78 @@ const _ = require('lodash');
  */
 function identity(val){return val}
 
+function text2img(text) {
+	const prefix = 'https://commons.wikimedia.org/wiki/File:';
+	const prefixShort = 'file:'; //as per https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons example  
+	const prefixFlickr = 'https://www.flickr.com/photos/';
+	const staticFlickr = '^https://.+\.flickr\.com/.+\..+';
+	const prefixStreetview = 'dueToKeyDisabled_https://maps.googleapis.com/maps/api/streetview?size=';
+	let imWmNam = null;
+	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
+		imWmNam = text.substring(prefix.length);
+	} else {
+		const textLc = text.toLowerCase()
+		if (textLc.trim().startsWith(prefixShort)) {
+			const startPos = textLc.indexOf(prefixShort);
+			imWmNam = text.substring(startPos+prefixShort.length);
+		}
+	}
+	if (null != imWmNam) {
+		const imgNam = imWmNam;
+		const imgName = decodeURI(imgNam);
+	    let imgLikeFromWikiData = {
+              value: imgName,
+              typ:'wm',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgLikeFromWikiData);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'wm'};
+        return imgs;
+    } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
+	    let imgFromFlickr = {
+              value: text,
+              typ:'ext-flickr',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'ext'};
+        return imgs;
+    } else if(text.startsWith(prefixStreetview) ) { //test with ch-zh Q55166478 or rather node/496416098
+	    let imgFromFlickr = {
+              value: text,
+              typ:'ext-fullImgUrl',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'ext-fullImgUrl'};
+        return imgs;
+    } else if(text.match(staticFlickr)){ //test with tr-be Q68792383 or rather node/3654842352
+	    let imgFromFlickr = {
+              value: text,
+              typ:'flickr',
+              src:'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'flickr'};
+        return imgs;
+    } else {
+	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
+	  return null;
+  }
+}
+
 
 /**
  * Fountain properties are described with the following structure:
@@ -752,7 +824,7 @@ let fountain_properties = {
           it: ['Attributo', 'start_date'],
           tr: ['Özellik', 'start_date']
         },
-        src_path_extra: ['properties', 'year'], //is not on wiki, could also go for https://wiki.openstreetmap.org/wiki/Key:year_of_construction
+        src_path_extra: ['properties', 'year'], //is not on osm-wiki, could also go for https://wiki.openstreetmap.org/wiki/Key:year_of_construction
         extraction_info: {
             en: ['tag', 'year'],
             de: ['Attribut', 'year'],
@@ -1127,7 +1199,8 @@ let fountain_properties = {
         },
         src_path: ['properties', 'wikimedia_commons'],
         src_path1: ['properties', 'flickr'],
-//        src_path1: ['properties', 'mapillary'],
+//        src_path1: ['properties', 'image'], //https://www.openstreetmap.org/node/7514807132 has a google image that should be combined with the category images  
+//      src_path1: ['properties', 'mapillary'],
         src_instructions: {
           en: ['tag', 'wikimedia_commons'],
           de: ['Attribut', 'wikimedia_commons'],
@@ -1135,63 +1208,19 @@ let fountain_properties = {
           it: ['Attributi', 'wikimedia_commons'],
           tr: ['Özellik', 'wikimedia_commons']
         },
+        src_path_extra: ['properties', 'image'],  //https://www.openstreetmap.org/node/496416098 has a google image Q55166478
+        extraction_info: {
+            en: ['tag', 'image'],
+            de: ['Attribut', 'image'],
+            fr: ['Attribut', 'image'],
+            it: ['Attributo', 'image'],
+            tr: ['Özellik', 'image']
+        },
         value_translation: text=>{
-        	const prefix = 'https://commons.wikimedia.org/wiki/File:';
-        	const prefixShort = 'file:'; //as per https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons example  
-        	const prefixFlickr = 'https://www.flickr.com/photos/';
-        	const staticFlickr = '^https://.+\.flickr\.com/.+\..+';
-        	let imWmNam = null;
-        	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
-        		imWmNam = text.substring(prefix.length);
-        	} else {
-        		const textLc = text.toLowerCase()
-        		if (textLc.trim().startsWith(prefixShort)) {
-        			const startPos = textLc.indexOf(prefixShort);
-        			imWmNam = text.substring(startPos+prefixShort.length);
-        		}
-        	}
-        	if (null != imWmNam) {
-        		const imgNam = imWmNam;
-        		const imgName = decodeURI(imgNam);
-        	    let imgLikeFromWikiData = {
-                      value: imgName,
-                      typ:'wm',
-                      src: 'osm'
-                    }
-                let imgVals = [];
-                imgVals.push(imgLikeFromWikiData);
-                let imgs = { src: 'osm',
-                  imgs: imgVals,
-                  type:'wm'};
-                return imgs;
-            } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
-        	    let imgFromFlickr = {
-                      value: text,
-                      typ:'ext-flickr',
-                      src: 'osm'
-                    }
-                let imgVals = [];
-                imgVals.push(imgFromFlickr);
-                let imgs = { src: 'osm',
-                  imgs: imgVals,
-                  type:'ext'};
-                return imgs;
-            } else if(text.match(staticFlickr)){ //test with tr-be Q68792383 or rather node/3654842352
-        	    let imgFromFlickr = {
-                      value: text,
-                      typ:'flickr',
-                      src:'osm'
-                    }
-                let imgVals = [];
-                imgVals.push(imgFromFlickr);
-                let imgs = { src: 'osm',
-                  imgs: imgVals,
-                  type:'flickr'};
-                return imgs;
-            } else {
-        	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
-        	  return null;
-          }
+        	return text2img(text);
+        },
+        value_translation_extra: text=>{
+        	return text2img(text);
         }
       },
       wikidata: {
