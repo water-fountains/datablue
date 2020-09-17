@@ -1,25 +1,44 @@
 language: node_js
-node_js: '9'
+node_js: "9"
 dist: trusty
 sudo: required
 cache:
   directories:
-  - node_modules
+    - node_modules
 before_install:
-- openssl aes-256-cbc -K $encrypted_e64b3d07f71e_key -iv $encrypted_e64b3d07f71e_iv
-  -in deploy_rsa.enc -out deploy_rsa -d
-- chmod 400 deploy_rsa
-install:
-  - echo "no action"
+  # we only need the certificate for deployment, thus we don't install it if:
+  # - we are on a fork (i.e. not water-fountains/datablue) or
+  # - not on branch stable or develop (i.e. we are on a feature branch)
+  - |
+    if [[ "$TRAVIS_REPO_SLUG" == "water-fountains/datablue" && "$TRAVIS_EVENT_TYPE" == "push" && ("$TRAVIS_BRANCH" == stable || "$TRAVIS_BRANCH" == develop) ]]; then
+      openssl aes-256-cbc -K "$encrypted_e64b3d07f71e_key" -iv "$encrypted_e64b3d07f71e_iv" \ 
+        -in deploy_rsa.enc -out deploy_rsa -d
+      chmod 400 deploy_rsa  
+    fi    
+install: 
+  - npm install
 script:
-  - echo "no action"
+  - set -e
+  - cp .envTEMPLATE .env
+  - npm run dev &
+  - sleep 5
+  - curl localhost:3000
+  - kill %1 # stop npm run dev
+  - git stash
+  - npm run compile
+  - git stash  
 deploy:
-- provider: script
-  skip_cleanup: true
-  script: ssh -v -i deploy_rsa -o "StrictHostKeyChecking no" root@water-fountains.org "cd /var/www/datablue_$TRAVIS_BRANCH && git stash && git pull origin $TRAVIS_BRANCH && npm install && npm run init_symlink_server && npm run compile && pm2 delete datablue_$TRAVIS_BRANCH | echo && pm2 start build/main.js --name \"datablue_$TRAVIS_BRANCH\""
-  on:
-    all_branches: true
-    condition: "$TRAVIS_BRANCH =~ ^stable|develop$"
+  - provider: script
+    skip_cleanup: true
+    script: ssh -v -i deploy_rsa -o "StrictHostKeyChecking no" root@water-fountains.org "cd /var/www/datablue_$TRAVIS_BRANCH &&
+      git stash && 
+      npm run init_symlink_server && 
+      npm run compile &&
+      pm2 delete datablue_$TRAVIS_BRANCH | echo && 
+      pm2 start build/main.js --name \"datablue_$TRAVIS_BRANCH\""
+    on:
+      all_branches: true
+      condition: "$TRAVIS_BRANCH =~ ^stable|develop$"
 after_success:
   - echo "Build successful. TRAVIS_TEST_RESULT=$TRAVIS_TEST_RESULT - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
 after_failure:
