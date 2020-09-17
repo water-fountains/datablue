@@ -17,6 +17,7 @@ const blackLiRe = [];
 blackLiRe.push(/20\d\d in zürich/);  //too broad
 blackLiRe.push(/.*20\d\d in switzerland/);  //too broad
 blackLiRe.push(/.*20\d\d .+ photographs.*/);  //too broad Q27229873
+blackLiRe.push(/.*20\d\d in the .+ of /);  //too broad "canton of Zürich Q27230037 
 blackLiRe.push(/.*fountains in .+/); //normally too broad
 blackLiRe.push(/.*shops in .+/); //Q27230037
 blackLiRe.push(/.*houses in .+/);  //Q27230037
