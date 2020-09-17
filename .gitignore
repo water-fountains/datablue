@@ -5,6 +5,7 @@ server/common/build.info.js
 .idea
 /.project
 /nbproject/private/
+.history
 
 .DS_Store
 nbproject/*
