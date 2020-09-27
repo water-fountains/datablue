@@ -23,6 +23,7 @@ import {updateCacheWithFountain} from "../services/database.service";
 import {extractProcessingErrors} from "./processing-errors.controller";
 import {getImageInfo,getImgsOfCat} from "../services/wikimedia.service";
 import {getCatExtract,getImgClaims} from "../services/claims.wm";
+import {isBlackListed} from '../services/categories.wm';
 const haversine = require("haversine");
 const _ = require('lodash');
 import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db //,CACHE_FOR_HRS_i45db
@@ -278,6 +279,11 @@ function byId(req, res, dbg){
     				  if (props.wiki_commons_name && props.wiki_commons_name.value && 0 < props.wiki_commons_name.value.length) {
     					  numbOfCats = props.wiki_commons_name.value.length;
     					  for(const cat of props.wiki_commons_name.value) {
+    					      if (isBlackListed(cat)) {
+			                       l.info('controller.js: commons category blacklisted  "'+
+			                          cat+'" "'+dbg+' '+new Date().toISOString());
+		                           continue;
+		                      }			    
     						  const add = 0 > cat.l;
     						  if (add) {
     							  numbOfCatsLazyAdded++;
