@@ -57,6 +57,11 @@ class WikimediaService {
 	  for(let i = 0;i < catNames.length; i++) {
 		  const cat = catNames[i];
 		  catName = cat.c;
+		  if (isBlackListed(catName)) {
+			  l.info('wikimedia.service.js: '+catNames.length+' commons category blacklisted  "'+catName+'" "'+dbg+' '
+					  +city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
+		      continue;
+		  }
 		  if (65 == i) {
 			  l.info('wikimedia.service.js: '+catNames.length+' commons categories defined "'+dbg+' '
 					  +city+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString());
