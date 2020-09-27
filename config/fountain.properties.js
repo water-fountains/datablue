@@ -12,6 +12,7 @@
 
 import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../server/common/constants";
 import {locations} from "./locations";
+import {isBlackListed} from '../server/api/services/categories.wm';
 import l from '../server/common/logger';
 
 
@@ -1515,7 +1516,9 @@ let fountain_properties = {
             		//https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons suggests to either use the File: or Category: syntax
              	  	l.info('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
              	  	catTxt = text;
-             	  	isCat = true;
+             	  	if (!isBlackListed(catTxt)) {
+             	  	  isCat = true;
+             	  	}
             	}
             }
             if (isCat) {
