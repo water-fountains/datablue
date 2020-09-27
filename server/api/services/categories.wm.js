@@ -17,8 +17,8 @@ const blackLiRe = [];
 blackLiRe.push(/20\d\d in zürich/);  //too broad
 blackLiRe.push(/.*20\d\d in switzerland/);  //too broad
 blackLiRe.push(/.*20\d\d .+ photographs.*/);  //too broad Q27229873
-blackLiRe.push(/.*20\d\d\w+in\w+the\w+.+\w+of\w+.+/);  //too broad "canton of Zürich Q27230037 
-blackLiRe.push(/.*fountains\w+in\w+.+/); //normally too broad \w+ instead of just for ' ' for Q98494680 
+blackLiRe.push(/.*20\d\d\s+in\s+the\s+.+\s+of\s+.+/);  //too broad "canton of Zürich Q27230037 
+blackLiRe.push(/.*fountains\s+in\s+.+/); //normally too broad \w+ instead of just for ' ' for Q98494680 
 blackLiRe.push(/.*shops in .+/); //Q27230037
 blackLiRe.push(/.*houses in .+/);  //Q27230037
 blackLiRe.push(/.*windows in .+/); //Q27230037
