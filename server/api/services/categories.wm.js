@@ -14,6 +14,10 @@ blackListed.add('media with locations');
 blackListed.add('gfdl'); // Q3076151 fr-paris fontaine de Mars
 
 const blackLiRe = [];
+blackLiRe.push(/.*rights\s+warning.*/); // Q55170988
+blackLiRe.push(/.*springbrunnen\s+zürich.*/); // Q55170988
+blackLiRe.push(/.*piers\s+of\s+.+/); // Q55170988
+blackLiRe.push(/.*rainbows\s+in\s+.+/); // Q55170988
 blackLiRe.push(/20\d\d in zürich/);  //too broad
 blackLiRe.push(/.*20\d\d in switzerland/);  //too broad
 blackLiRe.push(/.*20\d\d .+ photographs.*/);  //too broad Q27229873
