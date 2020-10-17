@@ -278,9 +278,21 @@ function byId(req, res, dbg){
     				  let imgUrlsLazyByCat = [];
     				  if (props.wiki_commons_name && props.wiki_commons_name.value && 0 < props.wiki_commons_name.value.length) {
     					  numbOfCats = props.wiki_commons_name.value.length;
+    					  let j=0;
     					  for(const cat of props.wiki_commons_name.value) {
-    					      if (isBlackListed(cat)) {
-			                       l.info('controller.js: commons category blacklisted  "'+
+    					      j++;
+    					      if (null == cat) {
+			                       l.info(i+'-'+j+' controller.js: null == commons category "'+
+			                          cat+'" "'+dbg+' '+new Date().toISOString());
+		                           continue;
+		                      }			    
+    					      if (null == cat.c) {
+			                       l.info(i+'-'+j+' controller.js: null == commons cat.c "'+
+			                          cat+'" "'+dbg+' '+new Date().toISOString());
+		                           continue;
+		                      }			    
+    					      if (isBlackListed(cat.c)) {
+			                       l.info(i+'-'+j+' controller.js: commons category blacklisted  "'+
 			                          cat+'" "'+dbg+' '+new Date().toISOString());
 		                           continue;
 		                      }			    
