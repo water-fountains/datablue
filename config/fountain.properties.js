@@ -1461,7 +1461,7 @@ let fountain_properties = {
         	    let catSet = new Set();
         		for(let i = 0; i < values.length;i++) {
         			let c = values[i].value; //we don't need the qualifiers here
-        			if (!catSet.has(c)) {
+        			if (!catSet.has(c) && !isBlackListed(c)) {
         				catSet.add(c);
         				let cat = { s: 'wd',
                             	c: c,
