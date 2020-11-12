@@ -5,7 +5,8 @@
 ## Data collection
 Data is collected from a selection of repositories (see figure below), either on a schedule or triggered by webhooks, if possible. In the case of media files hosted on Wikimedia, only the metadata and a link to the media file is collected.
 To increase transparency and protect against data sources going offline, backups of the data will be made on a weekly basis.
-##Data assimilation
+
+## Data assimilation
 The data collected from the different sources is imported into a data structure (e.g. database table, see “consolidation DB” in figure below) where each row corresponds to information for a single fountain as read from a single data source. It is thereby possible to have multiple rows for a single fountain, and the origin of each information is memorized.
 Data importation (see “data importer” in figure below) into the data structure thanks to scripts and configuration files which 
 1.	map property names from the source to the data structure (e.g. “name_fr”: “nom”)
