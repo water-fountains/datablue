@@ -1,0 +1,42 @@
+name: Ubuntu
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "9"
+      - run: npm install
+      - name: check
+        run: |
+          set -e
+          cp .envTEMPLATE .env
+          npm run dev &
+          sleep 10
+          curl localhost:3000
+          kill %1 # stop npm run dev
+          git stash
+          npm run compile
+          git stash
+      - name: deploy
+        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'stable' ||  github.ref == 'develop') }}
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.DEPLOY_SSH}}
+          SSH_KNOWN_HOSTS: ${{secrets.DEPLOY_KNOWN_HOSTS}}
+          branch: ${{ github.ref }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ./deploy.key
+          sudo chmod 400 ./deploy.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -v -i deploy_rsa -o deploy@water-fountains.org "cd /var/www/datablue_$branch" &&
+            git stash &&
+            npm run init_symlink_server &&
+            npm run compile &&
+            pm2 delete \"datablue_$branch\" | echo &&
+            pm2 start build/main.js --name \"datablue_$branch\""
