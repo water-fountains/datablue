@@ -26,13 +26,15 @@ jobs:
       - name: deploy
         if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'stable' ||  github.ref == 'develop') }}
         env:
-          encrypted_e64b3d07f71e_key: ${{secrets.encrypted_e64b3d07f71e_key}}
-          encrypted_e64b3d07f71e_iv: ${{secrets.encrypted_e64b3d07f71e_iv}}
+          SSH_PRIVATE_KEY: ${{secrets.DEPLOY_SSH}}
+          SSH_KNOWN_HOSTS: ${{secrets.DEPLOY_KNOWN_HOSTS}}
           branch: ${{ github.ref }}
         run: |
-          openssl aes-256-cbc -K "$encrypted_e64b3d07f71e_key" -iv "$encrypted_e64b3d07f71e_iv" -in deploy_rsa.enc -out deploy_rsa -d
-          chmod 400 deploy_rsa
-          ssh -v -i deploy_rsa -o "StrictHostKeyChecking no" root@water-fountains.org "cd /var/www/datablue_$branch" &&
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ./deploy.key
+          sudo chmod 400 ./deploy.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -v -i deploy_rsa -o deploy@water-fountains.org "cd /var/www/datablue_$branch" &&
             git stash &&
             npm run init_symlink_server &&
             npm run compile &&
