@@ -40,7 +40,8 @@ jobs:
           sudo chmod 400 ~/.ssh/deploy.key
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
-          ssh -v -i ~/.ssh/deploy.key deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
+          cat ~/.ssh/ssh_config
+          ssh -v -i ~/.ssh/deploy.key deploy@water-fountains.my-d.org "cd \"/var/www/datablue_$BRANCH\" &&
             git stash &&
             npm run init_symlink_server &&
             npm run compile &&
