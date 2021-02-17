@@ -1,6 +1,6 @@
 name: Ubuntu
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -11,6 +11,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "9"
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - run: npm install
       - name: check
         run: |
@@ -26,8 +32,8 @@ jobs:
       - name: deploy
         if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'stable' ||  github.ref == 'develop') }}
         env:
-          SSH_PRIVATE_KEY: ${{secrets.DEPLOY_SSH}}
-          SSH_KNOWN_HOSTS: ${{secrets.DEPLOY_KNOWN_HOSTS}}
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH }}
+          SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           branch: ${{ github.ref }}
         run: |
           mkdir -p ~/.ssh/
