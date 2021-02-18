@@ -29,7 +29,7 @@ jobs:
           git stash
           npm run compile
           git stash
-      - name: setup SSH Key and known_hosts
+      - name: setup SSH
         if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/test-deploy') }}
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
@@ -46,10 +46,9 @@ jobs:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
-          ssh -v deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
-            git stash &&
-            npm run init_symlink_server &&
+          ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             npm run compile &&
+            export PM2_HOME=/etc/pm2daemon &&
             pm2 delete \"datablue_$BRANCH\" | echo &&
             pm2 start build/main.js --name \"datablue_$BRANCH\""
       - name: Cleanup ssh
