@@ -29,20 +29,33 @@ jobs:
           git stash
           npm run compile
           git stash
-      - name: deploy
-        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'stable' ||  github.ref == 'develop') }}
+      - name: setup SSH Key and known_hosts
+        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/test-deploy') }}
         env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH }}
           SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-          branch: ${{ github.ref }}
         run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_PRIVATE_KEY" > ./deploy.key
-          sudo chmod 400 ./deploy.key
+          mkdir -p ~/.ssh
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          ssh -v -i ./deploy.key deploy@water-fountains.org "cd /var/www/datablue_$branch" &&
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "$SSH_PRIVATE_KEY"
+      - name: deploy
+        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/test-deploy') }}
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
+          ssh -v deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             git stash &&
             npm run init_symlink_server &&
             npm run compile &&
-            pm2 delete \"datablue_$branch\" | echo &&
-            pm2 start build/main.js --name \"datablue_$branch\""
+            pm2 delete \"datablue_$BRANCH\" | echo &&
+            pm2 start build/main.js --name \"datablue_$BRANCH\""
+      - name: Cleanup ssh
+        if: always()
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          ssh-add -D
+          rm -Rf *
