@@ -26,11 +26,15 @@ jobs:
           sleep 10
           curl localhost:3000
           kill %1 # stop npm run dev
-          git stash
           npm run compile
-          git stash
+
+      - name: determine whether we should deploy
+        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/develop') }}
+        run: echo "::set-output name=deployIt::yes"
+        id: deployCheck
+
       - name: setup SSH
-        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/test-deploy') }}
+        if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH }}
@@ -40,8 +44,9 @@ jobs:
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "$SSH_PRIVATE_KEY"
+
       - name: deploy
-        if: ${{ github.repository == 'water-fountains/datablue' && github.event_name == 'push' && (github.ref == 'refs/heads/stable' ||  github.ref == 'refs/heads/test-deploy') }}
+        if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
@@ -51,8 +56,9 @@ jobs:
             export PM2_HOME=/etc/pm2daemon &&
             pm2 delete \"datablue_$BRANCH\" | echo &&
             pm2 start build/main.js --name \"datablue_$BRANCH\""
-      - name: Cleanup ssh
-        if: always()
+
+      - name: cleanup ssh
+        if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
