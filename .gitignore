@@ -3,6 +3,7 @@ build
 server/common/build.info.js
 .env
 .idea
+.vscode
 /.project
 /nbproject/private/
 .history

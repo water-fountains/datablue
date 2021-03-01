@@ -20,22 +20,7 @@ import fs from 'fs';
 import buildInfo from './build.info';
 import logIncomingRequests from "../middleware/log.incoming";
 
-let privateKey = '';
-let certificate = '';
-let port = '';
-
-if(process.env.NODE_ENV === 'production') {
-  // When running in production mode, read private key and certificate for encryption
-  privateKey = fs.readFileSync('privatekey.pem');
-  certificate = fs.readFileSync('certificate.pem');
-  // use port 3001 running the stable branch, otherwise use port 3000
-  port = buildInfo.branch==='stable'?3001:3000;
-}else{
-  // if not running in production, then use the port as defined in the .env file
-  port = process.env.PORT;
-}
-
-const app = new Express();
+const app = new Express(); 
 
 export default class ExpressServer {
   constructor() {
@@ -57,15 +42,35 @@ export default class ExpressServer {
     return this;
   }
   
-    listen() {
-    const welcome = p => () => l.info(`server.js: up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`);
-    if(process.env.NODE_ENV === 'production'){
+  listen() {
+    let privateKey = '';
+    let certificate = '';
+    let port = '';
+
+    if (process.env.NODE_ENV === 'production') {
+      // When running in production mode, read private key and certificate for encryption
+      try {
+        privateKey = fs.readFileSync('privatekey.pem');
+        certificate = fs.readFileSync('certificate.pem');
+      } catch(error) {
+        l.info("could not read privatekey or/and certificate, will startup in http")
+      }
+      // use port 3001 running the stable branch, otherwise use port 3000
+      port = buildInfo.branch==='stable' ? 3001 : 3000;
+    } else {
+      // if not running in production, then use the port as defined in the .env file
+      port = process.env.PORT;
+    }
+
+    const hasCertificate = privateKey && certificate
+    const welcome = p => () => l.info(`server.js: up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p} via ${hasCertificate ? 'https': 'http'}`);
+    if (hasCertificate) { 
       https.createServer({
         key: privateKey,
         cert: certificate
       }, app).listen(port, welcome(port));
       return app;
-    }else{
+    } else {
       http.createServer(app).listen(port, welcome(port));
       return app;
     }
