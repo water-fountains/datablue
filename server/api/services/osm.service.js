@@ -21,11 +21,14 @@ class OsmService {
     // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject)=>{
       let query = queryBuilderCenter(lat, lng, radius);
-      // l.info(query);
+      if (process.env.NODE_ENV !== 'production') {
+        l.info('osm.service byCenter: '+query+' '+new Date().toISOString());
+      }
       query_overpass(query, (error, data)=>{
         if(error){
           reject(error);
         }else{
+          l.info('osm.service byCenter: resulted in '+data.features.length+' foutains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})
@@ -41,8 +44,14 @@ class OsmService {
         if(error){
           reject(error);
         }else if(data.features.length === 0){
-          reject(new Error(NO_FOUNTAIN_AT_LOCATION));
+          l.info('osm.service.js byBoundingBox - NO_FOUNTAIN_AT_LOCATION: '+query+' '+new Date().toISOString());
+          //reject(new Error(NO_FOUNTAIN_AT_LOCATION));
+          resolve(data.features);
         }else{
+          if (process.env.NODE_ENV !== 'production') {
+            l.info('osm.service.js byBoundingBox: '+query+' '+new Date().toISOString());
+          }
+          l.info('osm.service.js byBoundingBox: resulted in '+data.features.length+' fountains '+new Date().toISOString());
           resolve(data.features);
         }
       }, {flatProperties: true})

@@ -12,10 +12,10 @@ import l from "../../common/logger"
 
 export function extractProcessingErrors(fountainCollection){
   // returns collection of processing errors from collection
-  l.info('extracting processing errors');
-  
+  if(process.env.NODE_ENV !== 'production') {
+    l.info('processing-errors.controller.js extractProcessingErrors: start '+new Date().toISOString());
+  }  
   let errorCollection = [];
-  
   // loop through all fountains
   for(let fountain of fountainCollection.features){
     // loop through all properties
@@ -30,6 +30,6 @@ export function extractProcessingErrors(fountainCollection){
       }
     });
   }
-  
+  l.info('processing-errors.controller.js extractProcessingErrors: found '+errorCollection.length+' processing errors '+new Date().toISOString());  
   return errorCollection;
 }

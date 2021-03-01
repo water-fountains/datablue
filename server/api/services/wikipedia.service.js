@@ -17,7 +17,7 @@ const summaryUrlSnippet = "/w/api.php?format=json&action=query&prop=extracts&exi
 
 class WikipediaService {
   
-    getSummary(wikipediaUrl) {
+    getSummary(wikipediaUrl, dbg) {
       return new Promise((resolve, reject) =>{
       // fetches summary text from Wikipedia
       // fetch all images in category
@@ -31,7 +31,7 @@ class WikipediaService {
           resolve(summary);
         })
         .catch(function (error) {
-          l.error(`Error fetching Wikipedia summary: ${error} (url: ${url})`);
+          l.error(`Error fetching Wikipedia summary: ${error} (url: ${url}) `+dbg);
           resolve('Error fetching Wikipedia summary');
         })
       });

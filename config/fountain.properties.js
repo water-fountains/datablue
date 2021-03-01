@@ -1,12 +1,20 @@
 /*
  * @license
- * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * (c) Copyright 2019 -2020 | MY-D Foundation | Created by Matthew Moy de Vitry
  * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
+ * 
+ * Each time you change the this file, you need to run
+ *     
+ *   ~/git/proximap$ npm run sync_datablue for=fountains
+ * 
  */
 
 import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../server/common/constants";
 import {locations} from "./locations";
+import {isBlackListed} from '../server/api/services/categories.wm';
+import l from '../server/common/logger';
+
 
 const _ = require('lodash');
 
@@ -15,6 +23,78 @@ const _ = require('lodash');
  * @param {any} val - any object, string or number
  */
 function identity(val){return val}
+
+function text2img(text) {
+	const prefix = 'https://commons.wikimedia.org/wiki/File:';
+	const prefixShort = 'file:'; //as per https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons example  
+	const prefixFlickr = 'https://www.flickr.com/photos/';
+	const staticFlickr = '^https://.+\.flickr\.com/.+\..+';
+	const prefixStreetview = 'dueToKeyDisabled_https://maps.googleapis.com/maps/api/streetview?size=';
+	let imWmNam = null;
+	if(text.startsWith(prefix)){ //test with ch-zh Q27230145 or rather node/1415970706
+		imWmNam = text.substring(prefix.length);
+	} else {
+		const textLc = text.toLowerCase()
+		if (textLc.trim().startsWith(prefixShort)) {
+			const startPos = textLc.indexOf(prefixShort);
+			imWmNam = text.substring(startPos+prefixShort.length);
+		}
+	}
+	if (null != imWmNam) {
+		const imgNam = imWmNam;
+		const imgName = decodeURI(imgNam);
+	    let imgLikeFromWikiData = {
+              value: imgName,
+              typ:'wm',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgLikeFromWikiData);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'wm'};
+        return imgs;
+    } else if(text.startsWith(prefixFlickr) && -1 == text.indexOf('.',prefixFlickr.length)) { //test with it-ro Q76941085 or rather node/259576441
+	    let imgFromFlickr = {
+              value: text,
+              typ:'ext-flickr',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'ext'};
+        return imgs;
+    } else if(text.startsWith(prefixStreetview) ) { //test with ch-zh Q55166478 or rather node/496416098
+	    let imgFromFlickr = {
+              value: text,
+              typ:'ext-fullImgUrl',
+              src: 'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'ext-fullImgUrl'};
+        return imgs;
+    } else if(text.match(staticFlickr)){ //test with tr-be Q68792383 or rather node/3654842352
+	    let imgFromFlickr = {
+              value: text,
+              typ:'flickr',
+              src:'osm'
+            }
+        let imgVals = [];
+        imgVals.push(imgFromFlickr);
+        let imgs = { src: 'osm',
+          imgs: imgVals,
+          type:'flickr'};
+        return imgs;
+    } else {
+	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
+	  return null;
+  }
+}
 
 
 /**
@@ -737,7 +817,7 @@ let fountain_properties = {
         }
       },
       osm: {
-        src_path: ['properties', 'start_date'],
+        src_path: ['properties', 'start_date'], //as per https://wiki.openstreetmap.org/wiki/Key:start_date
         src_instructions: {
           en: ['tag', 'start_date'],
           de: ['Attribut', 'start_date'],
@@ -745,7 +825,27 @@ let fountain_properties = {
           it: ['Attributo', 'start_date'],
           tr: ['Özellik', 'start_date']
         },
-        value_translation: identity
+        src_path_extra: ['properties', 'year'], //is not on osm-wiki, could also go for https://wiki.openstreetmap.org/wiki/Key:year_of_construction
+        extraction_info: {
+            en: ['tag', 'year'],
+            de: ['Attribut', 'year'],
+            fr: ['Attribut', 'year'],
+            it: ['Attributo', 'year'],
+            tr: ['Özellik', 'year']
+        },
+        value_translation: identity,
+        value_translation_extra: text=>{
+        	if (null != text) {
+        		const txt = text.trim();
+            	if (txt.match(/\d{2,4}/)) {
+                	if (txt.match(/\d{2,4}/)) {
+                       return txt;
+                	}
+              	  l.info('fountain.properties.js osm year not a number "'+text+'" '+new Date().toISOString());
+        		}
+        	}
+            return null;
+        }
       }
     }
   },
@@ -1049,13 +1149,17 @@ let fountain_properties = {
         value_translation: (list)=>{
           return _.map(list, el=>{
             let url = el.value;
+            let urlLc = url.toLowerCase();
             // determine source from url
             let source_name = 'unknown';
-            if(url.includes('goo.gl/maps') || url.includes('instantstreetview')){
+            if(urlLc.includes('goo.gl/maps')){
               source_name = 'Google Street View';
-            }else if(url.includes('mapillary')){
+           // }else if(url.includes('instantstreetview')){
+              //a first step towards https://github.com/water-fountains/proximap/issues/137
+             // source_name = 'Google Street View (+)';
+            }else if(urlLc.includes('mapillary')){
               source_name = 'Mapillary';
-            }else if(url.includes('openstreetcam')){
+            }else if(urlLc.includes('openstreetcam')){
               source_name = 'OpenStreetCam';
             }
             return {
@@ -1084,7 +1188,7 @@ let fountain_properties = {
       it: 'Nome dell\'immaigine principale come documentato in Wikidata. Questo è utile per creare l\'oggetto della galleria, ma altrimenti non viene usato direttamente.',
       tr: 'Esas görüntünün Wikidata\'daki ismi. Bu bir nesne galerisi oluşturmak için gereklidir, aksi takdirde doğrudan kullanılmaz. '
     },
-    src_pref: ['wikidata'],
+    src_pref: ['wikidata','osm'],
     src_config: {
       osm: {
         src_info: {
@@ -1095,6 +1199,9 @@ let fountain_properties = {
           tr: 'Değer yalnızca eğer " File: " içerirse kabul edilir.'
         },
         src_path: ['properties', 'wikimedia_commons'],
+        src_path1: ['properties', 'flickr'],
+//        src_path1: ['properties', 'image'], //https://www.openstreetmap.org/node/7514807132 has a google image that should be combined with the category images  
+//      src_path1: ['properties', 'mapillary'],
         src_instructions: {
           en: ['tag', 'wikimedia_commons'],
           de: ['Attribut', 'wikimedia_commons'],
@@ -1102,12 +1209,20 @@ let fountain_properties = {
           it: ['Attributi', 'wikimedia_commons'],
           tr: ['Özellik', 'wikimedia_commons']
         },
+        src_path_extra: ['properties', 'image'],  //https://www.openstreetmap.org/node/496416098 has a google image Q55166478
+        extraction_info: {
+            en: ['tag', 'image'],
+            de: ['Attribut', 'image'],
+            fr: ['Attribut', 'image'],
+            it: ['Attributo', 'image'],
+            tr: ['Özellik', 'image']
+        },
         value_translation: text=>{
-          if(text.includes('File:')){
-            return text.replace('File:', '')
-          }else{
-            return null;
-          }}
+        	return text2img(text);
+        },
+        value_translation_extra: text=>{
+        	return text2img(text);
+        }
       },
       wikidata: {
         src_path: ['claims', 'P18'],
@@ -1126,8 +1241,10 @@ let fountain_properties = {
           tr: 'yalnızca Wikidata tarafından gönderilen değer tutulur.'
         },
         value_translation: values => {
-          //just keep the first value
-          return values[0].value;
+          let img = { src: 'wd',
+                      imgs: values,
+                      type:'wm'};
+          return img;
         }
       }
     }
@@ -1315,7 +1432,7 @@ let fountain_properties = {
     src_pref: ['wikidata', 'osm'],
     src_config: {
       wikidata: {
-        src_path: ['claims', 'P373'],
+        src_path: ['claims', 'P373'], //there is also 'topic's main category' (P910) - e.g. Trevi https://www.wikidata.org/wiki/Q185382
         src_instructions: {
           en: ['Statement', 'Commons category'],
           de: ['Aussage', 'Commons-Kategorie'],
@@ -1332,17 +1449,41 @@ let fountain_properties = {
         },
         src_path_extra: ['sitelinks', 'commonswiki'],
         extraction_info: {
-          en: 'Only the first value returned is used.',
-          de: 'Es wird nur der erste zurückgegebene Wert verwendet.',
-          fr: 'Seule la première valeur retournée est utilisée.',
-          it: 'Solo il primo valore ritornato è utilizzato.',
+          en: 'All values returned is used.',
+          de: 'Alle zurückgegebenen Werte werden verwendet.',
+          fr: 'Tout les valeurs retournées sont utilisées.',
+          it: 'Tutti i valori ritornati sono utilizzati.',
           tr: 'Yalnızca gönderilen ilk değer kullanılır.'
         },
-        value_translation: commons => {
-          return commons[0].value;
+        value_translation: values => {
+        	let cats = [];
+        	if (null != values) {
+        	    let catSet = new Set();
+        		for(let i = 0; i < values.length;i++) {
+        			let c = values[i].value; //we don't need the qualifiers here
+        			if (!catSet.has(c) && !isBlackListed(c)) {
+        				catSet.add(c);
+        				let cat = { s: 'wd',
+                            	c: c,
+                            	l:-1};
+        				cats.push(cat);
+        			}
+        		}
+        	}
+            return cats;
         },
         value_translation_extra: text=>{
-          return text.replace('Category:', '')
+        	let cats = [];
+        	if (null != text) {
+            	const txt = text.replace('Category:', '');
+            	if (null != txt && txt.trim()!= '') {
+                    let cat = { s: 'wd',
+                            	c: txt,
+                            	l:-1};
+                    cats.push(cat);
+        		}
+        	}
+            return cats;
         }
       },
       osm: {
@@ -1362,12 +1503,41 @@ let fountain_properties = {
           tr: ['Özellik', 'wikimedia_commons']
         },
         value_translation: text=>{
-          if(text.includes('Category:')){
-            return text.replace('Category:', '')
-          }else{
-            return null;
-          }}
+          let cats = [];
+      	  if (null != text) {
+      	    const txtLc = text.toLowerCase();
+            const catPos = txtLc.indexOf('category:');
+            let isCat = -1 != catPos;
+            let catTxt = '';
+            if (isCat) {
+            	catTxt = text.substring(catPos+9);
+            } else {
+            	if (-1 == txtLc.indexOf('file:')) {
+            		//https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons suggests to either use the File: or Category: syntax
+             	  	l.info('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
+             	  	catTxt = text;
+             	  	if (!isBlackListed(catTxt)) {
+             	  	  isCat = true;
+             	  	}
+            	}
+            }
+            if (isCat) {
+              const txt = decodeURIComponent(catTxt);
+              if (null != txt && txt.trim()!= '') {
+                   let cat = { s: 'osm',
+                            	c: txt,
+                            	l:-1};
+                   cats.push(cat);
+        	  }
+        	} else {
+        	  if (process.env.NODE_ENV === 'production') {
+         	  	l.info('fountain.properties.js: wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
+         	  }
+            }
+      	  }
+          return cats;
         }
+      }
     }
   },
   wikipedia_en_url: {
@@ -2017,17 +2187,17 @@ let fountain_properties = {
           tr: 'Bu çeşme "yüzme havuzu" veya "yüzülebilen yer" olarak tanımlanabilir.'
         },
         extraction_info: {
-          en: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q17456505)',
-          de: 'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q17456505) handelt.',
-          fr: 'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q17456505).',
-          it: 'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q17456505).',
-          tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q17456505) olduğunu gösterir.'
+          en: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q12004466)',
+          de: 'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q12004466) handelt.',
+          fr: 'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q12004466).',
+          it: 'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q12004466).',
+          tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q12004466) olduğunu gösterir.'
         },
         value_translation: parents => {
           // loop through all instances to see if swimming pool or swimming place is among them
           for(let code of parents){
             // return value only if qualifier matches the operator id
-            if(['Q1501', 'Q17456505'].indexOf(code.value)>=0) {
+            if(['Q1501', 'Q12004466'].indexOf(code.value)>=0) {
               return 'yes';
             }
           }
@@ -2078,6 +2248,7 @@ let fountain_properties = {
           urls.forEach((elt)=>{
             let url = elt.value; 
             if(!_.startsWith(url, 'https://h2o.do')) {
+              //as per https://github.com/water-fountains/import2wikidata/issues/10#issuecomment-528876473
               validUrls.push(url);
             }
           });

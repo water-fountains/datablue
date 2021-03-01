@@ -1,8 +1,14 @@
 /*
  * @license
- * (c) Copyright 2019 | MY-D Foundation | Created by Matthew Moy de Vitry
+ * (c) Copyright 2019 - 2020 | MY-D Foundation | Created by Matthew Moy de Vitry
  * Use of this code is governed by the GNU Affero General Public License (https://www.gnu.org/licenses/agpl-3.0)
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
+ * 
+ *
+ * Each time you change the this file, you need to run
+ *     
+ *   ~/git/proximap$ npm run sync_datablue for=locations
+ * 
  */
 
 export const locations = {
@@ -246,6 +252,36 @@ export const locations = {
       url_template: null
     }
   },
+  "in-ch": {
+	    name: 'Chennai',
+	    description: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    description_more: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    bounding_box: {
+	      "latMin": 12.8901,
+	      "lngMin": 80.0285,
+	      "latMax": 13.2894,
+	      "lngMax": 80.3746
+	    },
+	    "operator_fountain_catalog_qid": 'undefined',
+	    issue_api:{
+	      operator: null,
+	      qid: null,
+	      thumbnail_url: ``,
+	      url_template: null
+	    }
+	  },
   "us-nyc": {
     name: 'New York',
     description: {
@@ -318,5 +354,121 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
       thumbnail_url: ``,
       url_template: null
     }
-  }
-  };
+  },
+  "sr-bg": {
+        name: 'Belgrade',
+        description: {
+            en: ``,
+            de: ``,
+            fr: ``,
+            it: ``,
+            tr: ``,
+        },
+        description_more: {
+            en: ``,
+            de: ``,
+            fr: ``,
+            it: ``,
+            tr: ``,
+        },
+        bounding_box: {
+            "latMin": 44.725000,
+            "lngMin": 20.354100,
+            "latMax": 44.880300,
+            "lngMax": 20.484000
+        },
+        "operator_fountain_catalog_qid": 'undefined',
+        issue_api:{
+            operator: null,
+            qid: null,
+            thumbnail_url: ``,
+            url_template: null
+        }
+  },
+  "test": {
+	    name: 'Test-City (not in Prod)',
+	    description: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    description_more: {
+	      en: ``,
+	      de: ``,
+	      fr: ``,
+	      it: ``,
+	      tr: ``,
+	    },
+	    bounding_box: {
+	      //categories regex problem https://beta.water-fountains.org/ch-ge?l=de&i=Q98494680  Fontaine de la rue du Mont-Blanc 
+	         "latMin": 46.2081,
+	         "lngMin": 6.1447,
+	         "latMax": 46.2083,
+	         "lngMax": 6.1449	    
+	    	// osm-node/7514807132 Gstadstr.56 Zollikon ch-zh for "year" and external google image 47.3396, 8.5704
+	       //  "latMin": 47.3396,
+	       //  "lngMin": 8.5704,
+	       //  "latMax": 47.3397,
+	       //  "lngMax": 8.5705	    
+	    	// Q68792383 Bergama 39.1261, 27.1810
+	        // "latMin": 39.1258,
+	        // "lngMin": 27.1807,
+	        // "latMax": 39.1265,
+	        // "lngMax": 27.1814	    
+	    	// Bambi Oberstrass
+	        //"latMin": 47.3934,
+	        //"lngMin": 8.5447,
+	        //"latMax": 47.3936,
+	        //"lngMax": 8.5448	    
+	    	// osm wm-category ch-zh Brunnen Sunnehalde Küsnacht with forgotten Category
+//	        "latMin": 47.3288,
+//	        "lngMin": 8.5776,
+//	        "latMax": 47.3290,
+//	        "lngMax": 8.5778	    
+	    	// osm wm-category ch-zh Brunnen Rietwies Zollikon https://github.com/water-fountains/proximap/issues/306
+//	        "latMin": 47.3390,
+//	        "lngMin": 8.6010,
+//	        "latMax": 47.3398,
+//	        "lngMax": 8.6018
+	    	// osm wm-image ch-zh Brunnentrog mit Relief "Möve"  https://github.com/water-fountains/proximap/issues/306
+//	        "latMin": 47.3655,
+//	        "lngMin": 8.54524,
+//	        "latMax": 47.3656,
+//	        "lngMax": 8.54525
+	    	//Klusdörfli without P18 nor coordinates 47.36518, 8.568826
+	        //"latMin": 47.3644,
+	        //"lngMin": 8.56875,
+	        //"latMax": 47.3652,
+	        //"lngMax": 8.56885
+	    	// Schule Friesenberg with multiple Categories
+//	        "latMin": 47.3602,
+//	        "lngMin": 8.5054,
+//	        "latMax": 47.3604,
+//	        "lngMax": 8.5055
+	    	// 2x Schule Friesenberg with multiple Categories 
+//	        "latMin": 47.3584,
+//	        "lngMin": 8.5054,
+//	        "latMax": 47.3604,
+//	        "lngMax": 8.5058
+	    	// Schule Friesenberg with 1 Category, no P18: 47.358684, 8.505754
+//	        "latMin": 47.3584,
+//	        "lngMin": 8.5054,
+//	        "latMax": 47.3587,
+//	        "lngMax": 8.5058
+	      //5 fountains of Bergama
+//	        "latMin": 39.117,
+//	        "lngMin": 27.17,
+//	        "latMax": 39.12,
+//	        "lngMax": 27.19
+	    },
+	    "operator_fountain_catalog_qid": 'undefined',
+	    issue_api:{
+	      operator: null,
+	      qid: null,
+	      thumbnail_url: ``,
+	      url_template: null
+	    }
+	  }
+};

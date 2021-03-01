@@ -1,3 +1,4 @@
+#DEVELOPER=local  #https://github.com/water-fountains/datablue/issues/47
 APP_ID=datablue
 PORT=3000
 LOG_LEVEL=debug

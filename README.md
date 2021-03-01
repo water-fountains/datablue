@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/water-fountains/datablue.svg?branch=develop)](https://travis-ci.com/water-fountains/datablue)
+
 # datablue
 Datablue is a server for collecting, aggregating, and serving open data. It is written using NodeJS and Express.
 It is being developed in conjunction with [Proximap](//github.com/water-fountains/proximap), a responsive web app for finding nearby public infrastructure, using drinking fountains as a showcase example. Check out [water-fountains.org](//water-fountains.org)
@@ -24,7 +26,7 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 4. In the newly copied `.env` file, set the following variable:
     - `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
 5. Run it by running `> npm run dev` in the local project directory.
-6. Try it: Point you're browser to <a href="http://localhost:3000" target="_blank" >http://localhost:3000</a>
+6. Try it: Point your browser to <a href="http://localhost:3000" target="_blank" >http://localhost:3000</a>
 
 *Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed.*
 

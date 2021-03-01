@@ -3,4 +3,12 @@ build
 server/common/build.info.js
 .env
 .idea
+.vscode
 /.project
+/nbproject/private/
+.history
+
+.DS_Store
+nbproject/*
+server/.DS_Store
+server/api/.DS_Store
