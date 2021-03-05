@@ -9,7 +9,7 @@
   "description": "Datablue is a NodeJS Express server for collecting and aggregating open data.",
   "main": "index.js",
   "engines": {
-    "node": "8.11.1"
+    "node": "14.16.0"
   },
   "scripts": {
     "prestart": "node git.version",
@@ -21,31 +21,30 @@
     "dev": "node build.js && backpack dev | pino -o 'short'",
     "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect-brk | pino -o 'short'",
-    "test": "node build.js && _mocha --compilers js:babel-register --exit",
     "heroku-prebuild": "cp .envTEMPLATE .env"
   },
   "dependencies": {
     "@timberio/node": "^0.33.0",
     "axios": "^0.18.1",
-    "axios-concurrency": "^1.0.3",
-    "axios-extensions": "^3.0.6",
+    "axios-concurrency": "^1.0.4",
+    "axios-extensions": "^3.1.3",
     "body-parser": "^1.19.0",
-    "cookie-parser": "^1.4.4",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^5.0.1",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
     "haversine": "^1.1.1",
-    "helmet": "^3.21.2",
+    "helmet": "^3.23.3",
     "https": "^1.0.0",
     "js-md5": "^0.7.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "nocache": "^2.1.0",
     "node-cache": "^4.2.1",
     "pino": "^4.17.6",
-    "query-overpass": "^1.5.4",
-    "source-map-support": "^0.5.13",
-    "swagger-express-middleware": "^2.0.4",
+    "query-overpass": "^1.5.5",
+    "source-map-support": "^0.5.19",
+    "swagger-express-middleware": "^4.0.2",
     "utf8": "^3.0.0",
     "wikidata-sdk": "^5.16.2"
   },
@@ -53,12 +52,9 @@
     "babel-eslint": "^8.2.6",
     "babel-preset-env": "^1.6.1",
     "backpack-core": "^0.8.4",
-    "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^11.3.2",
-    "eslint-plugin-import": "^2.18.2",
-    "mocha": "^5.0.5",
-    "shelljs": "^0.8.3",
-    "supertest": "^3.4.2"
+    "eslint-plugin-import": "^2.22.1",
+    "shelljs": "^0.8.4"
   }
 }
