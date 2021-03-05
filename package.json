@@ -9,7 +9,7 @@
   "description": "Datablue is a NodeJS Express server for collecting and aggregating open data.",
   "main": "index.js",
   "engines": {
-    "node": "8.11.1"
+    "node": "14.16.0"
   },
   "scripts": {
     "prestart": "node git.version",
