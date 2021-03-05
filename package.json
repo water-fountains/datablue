@@ -45,7 +45,7 @@
     "pino": "^4.17.6",
     "query-overpass": "^1.5.5",
     "source-map-support": "^0.5.19",
-    "swagger-express-middleware": "^2.0.5",
+    "swagger-express-middleware": "^4.0.2",
     "utf8": "^3.0.0",
     "wikidata-sdk": "^5.16.2"
   },
