@@ -5,19 +5,37 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import './common/env'; //read environment files
-import Server from './common/server'; // import Server definition
-import routes from './routes'; // import routes to be used by server
-import l from './common/logger';
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+[
+  "PORT", //
+  "REQUEST_LIMIT",
+  "SESSION_SECRET",
+  "SWAGGER_API_SPEC",
+].forEach((name) => {
+  if (process.env[name] === undefined) {
+    throw Error(`make sure you define ${name} in .env, cannot start server`);
+  }
+});
+
+import { Router } from "./api/controllers/router";
+import { ExpressServer } from "./common/server";
+import { Express } from "express";
 
 // Unhandled errors are handled here
 // todo: put this in another file
-process.on('unhandledRejection', error => {
-  // Will print "unhandledRejection err is not defined"
-  l.error('unhandled Rejection', error.message);
-  l.error('unhandled Rejection trace', error.stack);
-});
 
-export default new Server()
-  .router(routes)
-  .listen(process.env.PORT);
+// TODO does not make sense at all, l.error only takes one string. commenting it out for the moment
+// replace with something which makes more sense?
+
+// process.on('unhandledRejection', error => {
+//   // Will print "unhandledRejection err is not defined"
+//   l.error('unhandled Rejection', error.message);
+//   l.error('unhandled Rejection trace', error.stack);
+// });
+
+export default new ExpressServer()
+  .router((app: Express) => app.use("/api/v1", Router))
+  .listen();

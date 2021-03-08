@@ -1,12 +1,12 @@
+import { Request, Response, NextFunction } from "express";
+import { CustomLogger } from "../common/logger";
 
-function logIncomingRequests(logger) {
-  return (req, res, next) => {
+export function logIncomingRequests(logger: CustomLogger) {
+  return (req: Request, _res: Response, next: NextFunction) => {
     // without custom serializers, we must be explicit
     if(req.url !== '/json' && req.url !== '/json/version'){
-      logger.info(`log.incoming.js: logIncomingRequests: ${req.url}`);
+      logger.info(`logIncomingRequests: ${req.url}`);
     }
     next();
   }
 }
-
-export default logIncomingRequests;
