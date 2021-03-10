@@ -55,9 +55,9 @@ jobs:
             git checkout \"origin/$BRANCH\" -- server/common/build.info.ts &&
             git pull origin \"$BRANCH\" &&
             npm install &&
-            npm run compile &&
             export PM2_HOME=/etc/pm2daemon &&
             pm2 delete \"datablue_$BRANCH\" | echo &&
+            npm run compile &&
             pm2 start build/main.js --name \"datablue_$BRANCH\""
 
       - name: cleanup ssh
