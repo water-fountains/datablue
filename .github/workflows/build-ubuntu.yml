@@ -24,7 +24,7 @@ jobs:
           cp .envTEMPLATE .env
           npm run dev &
           sleep 10
-          curl localhost:3000
+          curl localhost:3000 | (sleep 10 && curl localhost:3000)
           kill %1 # stop npm run dev
           npm run compile
 
