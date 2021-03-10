@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/water-fountains/datablue.svg?branch=develop)](https://travis-ci.com/water-fountains/datablue)
+[![Build Status](https://github.com/water-fountains/datablue/actions/workflows/build-ubuntu.yml/badge.svg)](https://github.com/water-fountains/datablue/actions/workflows/build-ubuntu.yml)
 
 # datablue
 Datablue is a server for collecting, aggregating, and serving open data. It is written using NodeJS and Express.
@@ -31,19 +31,21 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 *Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed.*
 
 # Running the project in *production* mode:
-warning: this assumes you have a private key `privkey.pem` and certificate `cert.pem` for ssl encryption located at 
+If you want to run it over https, then you need a private key `privkey.pem` and certificate `cert.pem` for encryption located in the root of your project.
 
+Alternatively, you can store the `privkey.pem` and `cert.pem` in the directory `/etc/letsencrypt/live/water-fountains.org/`
+
+run `npm run init_symlink_server` which sets up a symbolic link in your root to 
 `/etc/letsencrypt/live/water-fountains.org/`
 
-If this isn't the case, modify the `init_symlink_server` script in `package.json`.
 
 Then run
+```bash
+npm install
+npm run compile
+pm2 start build/main.js --name "datablue"
 ```
-> npm run init_symlink_server
-> npm run compile
-> pm2 start build/main.js --name "datablue"
-```
-Note: In production mode, the endpoint is available over https.
+Note: In production mode, the endpoint is only available over https if a `privkey.pem` and `cert.pem` is defined and can be read by the process running pm2.
    
 
 # Contributing

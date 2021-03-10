@@ -22,7 +22,7 @@ import {
   */
 function generateLocationData(locationName){
 	const start = new Date();
-    l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `+ start.toISOString());
+    l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `);
     return new Promise((resolve, reject)=>{
       // get bounding box of location
       if(!locations.hasOwnProperty(locationName)) {
