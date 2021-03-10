@@ -51,7 +51,7 @@ const cityCache = new NodeCache( {
 cityCache.on('expired', (key, value)=>{
   // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if(!key.includes('_essential') && !key.includes('_errors')){
-    l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`+new Date().toISOString());
+    l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`);
     this.generateLocationDataAndCache(key, cityCache);
   }
 });
@@ -81,7 +81,7 @@ export class Controller {
   getSingle(req, res){
 	  const start = new Date();
 	  let what = 'unkWhat';
-    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city+' '+start.toISOString())      
+    l.info(`controller.js getSingle: refresh: ${req.query.refresh} , city: `+req.query.city)      
     if(req.query.queryType === 'byCoords'){
       // byCoords will return the nearest fountain to the given coordinates. 
       // The databases are queried and fountains are reprocessed for this
@@ -150,7 +150,7 @@ export class Controller {
    */
   getPropertyMetadata(req, res) {
 	  doJson(res,fountain_property_metadata,'getPropertyMetadata'); //res.json(fountain_property_metadata);
-    l.info("controller.js: getPropertyMetadata sent "+new Date().toISOString());
+    l.info("controller.js: getPropertyMetadata sent");
   }
   
   /**
@@ -159,12 +159,12 @@ export class Controller {
   getLocationMetadata(req, res) {
     // let gak = locations.gak;
 	  doJson(res,locations,'getLocationMetadata'); //res.json(locations);
-    l.info("controller.js: getLocationMetadata sent "+new Date().toISOString());
+    l.info("controller.js: getLocationMetadata sent");
   }
   
   getSharedConstants(req, res) {
     doJson(res,sharedConstants,'getSharedConstants'); //res.json(locations);
-    l.info("controller.js: getSharedConstants sent "+new Date().toISOString());
+    l.info("controller.js: getSharedConstants sent");
   }
   
   /**
@@ -182,10 +182,10 @@ export class Controller {
     cityCache.get(key, (err, value) => {
       if (!err) {
     	  doJson(res,value,'cityCache.get '+key); //res.json(value);
-        l.info("controller.js: getProcessingErrors !err sent "+new Date().toISOString());
+        l.info("controller.js: getProcessingErrors !err sent");
       } else {
         let errMsg = 'Error with cache: ' + err;
-        l.info("controller.js: getProcessingErrors "+errMsg+" "+new Date().toISOString());
+        l.info("controller.js: getProcessingErrors "+errMsg);
         res.statusMessage = errMst;
         res.status(500).send(err.stack);
       }
@@ -198,8 +198,7 @@ function doJson(resp, obj, dbg) {
 	//TODO consider using https://github.com/timberio/timber-js/issues/69 or rather https://github.com/davidmarkclements/fast-safe-stringify
 	try {
 		if (null == obj) {
-			let errS = 'controller.js doJson null == obj: '+dbg+' '+new Date().toISOString(); 
-	        l.error(errS);
+	        l.error('controller.js doJson null == obj: '+dbg);
 		}
 		let res = resp.json(obj);
 	    if(process.env.NODE_ENV !== 'production') {
@@ -209,12 +208,12 @@ function doJson(resp, obj, dbg) {
 	    		//https://github.com/expressjs/express/issues/4158 https://github.com/expressjs/express/blob/5.0/lib/response.js   
 	    		l.info('controller.js doJson length: keys '+Object.keys(obj).length+
             		//'\n responseData.data.length '+resp.responseData.data.length+
-            		' -  '+dbg+' '+new Date().toISOString());
+            		' -  '+dbg);
 	    	}
 	    }
 		return res;
 	} catch (err) {
-		const errS = 'controller.js doJson errors: "'+err+'" '+dbg+' '+new Date().toISOString(); 
+		const errS = 'controller.js doJson errors: "'+err+'" '+dbg; 
         l.error(errS);
 		console.trace(errS);
 	}
@@ -226,10 +225,10 @@ function doJson(resp, obj, dbg) {
 function byId(req, res, dbg){
   let cityS = req.query.city;
   let name = 'unkNamById';
-//  l.info('controller.js byId: '+cityS+' '+dbg+' '+new Date().toISOString());
+//  l.info('controller.js byId: '+cityS+' '+dbg);
   let cty = cityCache.get(cityS);
   return new Promise((resolve, reject) => {
-//	  l.info('controller.js byId in promise: '+cityS+' '+dbg+' '+new Date().toISOString());
+//	  l.info('controller.js byId in promise: '+cityS+' '+dbg);
       let ctyPromises = [];
       if (null== cty) {
         l.info('controller.js byId: '+cityS+' not found in cache '+dbg+' - start city lazy load');
@@ -249,10 +248,10 @@ function byId(req, res, dbg){
 	    let lazyAdded = 0;
 	    let gl = -1;
         if (null== fountain) {
-          l.info('controller.js byId: of '+cityS+' not found in cache '+dbg+' '+new Date().toISOString());
+          l.info('controller.js byId: of '+cityS+' not found in cache '+dbg);
         } else {
     	  const props = fountain.properties;
-//    	  l.info('controller.js byId fountain: '+cityS+' '+dbg+' '+new Date().toISOString());
+//    	  l.info('controller.js byId fountain: '+cityS+' '+dbg);
     	  if (null != props) {
     		  name = props.name.value;
     		  if (LAZY_ARTIST_NAME_LOADING_i41db) {
@@ -261,12 +260,12 @@ function byId(req, res, dbg){
     		  imgMetaPromises.push(WikidataService.fillOperatorInfo(fountain,dbg));
     		  fillWikipediaSummary(fountain, dbg, 1, imgMetaPromises);
     		  const gal = props.gallery
-//  		  l.info('controller.js byId props: '+cityS+' '+dbg+' '+new Date().toISOString());
+//  		  l.info('controller.js byId props: '+cityS+' '+dbg);
     		  if (null != gal && null != gal.value) {
     			  gl = gal.value.length;
-//  			  l.info('controller.js byId gl: '+cityS+' '+dbg+' '+new Date().toISOString());
+//  			  l.info('controller.js byId gl: '+cityS+' '+dbg);
     			  if (0 < gl) {
-//  				  l.info('controller.js byId: of '+cityS+' found gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+//  				  l.info('controller.js byId: of '+cityS+' found gal of size '+gl+' "'+name+'" '+dbg);
     				  let i = 0;
     				  let lzAtt = '';
     				  const showDetails = true;
@@ -283,17 +282,17 @@ function byId(req, res, dbg){
     					      j++;
     					      if (null == cat) {
 			                       l.info(i+'-'+j+' controller.js: null == commons category "'+
-			                          cat+'" "'+dbg+' '+new Date().toISOString());
+			                          cat+'" "'+dbg);
 		                           continue;
 		                      }			    
     					      if (null == cat.c) {
 			                       l.info(i+'-'+j+' controller.js: null == commons cat.c "'+
-			                          cat+'" "'+dbg+' '+new Date().toISOString());
+			                          cat+'" "'+dbg);
 		                           continue;
 		                      }			    
     					      if (isBlackListed(cat.c)) {
 			                       l.info(i+'-'+j+' controller.js: commons category blacklisted  "'+
-			                          cat+'" "'+dbg+' '+new Date().toISOString());
+			                          cat+'" "'+dbg);
 		                           continue;
 		                      }			    
     						  const add = 0 > cat.l;
@@ -319,33 +318,33 @@ function byId(req, res, dbg){
     					  }   
     					  if (0 < imgUrlsLazyByCat.length) {
     						  l.info('controller.js byId lazy img by lazy cat added: attempted '+imgUrlsLazyByCat.length+' in '+numbOfCatsLazyAdded+'/'+
-    								  numbOfCats+' cats, tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
+    								  numbOfCats+' cats, tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length);
     					  }
     					  for(const img of gal.value) {
     						  let imMetaDat = img.metadata; 
     						  if (null == imMetaDat && 'wm' == img.t) {
     							  lzAtt += i+',';
-    							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg+' '+new Date().toISOString());
+    							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg);
     							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, props).catch(giiErr=>{
-    								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+cityS+' '+dbgIdWd+' "'+name+'" '+new Date().toISOString()
+    								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+cityS+' '+dbgIdWd+' "'+name+'"'
     										  + '\n'+giiErr.stack);
     							  }));
     							  lazyAdded++;
     						  } else {
-//  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg+' '+new Date().toISOString());
+//  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg);
     						  }
     					      getImgClaims(singleRefresh,img, imgMetaPromises, i+': '+dbg);
     						  i++;
     					  }
     					  if (0 < lazyAdded) {
-    						  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'" '+new Date().toISOString());
+    						  l.info('controller.js byId lazy img metadata loading: attempted '+lazyAdded+'/'+gl+' ('+lzAtt+') of '+cityS+' '+dbg+' "'+name+'"');
     					  }
     					  Promise.all(imgMetaPromises).then(r => {
     						  if (0 < lazyAdded) {
-    							  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
+    							  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length);
     						  }
     						  doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
-    						  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
+    						  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'"');
     						  resolve(fountain);      
     					  }, err => {
     						  l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
@@ -354,31 +353,31 @@ function byId(req, res, dbg){
     					  l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
     				  });
     			  } else {
-    				  l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg+' '+new Date().toISOString());
+    				  l.info('controller.js byId: of '+cityS+' gl < 1  '+dbg);
 					  Promise.all(imgMetaPromises).then(r => {
 						  if (0 < lazyAdded) {
-							  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length+' '+new Date().toISOString());
+							  l.info('controller.js byId lazy img metadata loading after promise: attempted '+lazyAdded+' tot '+gl+' of '+cityS+' '+dbg+' "'+name+'" '+r.length);
 						  }
 						  doJson(res,fountain, 'byId '+dbg); //  res.json(fountain);
-						  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'" '+new Date().toISOString());
+						  l.info('controller.js byId: of '+cityS+' res.json '+dbg+' "'+name+'"');
 						  resolve(fountain);      
 					  }, err => {
 						  l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .`+dbg+' "'+name+'" '+cityS);
 					  });
     			  }
     		  } else {
-    			  l.info('controller.js byId: of '+cityS+' gallery null || null == gal.val  '+dbg+' '+new Date().toISOString());
+    			  l.info('controller.js byId: of '+cityS+' gallery null || null == gal.val  '+dbg);
     		  }
     	  } else {
-              l.info('controller.js byId: of '+cityS+' no props '+dbg+' '+new Date().toISOString());
+              l.info('controller.js byId: of '+cityS+' no props '+dbg);
     	  }
         }
-//      l.info('controller.js byId: end of '+cityS+' '+dbg+' '+new Date().toISOString());
+//      l.info('controller.js byId: end of '+cityS+' '+dbg);
       }, err => {
     	  l.error(`controller.js byId: Failed on genLocPrms: ${err.stack} .`+dbg+' '+cityS);
       });
     }).catch (e=> {
-      l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg+' '+new Date().toISOString());
+      l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: `+cityS+ ' '+dbg);
       l.error(e.stack);
   })  
 }
@@ -402,7 +401,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
     // Process OSM data to apply implied properties
     .then(r => applyImpliedPropertiesOsm(r))
     .catch(e=>{
-      l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `+new Date().toISOString());
+      l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `);
       res.status(500).send(e.stack);
     });
   
@@ -483,10 +482,10 @@ export function generateLocationDataAndCache(key, cityCache) {
         if (null != procErrs && null != procErrs.features) {
            prcErr = procErrs.features.length;
         }
-        l.info(`generateLocationDataAndCache setting cache of ${key} `+' ftns: '+ftns+' ess: '+ess+' prcErr: '+prcErr+' '+new Date().toISOString());
+        l.info(`generateLocationDataAndCache setting cache of ${key} `+' ftns: '+ftns+' ess: '+ess+' prcErr: '+prcErr);
         return fountainCollection;
       }).catch(error =>{
-      l.error(`controller.js unable to set Cache. Error: ${error.stack}`+new Date().toISOString());
+      l.error(`controller.js unable to set Cache. Error: ${error.stack}`);
     })
     return genLocPrms;
 }

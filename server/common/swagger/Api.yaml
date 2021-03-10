@@ -147,7 +147,13 @@ paths:
           description: Returns a collection of processing errors.
         500:
           description: internal server error.
-
+  /build-info:
+    get:
+      description: Fetch the build information.
+      responses:
+        200:
+          description: Returns  the build information.
+      
   /spec:
     get:
       tags:
