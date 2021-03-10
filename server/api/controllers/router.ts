@@ -9,7 +9,7 @@ import * as express from 'express';
 import controller from './controller';
 
 // This file maps API routes to functions
-export default express
+export const Router = express
   .Router()
   .get('/fountain/', controller.getSingle)
   .get('/fountains/', controller.byLocation)

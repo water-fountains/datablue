@@ -8,20 +8,21 @@
 // Created for proximap#206
 
 import _ from "lodash"
-import l from "../../common/logger"
+import { l } from "../../common/logger"
 
-export function extractProcessingErrors(fountainCollection){
+//TODO type fountainCollection, then it would be clear that features can be undefined
+export function extractProcessingErrors(fountainCollection: any){
   // returns collection of processing errors from collection
   if(process.env.NODE_ENV !== 'production') {
-    l.info('processing-errors.controller.js extractProcessingErrors: start '+new Date().toISOString());
+    l.info('extractProcessingErrors: start '+new Date().toISOString());
   }  
-  let errorCollection = [];
+  let errorCollection: any[] = [];
   // loop through all fountains
   for(let fountain of fountainCollection.features){
     // loop through all properties
-    _.forIn(fountain.properties, (p, key)=>{
+    _.forIn(fountain.properties, (p, _key)=>{
       if(p.hasOwnProperty('issues') && p.issues.length > 0){
-        p.issues.forEach(issue=>{
+        p.issues.forEach(issue=> {
           // create copy
           let error = _.cloneDeep(issue);
           // append error to collection
@@ -30,6 +31,6 @@ export function extractProcessingErrors(fountainCollection){
       }
     });
   }
-  l.info('processing-errors.controller.js extractProcessingErrors: found '+errorCollection.length+' processing errors '+new Date().toISOString());  
+  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors '+new Date().toISOString());  
   return errorCollection;
 }

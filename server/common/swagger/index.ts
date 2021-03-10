@@ -5,11 +5,12 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
+import {Express, Router} from 'express';
 import middleware from 'swagger-express-middleware';
 import * as path from 'path';
 
-export default function (app, routes) {
-  middleware(path.join(__dirname, 'Api.yaml'), app, (err, mw) => {
+export function swaggerify(app: Express, routerProvider: (app: Express) => Router) {
+  middleware(path.join(__dirname, 'Api.yaml'), app, (_err, mw) => {
     // Enable Express' case-sensitive and strict options
     // (so "/entities", "/Entities", and "/Entities/" are all different)
     app.enable('case sensitive routing');
@@ -17,11 +18,6 @@ export default function (app, routes) {
 
     app.use(mw.metadata());
     app.use(mw.files({
-      // Override the Express App's case-sensitive 
-      // and strict-routing settings for the Files middleware.
-      caseSensitive: false,
-      strict: false,
-    }, {
       useBasePath: true,
       apiPath: process.env.SWAGGER_API_SPEC,
       // Disable serving the "Api.yaml" file
@@ -42,10 +38,11 @@ export default function (app, routes) {
     // These two middleware don't have any options (yet)
     app.use(
       mw.CORS(),
-      mw.validateRequest());
+      mw.validateRequest()
+    );
 
     // Error handler to display the validation error as HTML
-    app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars, no-shadow
+    app.use((err, _req, res, _next) => {
       res.status(err.status || 500);
       res.header("Content-Type","text/html");
       res.send(
@@ -53,6 +50,6 @@ export default function (app, routes) {
         `<pre>${err.message}</pre>`);
     });
 
-    routes(app);
+    routerProvider(app);
   });
 }
