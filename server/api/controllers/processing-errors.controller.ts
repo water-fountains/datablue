@@ -7,30 +7,31 @@
 
 // Created for proximap#206
 
+import { FeatureCollection } from "geojson";
 import _ from "lodash"
 import { l } from "../../common/logger"
 
 //TODO type fountainCollection, then it would be clear that features can be undefined
-export function extractProcessingErrors(fountainCollection: any){
-  // returns collection of processing errors from collection
-  if(process.env.NODE_ENV !== 'production') {
-    l.info('extractProcessingErrors: start');
-  }  
+export function extractProcessingErrors(fountainCollection: FeatureCollection | undefined){
   let errorCollection: any[] = [];
-  // loop through all fountains
-  for(let fountain of fountainCollection.features){
-    // loop through all properties
-    _.forIn(fountain.properties, (p, _key)=>{
-      if(p.hasOwnProperty('issues') && p.issues.length > 0){
-        p.issues.forEach(issue=> {
-          // create copy
-          let error = _.cloneDeep(issue);
-          // append error to collection
-          errorCollection.push(error);
-        });
-      }
-    });
+  if (fountainCollection !== undefined) {
+    // returns collection of processing errors from collection
+    if (process.env.NODE_ENV !== 'production') {
+      l.info('extractProcessingErrors: start');
+    }  
+    fountainCollection.features.forEach(fountain =>
+      _.forIn(fountain.properties, (p: any) =>{
+        if(p.hasOwnProperty('issues') && Array.isArray(p.issues)){
+          p.issues.forEach(issue => {
+            // create copy
+            let error = _.cloneDeep(issue);
+            // append error to collection
+            errorCollection.push(error);
+          });
+        }
+      })
+    )
   }
-  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors');
+  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors');  
   return errorCollection;
 }
