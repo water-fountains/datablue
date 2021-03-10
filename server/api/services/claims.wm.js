@@ -28,24 +28,24 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
       return;
    }
    if (null == cat) {
-      l.info('claims.wm.js getCatExtract: null == cat '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getCatExtract: null == cat '+dbg);          
       return;
    }
    if (null == promises) {
-      l.info('claims.wm.js getCatExtract: null == promises '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getCatExtract: null == promises '+dbg);          
       return;
    }
    if (null != cat.e) {
-      l.info('claims.wm.js getCatExtract: extract "'+cat.e+'" already exists '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getCatExtract: extract "'+cat.e+'" already exists '+dbg);          
       return;
    }
    let catName = cat.c;
    if (null == catName) {
-      l.info('claims.wm.js getCatExtract: null == catName '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getCatExtract: null == catName '+dbg);          
       return;
    }
    if (0 == catName.trim().length) {
-      l.info('claims.wm.js getCatExtract: blank catName '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getCatExtract: blank catName '+dbg);          
       return;
    }
     const encCat = encodeURIComponent(catName);
@@ -53,7 +53,7 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
     const url = `https://commons.wikimedia.org/w/api.php?action=query&titles=Category:${sanTit}&prop=extracts&format=json&explaintext`;
     const timeoutSecs = 1;
       let timeout = timeoutSecs*1000; 
-//      l.info('claims.wm.js: getCatExtract '+dbg+' '+url+' '+new Date().toISOString());
+//      l.info('claims.wm.js: getCatExtract '+dbg+' '+url);
     let extractPomise = api.get(url, {timeout: timeout})
       .then(r => {
         const keys = Object.keys(r.data.query.pages);
@@ -67,17 +67,17 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
               const extTrLgth = extTr.length;
               if (0 < extTrLgth) {
                  if (lgthWarnSiz < extTrLgth) {
-                     l.info('claims.wm.js getCatExtract: category "'+catName+'" very long extract '+extTrLgth+' should we shorten ? '+dbg+' '+new Date().toISOString());
+                     l.info('claims.wm.js getCatExtract: category "'+catName+'" very long extract '+extTrLgth+' should we shorten ? '+dbg);
                  }
                  cat.e = extTr;
-                 l.info('claims.wm.js getCatExtract: category "'+catName+'" added '+extTrLgth+' '+dbg+' '+new Date().toISOString());
+                 l.info('claims.wm.js getCatExtract: category "'+catName+'" added '+extTrLgth+' '+dbg);
               }
            }
         }
         return;
     }).catch(err=> {
         l.error('claims.wm.js getCatExtract.categorymembers = api.get:\n'+
-          `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
+          `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + ' url '+url+'\n'+err.stack);
     });
     extractPomise.cat = cat;
     extractPomise.caller = 'getCatExtract '+dbg;
@@ -91,20 +91,20 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
       return;
    }
    if (null == img) {
-      l.info('claims.wm.js getImgClaims: null == img '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getImgClaims: null == img '+dbg);          
       return;
    }
    if (null == promises) {
-      l.info('claims.wm.js getImgClaims: null == promises '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getImgClaims: null == promises '+dbg);          
       return;
    }
    let fn = img.pgTit;
    if (null == fn) {
-      l.info('claims.wm.js getImgClaims: null == img.pgTit  '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getImgClaims: null == img.pgTit  '+dbg);          
       return;
    }
    if (0 == fn.trim().length) {
-      l.info('claims.wm.js getImgClaims: blank fn '+dbg+' '+new Date().toISOString());          
+      l.info('claims.wm.js getImgClaims: blank fn '+dbg);          
       return;
    }
     const encFn = encodeURIComponent(fn);
@@ -112,10 +112,10 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     const url = `https://commons.wikimedia.org/w/api.php?action=wbgetentities&format=json&sites=commonswiki&titles=File%3A${sanFn}`;
     const timeoutSecs = 1;
     const timeout = timeoutSecs*1000; 
-    //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg+' '+new Date().toISOString());          
+    //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg);          
     let claimsPromise = api.get(url, {timeout: timeout})
       .then(r => {
-        l.info('claims.wm.js getImgClaims: got response for '+url+' '+dbg+' '+new Date().toISOString());          
+        l.info('claims.wm.js getImgClaims: got response for '+url+' '+dbg);          
         const entities = r.data.entities;
         const keys = Object.keys(entities);
         const key = keys[0];
@@ -132,10 +132,10 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     			      const lvTrLght = lvTr.length;
     			      if (0 < lvTrLght) {
                         if (lgthWarnSiz < lvTrLght) {
-                           l.info('claims.wm.js getImgClaims: img "'+fn+'" has a very long claim '+lvTrLght+' should we shorten ? '+dbg+' '+new Date().toISOString());
+                           l.info('claims.wm.js getImgClaims: img "'+fn+'" has a very long claim '+lvTrLght+' should we shorten ? '+dbg);
                         }
                         img[`claim_${lang}`] = lvTr;
-                        l.info('claims.wm.js getImgClaims: img "'+fn+'" added claim of length '+lvTrLght+' '+dbg+' '+new Date().toISOString());
+                        l.info('claims.wm.js getImgClaims: img "'+fn+'" added claim of length '+lvTrLght+' '+dbg);
     			      }
     			   }
                 }
@@ -146,7 +146,7 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     }).catch(err=> {
         // If there is an error getting the category members, then reject with error
         l.error('claims.wm.js getImgClaims.claims = api.get:\n'+
-          `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+' '+new Date().toISOString()+'\n'+err.stack);
+          `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+'\n'+err.stack);
     });
     claimsPromise.img = img;
     claimsPromise.caller = 'getImgClaims '+dbg;

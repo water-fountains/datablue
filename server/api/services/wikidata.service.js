@@ -83,7 +83,7 @@ class WikidataService {
         chunk(qids, chunkSize).forEach(qidChunk=> {
         	chkCnt++;
         	if ((chunkSize*chkCnt)> qids.length) {
-        		l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName+' '+new Date().toISOString());	
+        		l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName);	
         	}
           // create sparql url
           const url = wdk.getEntities({
@@ -97,7 +97,7 @@ class WikidataService {
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
           .then(responses => {
-            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for loc "'+locationName+'" '+new Date().toISOString());
+            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for loc "'+locationName+'"');
             // holder for data of all fountains
             let dataAll = [];
             responses.forEach(r => {
@@ -120,17 +120,17 @@ class WikidataService {
                if (null != dataAll) {
             	   dataAllSize = dataAll.length;
                }
-               l.info('wikidata.service.js byIds: dataAll '+dataAllSize+' for loc "'+locationName+'" '+new Date().toISOString());
+               l.info('wikidata.service.js byIds: dataAll '+dataAllSize+' for loc "'+locationName+'"');
             }
             // return dataAll to 
             resolve(dataAll);
           })
           .catch(e=>{
-            l.error('wikidata.service.js byIds: catch e '+e.stack+' for loc "'+locationName+'" '+new Date().toISOString());
+            l.error('wikidata.service.js byIds: catch e '+e.stack+' for loc "'+locationName+'"');
             reject(e)
           });
       }catch (error){
-        l.error('wikidata.service.js byIds: catch error '+error.stack+' for loc "'+locationName+'" '+new Date().toISOString());
+        l.error('wikidata.service.js byIds: catch error '+error.stack+' for loc "'+locationName+'"');
         reject(error);
       }
       
@@ -145,7 +145,7 @@ class WikidataService {
     const artNam = fountain.properties.artist_name;
     if (null != artNam.derived && null != artNam.derived.name
       && '' != artNam.derived.name.trim()) {
-       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'" '+new Date().toISOString());
+       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'"');
        return fountain;
     }
     artNam.derived = {
@@ -160,15 +160,15 @@ class WikidataService {
     // if there is a wikidata entity, then fetch more information with a query
     if(artNam.source === 'wikidata'){
       if (null == idWd) {
-    	 l.info('wikidata.service.js fillArtistName: null == idWd ' +new Date().toISOString());
+    	 l.info('wikidata.service.js fillArtistName: null == idWd');
       }
       const qid = artNam.value;
       if (null == qid) {
-         l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'" '+new Date().toISOString());
+         l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'"');
          return fountain;
       }
       if (0 == qid.trim().length) {
-         l.info('wikidata.service.js fillArtistName: blank qid for "'+idWd+'" '+new Date().toISOString());
+         l.info('wikidata.service.js fillArtistName: blank qid for "'+idWd+'"');
          return fountain;
       }
       
@@ -197,7 +197,7 @@ class WikidataService {
           }
         }`;
         let res = doSparqlRequest(sparql,locationName, 'fillArtistName');
-        l.info('wikidata.service.js fillArtistName: new Miro response '+res+' "'+idWd+'" '+new Date().toISOString());
+        l.info('wikidata.service.js fillArtistName: new Miro response '+res+' "'+idWd+'"');
       }
       
       // create sparql query url
@@ -207,7 +207,7 @@ class WikidataService {
         format: 'json',
         props: ['labels', 'sitelinks', 'claims']
       });
-//      l.debug(url+' '+new Date().toISOString());
+//      l.debug(url);
       // get data
       let data = null;
       let eQid = null;
@@ -217,29 +217,29 @@ class WikidataService {
           data = r.data;
           const entities = data.entities;
           if (null == entities) {
-             l.info('wikidata.service.js fillArtistName: null == entities "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillArtistName: null == entities "'+qid+'" for idWd "'+idWd+'"');
              return fountain;
           }
-          l.info('wikidata.service.js fillArtistName: null != entities "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          l.info('wikidata.service.js fillArtistName: null != entities "'+qid+'" for idWd "'+idWd+'"');
           eQid = entities[qid];
           if (null == eQid) {
-             l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'"');
              return fountain;
           }
-          l.info('wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "'+eQid+'", qid  "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          l.info('wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "'+eQid+'", qid  "'+qid+'" for idWd "'+idWd+'"');
           const simplified = wdk.simplify.entity(eQid,
             {
               keepQualifiers: true
             });
-          l.info('wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          l.info('wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
           return simplified;
         })
         // extract useful data for https://github.com/water-fountains/proximap/issues/163
         .then(entity=>{
-          l.info('wikidata.service.js fillArtistName: after2 wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          l.info('wikidata.service.js fillArtistName: after2 wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
           // Get label of artist in English
           if (null == entity) {
-             l.info('wikidata.service.js fillArtistName: null == entity after wdk.simplify "'+qid+'" for idWd "'+idWd+'"  "'+url+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillArtistName: null == entity after wdk.simplify "'+qid+'" for idWd "'+idWd+'"  "'+url+'"');
              return fountain;
           }
           const langs = Object.keys(entity.labels);
@@ -257,22 +257,22 @@ class WikidataService {
           for(let lang of sharedConstants.LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
               artNam.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
-              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
               return fountain;
             }
           }
           // for https://github.com/water-fountains/proximap/issues/163
           // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
-          l.info('wikidata.service.js fillArtistName: as no langWiki URLs found, going for P856, P973, P854, P2699 - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+          l.info('wikidata.service.js fillArtistName: as no langWiki URLs found, going for P856, P973, P854, P2699 - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
           for (let pid of ['P856', 'P973', 'P854', 'P2699'] ){
             // get the url value if the path exists
             let url = _.get(entity.claims, [pid, 0, 'value'], false);
             if(url){
               artNam.derived.website.url = url;
-              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' based on pid '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' based on pid '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
               return fountain;
             }
-            l.info('wikidata.service.js fillArtistName: url not found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'" '+new Date().toISOString());
+            l.info('wikidata.service.js fillArtistName: url not found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
           }
           // if no url found, then link to wikidata entry
           return fountain;
@@ -298,7 +298,7 @@ class WikidataService {
           });
           return fountain});
     } else {
-       l.info('wikidata.service.js fillArtistName: source '+artNam.source+' "'+dbg+'" '+new Date().toISOString());
+       l.info('wikidata.service.js fillArtistName: source '+artNam.source+' "'+dbg+'"');
        return fountain;
     }
   }
@@ -309,7 +309,7 @@ class WikidataService {
     const opNam = fountain.properties.operator_name;
     if (null != opNam && null != opNam.derived && null != opNam.derived.name &&
           0 < opNam.derived.name.trim().length) {
-       l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.derived.name+'" '+new Date().toISOString());
+       l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.derived.name+'"');
        return fountain;
     }
     if(opNam.source === 'wikidata'){
@@ -326,12 +326,12 @@ class WikidataService {
         // parse into an easier to read format
         .then(r=>{
           if (null == r || null == r.data  || null == r.data.entities ) {
-            l.info('wikidata.service.js fillOperatorInfo: null == r || null == r.data  || null == r.data.entities for "'+url+'"'+new Date().toISOString());
+            l.info('wikidata.service.js fillOperatorInfo: null == r || null == r.data  || null == r.data.entities for "'+url+'"');
             return fountain;
           }
           const eQid = r.data.entities[qid];
           if (null == eQid) {
-             l.info('wikidata.service.js fillOperatorInfo: null == eQid "'+qid+'" for "'+dbg+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillOperatorInfo: null == eQid "'+qid+'" for "'+dbg+'"');
              return fountain;
           }
           return wdk.simplify.entity(
@@ -340,7 +340,7 @@ class WikidataService {
         // extract useful data
         .then(entity=>{
           if (null == entity) {
-             l.info('wikidata.service.js fillOperatorInfo: null == entity after wdk.simplify "'+qid+'" for dbg "'+dbg+'" '+new Date().toISOString());
+             l.info('wikidata.service.js fillOperatorInfo: null == entity after wdk.simplify "'+qid+'" for dbg "'+dbg+'"');
              return fountain;
           }
           // Get label of operator in English
@@ -407,7 +407,7 @@ function doSparqlRequest(sparql, location, dbg){
 
       if (res.status !== 200) {
         let error = new Error(`wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
-        l.error('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '+error.message+' '+new Date().toISOString());
+        l.error('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '+error.message);
         // consume response data to free up memory
         res.resume();
         return reject(error);        
@@ -417,15 +417,15 @@ function doSparqlRequest(sparql, location, dbg){
       try {
         let simplifiedResults = wdk.simplifySparqlResults(res.data);
         l.info('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '//+simplifiedResults+' '
-             +simplifiedResults.length+' ids found for '+location+' '+new Date().toISOString());
+             +simplifiedResults.length+' ids found for '+location);
         resolve(simplifiedResults);
       } catch (e) {
-        l.error('wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.'+e.stack+' '+dbg+',  location '+location+' '+new Date().toISOString());
+        l.error('wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.'+e.stack+' '+dbg+',  location '+location);
         reject(e);
       }
     })
         .catch(error=>{
-            l.error(`'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}`+' '+dbg+',  location '+location+' '+new Date().toISOString());
+            l.error(`'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}`+' '+dbg+',  location '+location);
           reject(error)
         });
 

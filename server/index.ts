@@ -24,17 +24,6 @@ import { Router } from "./api/controllers/router";
 import { ExpressServer } from "./common/server";
 import { Express } from "express";
 
-// Unhandled errors are handled here
-// todo: put this in another file
-
-// TODO does not make sense at all, l.error only takes one string. commenting it out for the moment
-// replace with something which makes more sense?
-
-// process.on('unhandledRejection', error => {
-//   // Will print "unhandledRejection err is not defined"
-//   l.error('unhandled Rejection', error.message);
-//   l.error('unhandled Rejection trace', error.stack);
-// });
 
 export default new ExpressServer()
   .router((app: Express) => app.use("/api/v1", Router))

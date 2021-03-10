@@ -75,7 +75,7 @@ export function isBlackListed(catName) {
         if (-1 == categoTlc.indexOf('pages with')) {
           if (blackListed.has(categoTlc)) {
              if(process.env.NODE_ENV !== 'production') {
-                l.info('categories.wm.js isBlackListed: category "'+catName+'" '+new Date().toISOString());                
+                l.info('categories.wm.js isBlackListed: category "'+catName+'"');                
              }
              return true;
           }
@@ -83,7 +83,7 @@ export function isBlackListed(catName) {
               const blaLiRe = blackLiRe[i];
               if (blaLiRe.test(categoTlc)) {
                  if (process.env.NODE_ENV !== 'production') {
-                   l.info('categories.wm.js isBlackListed: regex category "'+catName+'" '+new Date().toISOString());                
+                   l.info('categories.wm.js isBlackListed: regex category "'+catName+'"');                
                  }
                  return true;
               }
@@ -93,7 +93,7 @@ export function isBlackListed(catName) {
       }
     }
     if(process.env.NODE_ENV !== 'production') {
-       l.info('categories.wm.js isBlackListed: category "'+catName+'" '+new Date().toISOString());                
+       l.info('categories.wm.js isBlackListed: category "'+catName+'"');                
     }
   }
   return true;

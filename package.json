@@ -23,7 +23,6 @@
     "debug": "node build.js && backpack dev --inspect"
   },
   "dependencies": {
-    "@timberio/node": "^0.33.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/lodash": "^4.14.168",
     "@types/pino": "^4.16.0",
@@ -44,7 +43,6 @@
     "lodash": "^4.17.21",
     "nocache": "^2.1.0",
     "node-cache": "^4.2.1",
-    "pino": "^4.17.6",
     "query-overpass": "^1.5.5",
     "source-map-support": "^0.5.19",
     "swagger-express-middleware": "^4.0.2",

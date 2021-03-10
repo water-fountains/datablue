@@ -77,7 +77,7 @@ function conflateByWikidata(ftns,dbg, debugAll) {
   let matched_idx_osm = [];
   let matched_idx_wd = [];
   if (debugAll) {
-	  l.info('conflate.data.service.js conflateByWikidata: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+	  l.info('conflate.data.service.js conflateByWikidata: '+ftns+' ftns '+dbg);
   }
   // loop through OSM fountains
   for(const [idx_osm, f_osm] of ftns.osm.entries()){
@@ -127,7 +127,7 @@ function conflateByWikidata(ftns,dbg, debugAll) {
  */
 function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg) {
   if (debugAll) {
-		  l.info('conflate.data.service.js cleanFountainCollections: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+		  l.info('conflate.data.service.js cleanFountainCollections: '+ftns+' ftns '+dbg);
   }
   matched_idx_osm = _.orderBy(matched_idx_osm);
   for (let i = matched_idx_osm.length -1; i >= 0; i--)
@@ -146,7 +146,7 @@ function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAl
  */
 function conflateByCoordinates(ftns,dbg, debugAll) {
 	if (debugAll) {
-		  l.info('conflate.data.service.js conflateByCoordinates: '+ftns+' ftns '+dbg+' '+new Date().toISOString());
+		  l.info('conflate.data.service.js conflateByCoordinates: '+ftns+' ftns '+dbg);
 	}
   // Holder for conflated fountains
   let conflated_fountains = [];
@@ -195,7 +195,7 @@ function conflateByCoordinates(ftns,dbg, debugAll) {
 
 function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAll, dbg){
   if (debugAll) {
-		  l.info('conflate.data.service.js mergeFountainProperties: '+ftn+' ftns, '+mergeNotes+' '+dbg+' '+new Date().toISOString());
+		  l.info('conflate.data.service.js mergeFountainProperties: '+ftn+' ftns, '+mergeNotes+' '+dbg);
   }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
@@ -285,8 +285,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         	    			   if (null != vE && !catSet.has(vE0c)) {
         	    				  v.push(...vE);
         	    				  if (debugAll) {
-        	    					 l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}": `
-        	    					 		+new Date().toISOString());
+        	    					 l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}"`);
         	    				  }
         	    			   }
         	    			}
@@ -339,7 +338,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         				if (!imgsSoFar.has(v.value)) {
         					tmp.extracted.imgs.push(v);
         					tmp.status = PROP_STATUS_OK;
-        					l.info('conflate mergeProps added img "'+ v.value+'" typ '+v.typ+' '+new Date().toISOString());
+        					l.info('conflate mergeProps added img "'+ v.value+'" typ '+v.typ);
         				}
         			}
         		}

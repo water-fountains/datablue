@@ -91,7 +91,7 @@ function text2img(text) {
           type:'flickr'};
         return imgs;
     } else {
-	  l.info('fountain.properties.js osm img: ignored "'+text+'" '+new Date().toISOString());
+	  l.info('fountain.properties.js osm img: ignored "'+text+'"');
 	  return null;
   }
 }
@@ -841,7 +841,7 @@ let fountain_properties = {
                 	if (txt.match(/\d{2,4}/)) {
                        return txt;
                 	}
-              	  l.info('fountain.properties.js osm year not a number "'+text+'" '+new Date().toISOString());
+              	  l.info('fountain.properties.js osm year not a number "'+text+'"');
         		}
         	}
             return null;
@@ -1514,7 +1514,7 @@ let fountain_properties = {
             } else {
             	if (-1 == txtLc.indexOf('file:')) {
             		//https://wiki.openstreetmap.org/wiki/Key:wikimedia%20commons suggests to either use the File: or Category: syntax
-             	  	l.info('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"' +new Date().toISOString());    
+             	  	l.info('fountain.properties.js - wikimedia_commons: betting, it is a category: "'+ text +'"');    
              	  	catTxt = text;
              	  	if (!isBlackListed(catTxt)) {
              	  	  isCat = true;
@@ -1531,7 +1531,7 @@ let fountain_properties = {
         	  }
         	} else {
         	  if (process.env.NODE_ENV === 'production') {
-         	  	l.info('fountain.properties.js: wikimedia_commons "'+ text +'"' +new Date().toISOString());    		
+         	  	l.info('fountain.properties.js: wikimedia_commons "'+ text +'"');    		
          	  }
             }
       	  }
