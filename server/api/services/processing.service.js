@@ -17,7 +17,7 @@ import {PROP_STATUS_INFO, PROP_STATUS_OK,LAZY_ARTIST_NAME_LOADING_i41db//, LANGS
 const sharedConstants = require('./../../common/shared-constants');
 
 export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
-  l.info('processing.service.js defaultCollectionEnhancement: '+dbg+' '+new Date().toISOString());
+  l.info('processing.service.js defaultCollectionEnhancement: '+dbg);
   return new Promise((resolve, reject)=>{
     fillImageGalleries(fountainCollection,dbg, debugAll)
       .then(r => fillOutNames(r,dbg))
@@ -33,7 +33,7 @@ export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
 export function fillImageGalleries(fountainCollection, city, debugAll){
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
-	l.info('processing.service.js starting fillImageGalleries: '+city+' debugAll '+debugAll+' '+new Date().toISOString());  
+	l.info('processing.service.js starting fillImageGalleries: '+city+' debugAll '+debugAll);  
   return new Promise((resolve, reject) => {
     let promises = [];
     let i = 0;
@@ -76,9 +76,9 @@ export function fillImageGalleries(fountainCollection, city, debugAll){
 export function fillArtistNames(fountainCollection,dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with artist names if only QID was given
-	l.info('processing.service.js starting fillArtistNames: '+dbg+' '+new Date().toISOString());
+	l.info('processing.service.js starting fillArtistNames: '+dbg);
 	if (LAZY_ARTIST_NAME_LOADING_i41db) {
-		l.info('processing.service.js fillArtistNames LAZY_ARTIST_NAME_LOADING_i41db: '+LAZY_ARTIST_NAME_LOADING_i41db+' - '+dbg+' '+new Date().toISOString());
+		l.info('processing.service.js fillArtistNames LAZY_ARTIST_NAME_LOADING_i41db: '+LAZY_ARTIST_NAME_LOADING_i41db+' - '+dbg);
 	}
   return new Promise((resolve, reject) => {
     let promises = [];
@@ -101,7 +101,7 @@ export function fillArtistNames(fountainCollection,dbg){
 export function fillOperatorInfo(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection,
   // enhanced with operator information if that information is available in Wikidata
-  l.info('processing.service.js starting fillOperatorInfo: '+dbg+' '+new Date().toISOString());  
+  l.info('processing.service.js starting fillOperatorInfo: '+dbg);  
   return new Promise((resolve, reject) => {
     let promises = [];
     _.forEach(fountainCollection, fountain =>{
@@ -151,7 +151,7 @@ export function fillWikipediaSummary(fountain, dbg, tot, promises) {
 
 export function fillWikipediaSummaries(fountainCollection, dbg){
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
-	l.info('processing.service.js starting fillWikipediaSummaries: '+dbg+' '+new Date().toISOString());  
+	l.info('processing.service.js starting fillWikipediaSummaries: '+dbg);  
   return new Promise((resolve, reject) => {
     let promises = [];
     // loop through fountains
@@ -211,7 +211,7 @@ export function essenceOf(fountainCollection) {
     let fGV = fGal.value;
     let fGV0 = fGV[0];
     if (null == fGV0) {
-      // l.info(fPrps.id+" null == fGV0 - essenceOf processing.service.js "+new Date().toISOString());
+      // l.info(fPrps.id+" null == fGV0 - essenceOf processing.service.js");
     } else {
       if (fGal.comments) {
         //leading to streetview default
@@ -235,25 +235,25 @@ export function essenceOf(fountainCollection) {
       properties: props
     })
   });
-  l.info("processing.service.js essenceOf: withGallery "+withGallery+", strVw "+strVw+" "+new Date().toISOString());
+  l.info("processing.service.js essenceOf: withGallery "+withGallery+", strVw "+strVw);
   return newCollection;
   
 }
 
 export function fillOutNames(fountainCollection,dbg) {
   // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
-	l.info('processing.service.js starting fillOutNames: '+dbg+' '+new Date().toISOString());  
+	l.info('processing.service.js starting fillOutNames: '+dbg);  
   return new Promise((resolve, reject) => {
     let i = 0;
     for(let f of fountainCollection) {
       // if the default name (aka title) if not filled, then fill it from one of the other languages
     	const fProps = f.properties;
         if(fProps == null){
-        	l.info('processing.service.js fProps == null: '+dbg+' '+i+'/'+fountainCollection.length+' '+new Date().toISOString()); 
+        	l.info('processing.service.js fProps == null: '+dbg+' '+i+'/'+fountainCollection.length); 
         	continue;
         }
         if(fProps.name == null){
-        	l.info('processing.service.js starting properties.name === null: '+dbg+' '+i+'/'+fountainCollection.length+' '+new Date().toISOString());  
+        	l.info('processing.service.js starting properties.name === null: '+dbg+' '+i+'/'+fountainCollection.length);  
         }
     	i++;
     	if(fProps.name.value === null){
@@ -302,23 +302,23 @@ export function fillInMissingWikidataFountains(osm_fountains, wikidata_fountains
     // Get list of all Wikidata fountain qids referenced by OSM
     let qid_from_osm = _.compact(_.map(osm_fountains, f=>_.get(f,['properties', 'wikidata'])));
     if(process.env.NODE_ENV !== 'production') {
-        l.info('processing.service.js fillInMissingWikidataFountains osm_fountains '+osm_fountains.length+', qid_from_osm '+qid_from_osm.length+' ' +dbg+' '+new Date().toISOString());
+        l.info('processing.service.js fillInMissingWikidataFountains osm_fountains '+osm_fountains.length+', qid_from_osm '+qid_from_osm.length+' ' +dbg);
     }
     // Get list of all Wikidata fountain qids collected
     let qid_from_wikidata = _.map(wikidata_fountains, 'id');
     if(process.env.NODE_ENV !== 'production') {
-        l.info('processing.service.js fillInMissingWikidataFountains qid_from_wikidata '+qid_from_wikidata.length+' ' +dbg+' '+new Date().toISOString());
+        l.info('processing.service.js fillInMissingWikidataFountains qid_from_wikidata '+qid_from_wikidata.length+' ' +dbg);
     }
   
     // Get qids not included in wikidata collection
     let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
     if (null == missing_qids || 0 == missing_qids.length) {
-        l.info('processing.service.js fillInMissingWikidataFountains: none for '+dbg+' '+new Date().toISOString());
+        l.info('processing.service.js fillInMissingWikidataFountains: none for '+dbg);
         resolve({
           osm: osm_fountains,
           wikidata: wikidata_fountains});
     }
-    l.info('processing.service.js fillInMissingWikidataFountains: '+missing_qids.length+' for '+dbg+' '+missing_qids+' '+new Date().toISOString());
+    l.info('processing.service.js fillInMissingWikidataFountains: '+missing_qids.length+' for '+dbg+' '+missing_qids);
 
     // Fetch fountains with missing qids and add them to the wikidata_fountains collection
     WikidataService.byIds(missing_qids, dbg)

@@ -20,7 +20,7 @@ export function updateCacheWithFountain(cache, fountain, cityname) {
   const cacheTimeInSecs = 60*60*CACHE_FOR_HRS_i45db;
   if (!fountains) {
     if(!cityname.includes('_essential') && !cityname.includes('_errors')){
-       l.info(`updateCacheWithFountain server-side city data disappeared (server restart?) - cache recreation for ${cityname}`+new Date().toISOString());
+       l.info(`updateCacheWithFountain server-side city data disappeared (server restart?) - cache recreation for ${cityname}`);
        generateLocationDataAndCache(cityname, cache);
        fountains = cache.get(cityname);
     }  
@@ -37,7 +37,7 @@ export function updateCacheWithFountain(cache, fountain, cityname) {
     cache.set(cityname + '_essential', r_essential, cacheTimeInSecs);
     return fountain;
   }
-  l.info('database.services.js updateCacheWithFountain: no fountains were in cache of city '+cityname+' tried to work on '+fountain+' '+new Date().toISOString());
+  l.info('database.services.js updateCacheWithFountain: no fountains were in cache of city '+cityname+' tried to work on '+fountain);
   return fountain;
 }
 
@@ -52,7 +52,7 @@ function replaceFountain(fountains, fountain, cityname) {
       //replace fountain
       fountain.properties.id = fountains.features[j].properties.id;
       fountains.features[j] = fountain;
-      l.info('database.services.js replaceFountain: ismatch ftn '+j+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
+      l.info('database.services.js replaceFountain: ismatch ftn '+j+',  city '+cityname+' , ftn '+fountain);
       return [fountains, fountain];
     }else{
       // compute distance otherwise
@@ -69,14 +69,14 @@ function replaceFountain(fountains, fountain, cityname) {
     let key = _.indexOf(distances, min_d);
     //replace fountain
     fountain.properties.id = f.properties.id;
-    l.info('database.services.js replaceFountain: replaced with distance '+min_d+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
+    l.info('database.services.js replaceFountain: replaced with distance '+min_d+',  city '+cityname+' , ftn '+fountain);
     fountains.features[key] = fountain;
     return [fountains, fountain];
   }else{
     // fountain was not found; just add it to the list
     fountain.properties.id = _.max(fountains.features.map(f=>{return f.properties.id}))+1;
     fountains.features.push(fountain);
-    l.info('database.services.js replaceFountain: added with distance '+min_d+',  city '+cityname+' , ftn '+fountain+' '+new Date().toISOString());
+    l.info('database.services.js replaceFountain: added with distance '+min_d+',  city '+cityname+' , ftn '+fountain);
     return [fountains, fountain];
   }
 }

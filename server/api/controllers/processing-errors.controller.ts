@@ -14,7 +14,7 @@ import { l } from "../../common/logger"
 export function extractProcessingErrors(fountainCollection: any){
   // returns collection of processing errors from collection
   if(process.env.NODE_ENV !== 'production') {
-    l.info('extractProcessingErrors: start '+new Date().toISOString());
+    l.info('extractProcessingErrors: start');
   }  
   let errorCollection: any[] = [];
   // loop through all fountains
@@ -31,6 +31,6 @@ export function extractProcessingErrors(fountainCollection: any){
       }
     });
   }
-  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors '+new Date().toISOString());  
+  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors');
   return errorCollection;
 }
