@@ -65,3 +65,4 @@ export class CustomLogger {
    }
  }
  export const l = new CustomLogger();
+ export default l;
