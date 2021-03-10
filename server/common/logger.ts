@@ -30,7 +30,7 @@ export class CustomLogger {
    info (str: string, trace: boolean = false) {
       if (null == trace || !trace) {
          let calr = this.getCaller();
-         console.log('i: '+str+' '+calr);
+          console.log(new Date().toISOString() + ' | i: ' + str + ' ' + calr);
       } else {
          console.trace(str);
       }
@@ -38,7 +38,7 @@ export class CustomLogger {
    error (str: string, trace: boolean = false) {
       if (null == trace || !trace) {
          let calr = this.getCaller();
-         console.log('e: '+str+' '+calr);
+         console.log(new Date().toISOString() + ' | e: '+str+' '+calr);
       } else {
          console.trace(str);
       }
