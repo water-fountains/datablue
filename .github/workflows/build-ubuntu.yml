@@ -53,6 +53,7 @@ jobs:
           BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
           ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             git pull origin "$BRANCH" &&
+            npm install &&
             npm run compile &&
             export PM2_HOME=/etc/pm2daemon &&
             pm2 delete \"datablue_$BRANCH\" | echo &&
