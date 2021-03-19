@@ -7,94 +7,86 @@
  
 import l from '../../common/logger';
 
-const blackListed = new Set();
-blackListed.add('drinking fountains');
-blackListed.add('fountains');
-blackListed.add('media with locations');
-blackListed.add('gfdl'); // Q3076151 fr-paris fontaine de Mars
+const blacklist = new Set<string>([
+  'drinking fountains',
+  'fountains',
+  'media with locations',
+  'gfdl', // Q3076151 fr-paris fontaine de Mars
+])
 
-const blackLiRe = [];
-blackLiRe.push(/.*rights\s+warning.*/); // Q55170988
-blackLiRe.push(/.*springbrunnen\s+zürich.*/); // Q55170988
-blackLiRe.push(/.*piers\s+of\s+.+/); // Q55170988
-blackLiRe.push(/.*rainbows\s+in\s+.+/); // Q55170988
-blackLiRe.push(/20\d\d in zürich/);  //too broad
-blackLiRe.push(/.*20\d\d in switzerland/);  //too broad
-blackLiRe.push(/.*20\d\d .+ photographs.*/);  //too broad Q27229873
-blackLiRe.push(/.*20\d\d\s+in\s+the\s+.+\s+of\s+.+/);  //too broad "canton of Zürich Q27230037 
-blackLiRe.push(/.*fountains\s+in\s+.+/); //normally too broad \w+ instead of just for ' ' for Q98494680 
-blackLiRe.push(/.*shops in .+/); //Q27230037
-blackLiRe.push(/.*houses in .+/);  //Q27230037
-blackLiRe.push(/.*windows in .+/); //Q27230037
-blackLiRe.push(/.*photographs taken on .+/); //Q27230037
-blackLiRe.push(/.*photographs by .+/); //Q27230037
-blackLiRe.push(/.*twilights of .+/); //Q27230037
-blackLiRe.push(/.+significance in .+/); //Q27230047
-blackLiRe.push(/.+loves monuments.*/); //Q27230047
-blackLiRe.push(/.+template.+/); //Q27230047
-blackLiRe.push(/.*statues in .+/); //Q27230047
-blackLiRe.push(/.*taken with .+/); //Q27230047
-blackLiRe.push(/.*corrected with .+/); //Q27229660
-blackLiRe.push(/.*monuments.+in .+/); //Q27230037
-blackLiRe.push(/.*pictures by .+/); //Q27229901
-blackLiRe.push(/.*attribution.*/); //Q27229901
-blackLiRe.push(/.*upload bot.*/); //Q27230038
-blackLiRe.push(/.*with annotations.*/); //Q27132067
-blackLiRe.push(/.*flowers in .+/);  //Q27132067
-blackLiRe.push(/.*ornamental.+in .+/);  //Q27132067
-blackLiRe.push(/.*shop signs in .+/);  //Q27132067
-blackLiRe.push(/pd old/);  //Q27132067
-blackLiRe.push(/cc-pd-mark/);  //Q27132067
-blackLiRe.push(/.*built in .+ in .+/);  //Q55166175
-blackLiRe.push(/.*selected for .+/);  //Q55167899
-blackLiRe.push(/.*images reviewed by .+/);  //Q1759793  "Flickr images reviewed by FlickreviewR"
-blackLiRe.push(/.*files uploaded.+/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
-blackLiRe.push(/.*from .+ via bot.*/);  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
-blackLiRe.push(/.*uploaded via campaign.*/);  //Q27229664  "Uploaded via Campaign:wlm-ch"
-blackLiRe.push(/.*license migration.*/); // Q3076151 fr-paris fontaine de Mars
-blackLiRe.push(/.*mérimée with.*/); // Q3076151 fr-paris fontaine de Mars - "maintenance" is another one
-blackLiRe.push(/.*base mérimée.*/); // Q3076151 fr-paris fontaine de Mars
-blackLiRe.push(/.*uploaded with commonist.*/); //Q29684816 ch-bs Pisoni
-blackLiRe.push(/.*fop-switzerland.*/); //Q29684816 ch-bs Pisoni    FoP-Switzerland
-blackLiRe.push(/.*user:.+\/.*/); //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:User:Mattes/Contributions/Topics/Buildings_and_structures
-blackLiRe.push(/.*work by .+\d{4}.*/); //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:Work_by_Mattes_2012
-blackLiRe.push(/.*items with .+ permission.*/); //Q683514 ch-bs Fasnachtsbrunnen   https://commons.wikimedia.org/wiki/Category:Items_with_OTRS_permission_confirmed
-blackLiRe.push(/.* drinking fountains.*/); //Q55170978 ch-zh "Outdoor drinking fountains"
-blackLiRe.push(/arcades in .+/); //Q27229859 ch-zh "Arcades in Switzerland"
-blackLiRe.push(/balconies in .+/); //Q27229859 ch-zh "Balconies in Switzerland"
 
-export function isBlackListed(catName) {
-  if (null == catName) {
-     return true;
-  }
-  const categoT = catName.trim();
-  if (0 < categoT.length) {
-    const categoTlc = categoT.toLowerCase();
-    if (-1 == categoTlc.indexOf('needing')) {
-      if (-1 == categoTlc.indexOf('self-published work')) {
-        if (-1 == categoTlc.indexOf('pages with')) {
-          if (blackListed.has(categoTlc)) {
-             if(process.env.NODE_ENV !== 'production') {
-                l.info('categories.wm.js isBlackListed: category "'+catName+'"');                
-             }
-             return true;
+const blacklistRegExp: RegExp[] = [
+  /.*needing.*/,
+  /.*self-published work.*/,
+  /.*pages with.*/,
+  /.*rights\s+warning.*/, // Q55170988
+  /.*springbrunnen\s+zürich.*/, // Q55170988
+  /.*piers\s+of\s+.+/, // Q55170988
+  /.*rainbows\s+in\s+.+/, // Q55170988
+  /20\d\d in zürich/,  //too broad
+  /.*20\d\d in switzerland/,  //too broad
+  /.*20\d\d .+ photographs.*/,  //too broad Q27229873
+  /.*20\d\d\s+in\s+the\s+.+\s+of\s+.+/,  //too broad "canton of Zürich Q27230037 
+  /.*fountains\s+in\s+.+/, //normally too broad \w+ instead of just for ' ' for Q98494680 
+  /.*shops in .+/, //Q27230037
+  /.*houses in .+/,  //Q27230037
+  /.*windows in .+/, //Q27230037
+  /.*photographs taken on .+/, //Q27230037
+  /.*photographs by .+/, //Q27230037
+  /.*twilights of .+/, //Q27230037
+  /.+significance in .+/, //Q27230047
+  /.+loves monuments.*/, //Q27230047
+  /.+template.+/, //Q27230047
+  /.*statues in .+/, //Q27230047
+  /.*taken with .+/, //Q27230047
+  /.*corrected with .+/, //Q27229660
+  /.*monuments.+in .+/, //Q27230037
+  /.*pictures by .+/, //Q27229901
+  /.*attribution.*/, //Q27229901
+  /.*upload bot.*/, //Q27230038
+  /.*with annotations.*/, //Q27132067
+  /.*flowers in .+/,  //Q27132067
+  /.*ornamental.+in .+/,  //Q27132067
+  /.*shop signs in .+/,  //Q27132067
+  /pd old/,  //Q27132067
+  /cc-pd-mark/,  //Q27132067
+  /.*built in .+ in .+/,  //Q55166175
+  /.*selected for .+/,  //Q55167899
+  /.*images reviewed by .+/,  //Q1759793  "Flickr images reviewed by FlickreviewR"
+  /.*files uploaded.+/,  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
+  /.*from .+ via bot.*/,  //Q1759793  "Files uploaded from Flickr by Jacopo Werther via Bot"
+  /.*uploaded via campaign.*/,  //Q27229664  "Uploaded via Campaign:wlm-ch"
+  /.*license migration.*/, // Q3076151 fr-paris fontaine de Mars
+  /.*mérimée with.*/, // Q3076151 fr-paris fontaine de Mars - "maintenance" is another one
+  /.*base mérimée.*/, // Q3076151 fr-paris fontaine de Mars
+  /.*uploaded with commonist.*/, //Q29684816 ch-bs Pisoni
+  /.*fop-switzerland.*/, //Q29684816 ch-bs Pisoni    FoP-Switzerland
+  /.*user:.+\/.*/, //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:User:Mattes/Contributions/Topics/Buildings_and_structures
+  /.*work by .+\d{4}.*/, //Q29684816 ch-bs Pisoni   https://commons.wikimedia.org/wiki/Category:Work_by_Mattes_2012
+  /.*items with .+ permission.*/, //Q683514 ch-bs Fasnachtsbrunnen   https://commons.wikimedia.org/wiki/Category:Items_with_OTRS_permission_confirmed
+  /.* drinking fountains.*/, //Q55170978 ch-zh "Outdoor drinking fountains"
+  /arcades in .+/, //Q27229859 ch-zh "Arcades in Switzerland"
+  /balconies in .+/, //Q27229859 ch-zh "Balconies in Switzerland"
+]
+
+export function isBlacklisted(categoryName: string | null): boolean {
+ 
+  const check: () => [string, boolean] = () => {
+    if (categoryName != null) {
+      const name = categoryName.trim().toLowerCase()
+      if (name.length > 0) {
+          if (blacklist.has(name)) {
+              return ['on blacklist', true];
+          } else {
+              return ['on blacklistRegExp', blacklistRegExp.some(regex => regex.test(name))]
           }
-          for(let i=0;i<blackLiRe.length;i++){
-              const blaLiRe = blackLiRe[i];
-              if (blaLiRe.test(categoTlc)) {
-                 if (process.env.NODE_ENV !== 'production') {
-                   l.info('categories.wm.js isBlackListed: regex category "'+catName+'"');                
-                 }
-                 return true;
-              }
-          }
-          return false;
-        }
       }
     }
-    if(process.env.NODE_ENV !== 'production') {
-       l.info('categories.wm.js isBlackListed: category "'+catName+'"');                
-    }
+    return ['invalid string', true]
   }
-  return true;
+  const [reason, result] = check()
+  if(result && process.env.NODE_ENV !== 'production') {
+      l.info(`categories.wm.js isBlacklisted because ${reason}: category "${categoryName}"`)           
+   }
+  return result
 }

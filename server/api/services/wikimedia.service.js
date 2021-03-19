@@ -16,7 +16,7 @@ import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING
 	MAX_IMG_SHOWN_IN_GALLERY//, LANGS
 	} from "../../common/constants";
 import {locations} from '../../../config/locations';
-import {isBlackListed} from './categories.wm';
+import {isBlacklisted} from './categories.wm';
 const sharedConstants = require('./../../common/shared-constants');
 
 
@@ -57,7 +57,7 @@ class WikimediaService {
 	  for(let i = 0;i < catNames.length; i++) {
 		  const cat = catNames[i];
 		  catName = cat.c;
-		  if (isBlackListed(catName)) {
+		  if (isBlacklisted(catName)) {
 			  l.info('wikimedia.service.js: '+catNames.length+' commons category blacklisted  "'+catName+'" "'+dbg+' '
 					  +city+' '+dbgIdWd+' "'+name+'"');
 		      continue;
@@ -390,7 +390,7 @@ export function getImageInfo(img, dbg, showDetails, fProps){
                 for(; i < categs.length;i++) {  
                    const catego = categs[i];
                    if (null != catego) {
-                     if (!isBlackListed(catego)) {
+                     if (!isBlacklisted(catego)) {
                         catSet.add(catego.trim());
                      }
                    }
