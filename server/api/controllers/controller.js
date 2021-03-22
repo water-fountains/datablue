@@ -425,7 +425,7 @@ function reprocessFountainAtCoords(req, res, dbg) {
     .then(r => conflate({
       osm: r.osm,
       wikidata: r.wikidata
-    },dbg, debugAll))
+    }, dbg, debugAll))
 
     // return only the fountain that is closest to the coordinates of the query
     .then(r => {
