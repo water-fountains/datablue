@@ -14,7 +14,7 @@ import l from '../../common/logger';
 import {fountain_property_metadata} from "../../../config/fountain.properties"
 import {PROP_STATUS_INFO, PROP_STATUS_OK,LAZY_ARTIST_NAME_LOADING_i41db//, LANGS
 	} from "../../common/constants";
-const sharedConstants = require('./../../common/shared-constants');
+import sharedConstants from './../../common/shared-constants';
 
 export function defaultCollectionEnhancement(fountainCollection,dbg, debugAll) {
   l.info('processing.service.js defaultCollectionEnhancement: '+dbg);

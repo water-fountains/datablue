@@ -28,7 +28,7 @@ const haversine = require("haversine");
 const _ = require('lodash');
 import {MAX_IMG_SHOWN_IN_GALLERY, LAZY_ARTIST_NAME_LOADING_i41db //,CACHE_FOR_HRS_i45db
   } from "../../common/constants";
-const sharedConstants = require('./../../common/shared-constants');
+import sharedConstants from './../../common/shared-constants';
 
 
 // Configuration of Cache after https://www.npmjs.com/package/node-cache

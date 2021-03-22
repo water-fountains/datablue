@@ -17,7 +17,7 @@ import {PROP_STATUS_ERROR, PROP_STATUS_INFO, PROP_STATUS_OK, PROP_STATUS_WARNING
 	} from "../../common/constants";
 import {locations} from '../../../config/locations';
 import {isBlacklisted} from './categories.wm';
-const sharedConstants = require('./../../common/shared-constants');
+import sharedConstants from './../../common/shared-constants';
 
 
 let api = axios.create({});
