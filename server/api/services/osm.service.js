@@ -6,7 +6,6 @@
  */
 
 import l from '../../common/logger';
-import {NO_FOUNTAIN_AT_LOCATION} from "./constants";
 import osm_fountain_config from "../../../config/fountains.sources.osm";
 var query_overpass = require('query-overpass');
 
@@ -45,7 +44,6 @@ class OsmService {
           reject(error);
         }else if(data.features.length === 0){
           l.info('osm.service.js byBoundingBox - NO_FOUNTAIN_AT_LOCATION: '+query);
-          //reject(new Error(NO_FOUNTAIN_AT_LOCATION));
           resolve(data.features);
         }else{
           if (process.env.NODE_ENV !== 'production') {
