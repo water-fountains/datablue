@@ -6,18 +6,53 @@
  */
 
 import l from '../../common/logger';
-import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
+import {fountain_property_metadata, get_prop, SourceConfig, SourceType} from "../../../config/fountain.properties";
 import {
+  PropStatus,
   PROP_STATUS_ERROR, PROP_STATUS_FOUNTAIN_NOT_EXIST,
-  PROP_STATUS_INFO,
   PROP_STATUS_NOT_AVAILABLE,
   PROP_STATUS_NOT_DEFINED,
   PROP_STATUS_OK
 } from "../../common/constants";
 
-const _ = require('lodash');
-const haversine = require('haversine');
-const md5 = require('js-md5');
+import _ from "lodash"
+import haversine from "haversine";
+import { ImageLikeCollection } from '../../../config/text2img';
+
+type Fountain = SourceConfig<any, string>;
+
+type FountainCollection = {
+  osm: Fountain[],
+  wikidata: Fountain[]
+}
+
+//TODO @Ralf.hauser, not 100% correct, `gallery` does not fit into FountainProperty type. Should it?
+type FountainProperties = {
+  [id: string]: FountainProperty
+}
+
+type Source = {
+  //TODO @Ralf.Hauser looks suspicious/buggy to me, shouldn't we know the status in all cases?
+  status: PropStatus | null,
+  raw: null,
+  //TODO typing: try to get rid of any
+  extracted: ImageLikeCollection | string | any | null,
+  comments: string[]
+}
+
+type FountainProperty = {
+  id: string,
+  value: any,
+  comments: string,
+  status: PropStatus,
+  source: SourceType,
+  type: string,
+  issues: [],
+  sources: {
+    osm: Source,
+    wikidata: Source
+  }
+}
 
 
 // wikidata property paths: path for accessing the wikidata QID of a fountain, either in the query result of wikidata or the query result from OSM
@@ -27,31 +62,34 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // This service finds matching fountains from osm and wikidata
 // and merges their properties
 
-export function conflate(ftns, dbg,debugAll) {
-  return new Promise((resolve, reject)=>{
+export function conflate(fountains: FountainCollection, dbg: string, debugAll: boolean) {
+  return new Promise((resolve)=> {
     
     let conflated = {
-      wikidata: [],
-      coord: []
+      wikidata: new Array<FountainProperties>(),
+      coord: new Array<FountainProperties>()
     };
     
     // Only try to find matching fountains if both lists contain fountains
     // (sometimes one of the lists is empty)
-    if(_.min([ftns.osm.length, ftns.wikidata.length])>0) {
+    if (fountains.osm.length > 0 && fountains.wikidata.length >0) {
 
       // first conflate by wikidata identifiers (QID)
-      conflated.wikidata = conflateByWikidata(ftns,dbg,debugAll);
+      conflated.wikidata = conflateByWikidata(fountains,dbg,debugAll);
 
       // then conflate by coordinates
-      conflated.coord = conflateByCoordinates(ftns,dbg, debugAll);
+      conflated.coord = conflateByCoordinates(fountains,dbg, debugAll);
     }
     
     // process remaining fountains that were not matched by either QID or coordinates
-    let unmatched = {};
-    unmatched.osm = _.map(ftns.osm, f_osm =>{
-      return mergeFountainProperties({osm:f_osm, wikidata:false}, 'unmatched.osm', null,debugAll,dbg)});
-    unmatched.wikidata = _.map(ftns.wikidata, f_wd =>{
-      return mergeFountainProperties({osm:false, wikidata:f_wd}, 'unmatched.wikidata',null, debugAll,dbg)});
+    let unmatched = {
+      osm: Array<FountainProperties>(),
+      wikidata: Array<FountainProperties>()
+    };
+    unmatched.osm = _.map(fountains.osm, f_osm =>{
+      return mergeFountainProperties({osm:f_osm, wikidata: null}, 'unmatched.osm', null, debugAll,dbg)});
+    unmatched.wikidata = _.map(fountains.wikidata, f_wd =>{
+      return mergeFountainProperties({osm:null, wikidata:f_wd}, 'unmatched.wikidata',null, debugAll,dbg)});
     
     // append the matched (conflated) and unmatched fountains to the list "conflated_fountains_all"
     let conflated_fountains_all = _.concat(
@@ -68,32 +106,32 @@ export function conflate(ftns, dbg,debugAll) {
 
 /**
  * This function finds matching pairs of fountains between osm and wikidata. It returns the list of matches and removes the matched fountains from the 'ftns' argument
- * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ * @param {Object} fountains - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByWikidata(ftns,dbg, debugAll) {
+function conflateByWikidata(fountains: FountainCollection, dbg: string, debugAll: boolean): FountainProperties[] {
   // Holder for conflated (matched) fountains
-  let conflated_fountains = [];
+  let conflated_fountains: FountainProperties[] = [];
   // Holders for matched fountain indexes
-  let matched_idx_osm = [];
-  let matched_idx_wd = [];
+  let matched_idx_osm: number[] = [];
+  let matched_idx_wd: number[] = [];
   if (debugAll) {
-	  l.info('conflate.data.service.js conflateByWikidata: '+ftns+' ftns '+dbg);
+	  l.info('conflate.data.service.js conflateByWikidata: '+fountains+' ftns '+dbg);
   }
   // loop through OSM fountains
-  for(const [idx_osm, f_osm] of ftns.osm.entries()){
+  for(const [idx_osm, f_osm] of fountains.osm.entries()){
     
     // find the index of the fountain in the wikidata list with a wikidata QID that matches the wikidata id referenced in OSM
-    let idx_wd =  _.findIndex(ftns.wikidata, (f_wd) => {
+    let idx_wd =  _.findIndex(fountains.wikidata, (f_wd) => {
       return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1); // check for match. Use default values 0 and 1 to ensure no match if no data is found
     });
     // if a match was found
     if (idx_wd >= 0) {
       // compute distance between the two fountains
-      let d = null;
+      let mergeDistance: number | null = null;
       try{
-        d = haversine(
-          get_prop(ftns.osm[idx_osm], 'osm', 'coords'),
-          get_prop(ftns.wikidata[idx_wd], 'wikidata', 'coords'), {
+        mergeDistance = haversine(
+          get_prop(fountains.osm[idx_osm], 'osm', 'coords'),
+          get_prop(fountains.wikidata[idx_wd], 'wikidata', 'coords'), {
             unit: 'meter',
             format: '[lon,lat]'
           });
@@ -104,9 +142,9 @@ function conflateByWikidata(ftns,dbg, debugAll) {
       conflated_fountains.push(
         mergeFountainProperties(
           {
-            osm: ftns.osm[idx_osm],
-            wikidata: ftns.wikidata[idx_wd]
-          }, 'merged by wikidata id', d, debugAll,dbg));
+            osm: fountains.osm[idx_osm],
+            wikidata: fountains.wikidata[idx_wd]
+          }, 'merged by wikidata id', mergeDistance, debugAll,dbg));
       // document the indexes of the matched fountains so the fountains can be removed from the lists
       matched_idx_osm.push(idx_osm);
       matched_idx_wd.push(idx_wd);
@@ -114,71 +152,71 @@ function conflateByWikidata(ftns,dbg, debugAll) {
   }
   
   // remove matched fountains from lists
-  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg);
+  cleanFountainCollections(fountains, matched_idx_osm, matched_idx_wd, debugAll, dbg);
   
   return conflated_fountains;
 }
 
 /**
  * remove matched fountains from 'ftns' (remove in reverse order to not mess up indexes)
- * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ * @param {Object} fountains - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  * @param {[number]} matched_idx_osm - List of matched OSM IDs
  * @param {[number]} matched_idx_wd - List of matched wikidata IDs
  */
-function cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg) {
+function cleanFountainCollections(fountains: FountainCollection, matched_idx_osm: number[], matched_idx_wd: number[], debugAll: boolean, dbg: string): void {
   if (debugAll) {
-		  l.info('conflate.data.service.js cleanFountainCollections: '+ftns+' ftns '+dbg);
+		  l.info('conflate.data.service.js cleanFountainCollections: '+fountains+' ftns '+dbg);
   }
   matched_idx_osm = _.orderBy(matched_idx_osm);
   for (let i = matched_idx_osm.length -1; i >= 0; i--)
-    ftns.osm.splice(matched_idx_osm[i],1);
+    fountains.osm.splice(matched_idx_osm[i],1);
     
   matched_idx_wd = _.orderBy(matched_idx_wd);
   for (let i = matched_idx_wd.length -1; i >= 0; i--)
-    ftns.wikidata.splice(matched_idx_wd[i],1);
+    fountains.wikidata.splice(matched_idx_wd[i],1);
   // console.log(r.osm.length);
-  
 }
 
 /**
  * Find matching fountains based on coordinates alone
- * @param {Object} ftns - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
+ * @param {Object} foutains - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByCoordinates(ftns,dbg, debugAll) {
+function conflateByCoordinates(foutains: FountainCollection, dbg: string, debugAll: boolean): FountainProperties[] {
 	if (debugAll) {
-		  l.info('conflate.data.service.js conflateByCoordinates: '+ftns+' ftns '+dbg);
+		  l.info('conflate.data.service.js conflateByCoordinates: '+foutains+' ftns '+dbg);
 	}
   // Holder for conflated fountains
-  let conflated_fountains = [];
+  let conflated_fountains : FountainProperties[] = [];
   // Temporary holders for matched fountain indexes
-  let matched_idx_osm = [];
-  let matched_idx_wd = [];
+  let matched_idx_osm: number[] = [];
+  let matched_idx_wd: number[] = [];
   
   // make ordered list of coordinates from all Wikidata fountains
-  let coords_all_wd = _.map(ftns.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
-  l.info(ftns.length+' ftns conflateByCoordinates '+dbg);
+  let coords_all_wd = _.map(foutains.wikidata, f_wd=>{return get_prop(f_wd, 'wikidata', 'coords')});
+  l.info(foutains.wikidata.length+' fountains conflateByCoordinates '+dbg);
   // Loop through OSM fountains
   // todo: loop through wikidata fountains instead, since this is the more incomplete list the matching will go much faster
-  for (const [idx_osm, f_osm] of ftns.osm.entries()) {
+  for (const [idx_osm, f_osm] of foutains.osm.entries()) {
     // compute distance array between OSM fountain and all wikidata fountains
     let coords_osm = get_prop(f_osm, 'osm', 'coords');
-    let distances = _.map(coords_all_wd, c_wd => {
+    let distances: number[] = _.map(coords_all_wd, c_wd => {
       return haversine( c_wd, coords_osm, {
           unit: 'meter',
           format: '[lon,lat]'
         });
     });
     // find the value and index of the smallest distance
-    let dMin = _.min(distances);
+    let dMin = _.min(distances) ?? Number.MAX_VALUE;
     let idx_wd = _.indexOf(distances, dMin);
     // selection criteria: dMin smaller than 10 meters
     if (dMin < 10) {
       // conflate the two fountains
       conflated_fountains.push(mergeFountainProperties(
         {
-          osm: ftns.osm[idx_osm],
-          wikidata: ftns.wikidata[idx_wd]
-        }, `merged by location`, dMin, debugAll,dbg));
+          osm: foutains.osm[idx_osm],
+          wikidata: foutains.wikidata[idx_wd]
+        }, `merged by location`, dMin, 
+        debugAll,dbg));
       // document the indexes for removal
       matched_idx_osm.push(idx_osm);
       matched_idx_wd.push(idx_wd);
@@ -186,29 +224,39 @@ function conflateByCoordinates(ftns,dbg, debugAll) {
     }
   }
   // remove matched fountains from lists
-  cleanFountainCollections(ftns, matched_idx_osm, matched_idx_wd, debugAll, dbg);
+  cleanFountainCollections(foutains, matched_idx_osm, matched_idx_wd, debugAll, dbg);
   
   
   return conflated_fountains;
 }
 
 
-function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAll, dbg){
+
+function mergeFountainProperties(
+  namedFountain: { osm: Fountain | null, 
+  wikidata: Fountain | null }, 
+  mergeNotes: string = '',
+  mergeDistance: number | null = null, 
+  debugAll: boolean,
+  dbg: string
+): FountainProperties {
+
   if (debugAll) {
-		  l.info('conflate.data.service.js mergeFountainProperties: '+ftn+' ftns, '+mergeNotes+' '+dbg);
+		  l.info('conflate.data.service.js mergeFountainProperties: '+namedFountain+' fountains, '+mergeNotes+' '+dbg);
   }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
   let mergedProperties = {};
   // loop through each property in the metadata
-  _.forEach(fountain_property_metadata, (p)=>{
+  _.forEach(fountain_property_metadata, (metadata)=>{
     // fountain template with default property values copied in
-    let temp = {
-      id: p.id,
-      value: p.value,
-      comments: p.comments,
-      status: p.status,
-      type: p.type,
+    let temp : FountainProperty = {
+      id: metadata.id,
+      value: metadata.value,
+      comments: metadata.comments,
+      status: metadata.status,
+      source: '',
+      type: metadata.type,
       issues: [],
       sources: {
         osm: {
@@ -228,35 +276,38 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
     
     // loop through sources (osm and wikidata) and extract values
     for(let src_name of ['wikidata', 'osm']){
-      const f = ftn[src_name];
-      const tmp = temp.sources[src_name];
-      if(p.src_config[src_name] === null){
+      const fountain: Fountain = namedFountain[src_name];
+      const tmp: Source = temp.sources[src_name];
+      if (metadata.src_config[src_name] === null){
         // If property not available, define property as not available for source
         tmp.status = PROP_STATUS_NOT_AVAILABLE;
     
-      } else if(! f){
+      } else if(! fountain){
         // If fountain doesn't exist for that source (e.g. the fountain is only defined in osm, not wikidata), mark status
         tmp.status = PROP_STATUS_FOUNTAIN_NOT_EXIST;
   
-      }else {
+      } else {
         // if property is available (fundamentally) for source, try to get it
 
         // get extraction information (how to extract property from source)
-        const cfg = p.src_config[src_name];
+        const cfg: SourceConfig<any, string> = metadata.src_config[src_name];
         
         // Get value of property from source
-        let value = _.get(f, cfg.src_path, null);
-        if(value === null && cfg.hasOwnProperty('src_path1')){
-            value = _.get(f, cfg.src_path1, null);
+        let value = _.get(fountain, cfg.src_path, null);
+        //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
+        if(value === null && cfg.src_path1 !== undefined && cfg.hasOwnProperty('src_path1')){
+            value = _.get(fountain, cfg.src_path1, null);
         }
-        if(value === null && cfg.hasOwnProperty('src_path2')){
-            value = _.get(f, cfg.src_path2, null);
-        }
+        //TODO @Ralf.Hauser, src_path2 never exists on SourceConfig, old obselete code?
+        // if(value === null && cfg.src_path2 !== undefined && cfg.hasOwnProperty('src_path2')){
+        //     value = _.get(fountain, cfg.src_path2, null);
+        // }
         let useExtra = false;
   
+        //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
-        if(value === null && cfg.hasOwnProperty('src_path_extra')){
-          value = _.get(f, cfg.src_path_extra, null);
+        if(value === null &&  cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
+          value = _.get(fountain, cfg.src_path_extra, null);
           useExtra = true;
         }
         
@@ -266,26 +317,30 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
           tmp.raw = value;
           try{
             // use one translation (or the alternative translation if the additional data source was used)
-        	  if (useExtra) {
+        	  if (useExtra && cfg.value_translation_extra !== undefined) {
         		  tmp.extracted = cfg.value_translation_extra(value); 
         	  } else {
         		  let v = cfg.value_translation(value);
         		  tmp.extracted = v;
         	      if('wiki_commons_name' == temp.id){
-        	        if(cfg.hasOwnProperty('src_path_extra')){
-        	    		let valueE = _.get(f, cfg.src_path_extra, null);
+                  //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
+        	        if(cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
+        	    		let valueE = _.get(fountain, cfg.src_path_extra, null);
         	    		if (null != valueE && null != v && 0 < valueE.trim().length) {
         	    			let catSet = new Set();
         	    			for(let c of v) {
         	    				catSet.add(c.c);
         	    			}
-        	    			const vE = cfg.value_translation_extra(valueE);
+                    let vE : any | null = null
+                    if(cfg.value_translation_extra !== undefined){
+        	    			  vE = cfg.value_translation_extra(valueE);
+                    }
         	    			if (null != vE && 0 < vE.length) {
         	    			   const vE0c = vE[0].c; //TODO if there is more than 1, for-loop
         	    			   if (null != vE && !catSet.has(vE0c)) {
         	    				  v.push(...vE);
         	    				  if (debugAll) {
-        	    					 l.info(`conflate.data.service.js: got additional category for "${p.id}" from "${src_name}"`);
+        	    					 l.info(`conflate.data.service.js: got additional category for "${metadata.id}" from "${src_name}"`);
         	    				  }
         	    			   }
         	    			}
@@ -299,7 +354,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
             }
           }catch(err) {
             tmp.status = PROP_STATUS_ERROR;
-            let warning = `conflate.data.service.js: Lost in translation of "${p.id}" from "${src_name}": ${err.stack}`;
+            let warning = `conflate.data.service.js: Lost in translation of "${metadata.id}" from "${src_name}": ${err.stack}`;
             tmp.comments.push(warning);
             l.error(warning);
           }
@@ -307,10 +362,10 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
           // If no property data was found, set status to "not defined"
           tmp.status = PROP_STATUS_NOT_DEFINED;
         }
-        if ('osm' == src_name && 'featured_image_name' == p.id) {
-        	const osmProps = f.properties;
+        if ('osm' == src_name && 'featured_image_name' == metadata.id) {
+        	const osmProps = fountain.properties;
         	if (null != osmProps) {
-        		let osmImgs = [];
+        		let osmImgs: any[] = [];
         		if (null != osmProps.image) {
         			let v = cfg.value_translation(osmProps.image);
         			if (null != v) {
@@ -344,7 +399,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
         		}
         		if (0 < tmp.extracted.imgs.length) {
         			//test with ch-zh Q27230145 or rather node/1415970706
-        			for(let pSrc_name of p.src_pref){
+        			for(let pSrc_name of metadata.src_pref){
         				// add the osm images to wikidata if that is the preferred source
         				const tmpSrc = temp.sources[pSrc_name];
         				if(tmpSrc.status === PROP_STATUS_OK && pSrc_name!= src_name){
@@ -369,7 +424,7 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
     }
     
     // Get preferred value to display
-    for(let src_name of p.src_pref){
+    for(let src_name of metadata.src_pref){
       // check if value is available
       if(temp.sources[src_name].status === PROP_STATUS_OK){
         temp.value = temp.sources[src_name].extracted;
@@ -380,23 +435,23 @@ function mergeFountainProperties(ftn, mergeNotes='', mergeDistance=null, debugAl
     }
     
     // Add merged property to object
-    mergedProperties[p.id] = temp;
+    mergedProperties[metadata.id] = temp;
     
   });
   // process panorama and image url
 //  addDefaultPanoUrls(mergedProperties);
   
   mergedProperties['conflation_info'] = {
-    'merge_notes': mergeNotes,
-    'merge_distance': mergeDistance,
+    merge_notes: mergeNotes,
+    merge_distance: mergeDistance,
     // document merge date for datablue/#20
-    'merge_date': new Date()
+    merge_date: new Date()
   };
   
   return mergedProperties
 }
 
-function properties2GeoJson(collection){
+function properties2GeoJson(collection: FountainProperties[]){
   return _.map(collection, properties=>{
     try{
       return {
@@ -405,6 +460,7 @@ function properties2GeoJson(collection){
           type: 'Point',
           coordinates: properties.coords.value
         },
+        //TODO most likely not necessary as we don't pass properties to other functions and we immediately resolve the request afterwards
         properties: _.cloneDeep(properties)
       }
     } catch (err) {

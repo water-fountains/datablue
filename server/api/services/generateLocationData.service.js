@@ -89,11 +89,16 @@ function generateLocationData(locationName){
       // conflate
       Promise.all([osmPromise, wikidataPromise])
       // get any missing wikidata fountains for #212
-        .then(r=>fillInMissingWikidataFountains(r[0], r[1],locationName))
-        .then(r => conflate({
-          osm: r.osm,
-          wikidata: r.wikidata
-        },locationName, debugAll))
+        .then(r=>fillInMissingWikidataFountains(r[0], r[1], locationName))
+        .then(r => conflate(
+          {
+            osm: r.osm,
+            wikidata: r.wikidata
+          },
+          locationName, 
+          debugAll
+          )
+        )
         .then(r => defaultCollectionEnhancement(r, locationName, debugAll))
         .then(r => createUniqueIds(r))
         .then(r => {

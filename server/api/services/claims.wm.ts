@@ -9,25 +9,20 @@
  */
  
 import l from '../../common/logger';
-const axios = require ('axios');
-const { ConcurrencyManager } = require("axios-concurrency");
+import axios from 'axios'
 import {sanitizeTitle} from "./wikimedia.service";
-const sharedConstants = require('./../../common/shared-constants');
+import sharedConstants from './../../common/shared-constants';
 
 let api = axios.create({});
 
 // a concurrency parameter of 1 makes all api requests sequential
-const MAX_CONCURRENT_REQUESTS = 200;
 const lgthWarnSiz = 1500;
 
-// init your manager.
-const manager = ConcurrencyManager(api, MAX_CONCURRENT_REQUESTS);
-
-export function getCatExtract(singleRefresh,cat, promises, dbg) {
+export function getCatExtract(singleRefresh: boolean, category: { e: any, c: string } | null, promises: Promise<any>[], dbg) {
    if (!singleRefresh) {
       return;
    }
-   if (null == cat) {
+   if (null == category) {
       l.info('claims.wm.js getCatExtract: null == cat '+dbg);          
       return;
    }
@@ -35,11 +30,11 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
       l.info('claims.wm.js getCatExtract: null == promises '+dbg);          
       return;
    }
-   if (null != cat.e) {
-      l.info('claims.wm.js getCatExtract: extract "'+cat.e+'" already exists '+dbg);          
+   if (null != category.e) {
+      l.info('claims.wm.js getCatExtract: extract "'+category.e+'" already exists '+dbg);          
       return;
    }
-   let catName = cat.c;
+   let catName = category.c;
    if (null == catName) {
       l.info('claims.wm.js getCatExtract: null == catName '+dbg);          
       return;
@@ -69,7 +64,7 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
                  if (lgthWarnSiz < extTrLgth) {
                      l.info('claims.wm.js getCatExtract: category "'+catName+'" very long extract '+extTrLgth+' should we shorten ? '+dbg);
                  }
-                 cat.e = extTr;
+                 category.e = extTr;
                  l.info('claims.wm.js getCatExtract: category "'+catName+'" added '+extTrLgth+' '+dbg);
               }
            }
@@ -79,8 +74,12 @@ export function getCatExtract(singleRefresh,cat, promises, dbg) {
         l.error('claims.wm.js getCatExtract.categorymembers = api.get:\n'+
           `Failed to fetch category extract. Cat "`+catName+'" ' +dbg + ' url '+url+'\n'+err.stack);
     });
-    extractPomise.cat = cat;
-    extractPomise.caller = 'getCatExtract '+dbg;
+
+    //TODO this looks very smelly: adding a property cat and caller to a Promise
+    const p: { [key: string]: any} = extractPomise
+    p.cat = category;
+    p.caller = 'getCatExtract '+dbg;
+
     promises.push(extractPomise);
     return;
 }
@@ -148,8 +147,11 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
         l.error('claims.wm.js getImgClaims.claims = api.get:\n'+
           `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+'\n'+err.stack);
     });
-    claimsPromise.img = img;
-    claimsPromise.caller = 'getImgClaims '+dbg;
+    //TODO this looks very smelly: adding a property img and caller to a Promise
+    const p : { [key: string]: any } = claimsPromise
+    p.img = img;
+    p.caller = 'getImgClaims '+dbg;
+
     promises.push(claimsPromise);
     return;
 }

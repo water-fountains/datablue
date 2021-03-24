@@ -5,28 +5,28 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import l from '../../common/logger';
 import osm_fountain_config from '../../../config/fountains.sources.osm';
+import { Feature } from 'geojson';
 
 // This service translates data read from OpenStreetMap into the server's standardized property terms for fountains. 
 // For example, the tag man_made=drinking_fountain implies that drinking_water=yes.
 // For this, the config files are used
 
-function applyImpliedPropertiesOsm(fountainCollection) {
+function applyImpliedPropertiesOsm(fountainCollection: Feature[]) {
   return new Promise((resolve, reject) => {
     // for each fountain in the collection, remap the properties
-    fountainCollection.forEach(f=> {
+    fountainCollection.forEach(feature=> {
       // for each implied property, extract the tag name-value pair
       osm_fountain_config.sub_sources.forEach(function (sub_source) {
         let tag_name = sub_source.tag.name;
         let tag_value = sub_source.tag.value;
         // check if our fountain has the tag and if that tag has the right value
-        if ((tag_name in f.properties) &&
-          (f.properties[tag_name] === tag_value)) {
+        const properties = feature.properties
+        if (properties != null && tag_name in properties && properties[tag_name] === tag_value) {
           sub_source.implies.forEach(implication => {
             // if so, apply implied property values, but only if the property doesn't already have a value defined
-            if(!f.properties.hasOwnProperty(implication.key)){
-              f.properties[implication.key] = implication.value;
+            if(!properties.hasOwnProperty(implication.key)){
+              properties[implication.key] = implication.value;
             }
           })
         }
