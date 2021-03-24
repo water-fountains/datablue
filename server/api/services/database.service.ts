@@ -8,7 +8,7 @@
 import {essenceOf} from "./processing.service";
 import {CACHE_FOR_HRS_i45db} from "../../common/constants";
 import l from '../../common/logger';
-import {generateLocationDataAndCache} from './../controllers/controller';
+import {generateLocationDataAndCache} from '../controllers/controller';
 
 const _ = require('lodash');
 const haversine = require('haversine');
