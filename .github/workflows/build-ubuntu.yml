@@ -57,7 +57,8 @@ jobs:
             npm install &&
             export PM2_HOME=/etc/pm2daemon &&
             npm run compile &&
-            sleep 1000 &&
+            echo "compile done, going to wait for 1 second"
+            sleep 1 &&
             cat build/main.js &&
             pm2 delete \"datablue_$BRANCH\" | echo &&
             pm2 start build/main.js --name \"datablue_$BRANCH\""
