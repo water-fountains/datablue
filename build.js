@@ -1,4 +1,5 @@
 const s = require('shelljs');
+s.config.fatal = true;
 
 s.rm('-rf', 'build');
 s.mkdir('build');
