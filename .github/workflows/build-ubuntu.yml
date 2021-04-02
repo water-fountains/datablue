@@ -54,14 +54,7 @@ jobs:
           ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             git checkout \"origin/$BRANCH\" -- server/common/build.info.ts &&
             git pull origin \"$BRANCH\" &&
-            npm install &&
-            export PM2_HOME=/etc/pm2daemon &&
-            npm run compile &&
-            echo "compile done, going to wait for 1 second"
-            sleep 1 &&
-            cat build/main.js &&
-            pm2 delete \"datablue_$BRANCH\" | echo &&
-            pm2 start build/main.js --name \"datablue_$BRANCH\""
+            deploy.sh \"$BRANCH\""
 
       - name: cleanup ssh
         if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}

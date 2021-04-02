@@ -1,5 +1,6 @@
 node_modules
 build
+build.bak
 server/common/build.info.js
 .env
 .idea
