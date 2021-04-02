@@ -16,62 +16,13 @@ import {isBlacklisted} from '../server/api/services/categories.wm';
 import l from '../server/common/logger';
 import _ from "lodash"
 import { ImageLikeCollection, text2img } from "./text2img";
+import { NamedSources, SCL, SourceConfig, SourceType, Translated } from "../server/common/typealias";
 
 /**
  * function that passes data through without modification
  * @param {any} val - any object, string or number
  */
 function identity<T>(t: T){ return t }
-
-/**
- * Fountain properties are described with the following structure:
- * [codename]: {  // unique codename of property
- *  name: {},  // name of property in all supported languages
- *  essential: bool,
- *  type: string,
- *  descriptions: {},
- *  src_pref: ['osm]
- * }
- */
-
-//TODO @Ralf.Hauser find better name
-type SCL = {
-  s: string,
-  c: string,
-  l: number
-}
-
-export type Translated<T> =  {
-  en: T,
-  de: T,
-  fr: T,
-  it: T,
-  tr: T,
-}
-
-export type NamedSources<W , O> = {
-  wikidata: W,
-  osm: O,
-}
-export type SourceConfig<V, RE> = {
-  src_path: string[],
-  src_instructions: Translated<string[]>,
-  value_translation: (values: V) => any | null
-
-  help?: string
-  extraction_info?: Translated<string> | Translated<string[]>,
-  src_info?: Translated<string>,
-  src_path1?: string[],
-  src_path_extra?: string[],
-  value_translation_extra?: (text: string) => RE | null,
-  //TODO see if we get official types
-  properties?: {image: string, wikimedia_commons?: any}
-}
-
-
-//TODO @Ralf.Hauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
-// this currently occurs if metadata.src_config['osm'] or metadata.src_config['wikidata'] returns null in conflate.data.service.ts
-export  type SourceType = 'osm' | 'wikidata' | ''
 
 
 export type FountainPropertyMetaUnfinished<W, O> = {

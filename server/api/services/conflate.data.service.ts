@@ -6,9 +6,8 @@
  */
 
 import l from '../../common/logger';
-import {fountain_property_metadata, get_prop, SourceConfig, SourceType} from "../../../config/fountain.properties";
+import {fountain_property_metadata, get_prop} from "../../../config/fountain.properties";
 import {
-  PropStatus,
   PROP_STATUS_ERROR, PROP_STATUS_FOUNTAIN_NOT_EXIST,
   PROP_STATUS_NOT_AVAILABLE,
   PROP_STATUS_NOT_DEFINED,
@@ -17,43 +16,7 @@ import {
 
 import _ from "lodash"
 import haversine from "haversine";
-import { ImageLikeCollection } from '../../../config/text2img';
-import { Fountain } from '../../common/typealias';
-
-type FountainConfig = SourceConfig<any, string>;
-
-type FountainConfigCollection = {
-  osm: FountainConfig[],
-  wikidata: FountainConfig[]
-}
-
-//TODO @Ralf.hauser, not 100% correct, `gallery` does not fit into FountainProperty type. Should it?
-type FountainProperties = {
-  [id: string]: FountainProperty
-}
-
-type Source = {
-  //TODO @Ralf.Hauser looks suspicious/buggy to me, shouldn't we know the status in all cases?
-  status: PropStatus | null,
-  raw: null,
-  //TODO typing: try to get rid of any
-  extracted: ImageLikeCollection | string | any | null,
-  comments: string[]
-}
-
-type FountainProperty = {
-  id: string,
-  value: any,
-  comments: string,
-  status: PropStatus,
-  source: SourceType,
-  type: string,
-  issues: [],
-  sources: {
-    osm: Source,
-    wikidata: Source
-  }
-}
+import { Fountain, FountainConfig, FountainConfigCollection, FountainProperties, FountainProperty, Source, SourceConfig } from '../../common/typealias';
 
 
 // wikidata property paths: path for accessing the wikidata QID of a fountain, either in the query result of wikidata or the query result from OSM
