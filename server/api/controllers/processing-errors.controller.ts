@@ -7,12 +7,12 @@
 
 // Created for proximap#206
 
-import { FeatureCollection } from "geojson";
 import _ from "lodash"
 import { l } from "../../common/logger"
+import { FountainCollection } from "../../common/typealias";
 
 //TODO type fountainCollection, then it would be clear that features can be undefined
-export function extractProcessingErrors(fountainCollection: FeatureCollection | undefined){
+export function extractProcessingErrors(fountainCollection: FountainCollection | undefined){
   let errorCollection: any[] = [];
   if (fountainCollection !== undefined) {
     // returns collection of processing errors from collection
