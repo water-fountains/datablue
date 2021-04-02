@@ -6,16 +6,16 @@
  */
 
 import osm_fountain_config from '../../../config/fountains.sources.osm';
-import { Feature } from 'geojson';
+import { Fountain } from '../../common/typealias';
 
 // This service translates data read from OpenStreetMap into the server's standardized property terms for fountains. 
 // For example, the tag man_made=drinking_fountain implies that drinking_water=yes.
 // For this, the config files are used
 
-function applyImpliedPropertiesOsm(fountainCollection: Feature[]) {
+function applyImpliedPropertiesOsm(fountainArr: Fountain[]) {
   return new Promise((resolve, reject) => {
     // for each fountain in the collection, remap the properties
-    fountainCollection.forEach(feature=> {
+    fountainArr.forEach(feature=> {
       // for each implied property, extract the tag name-value pair
       osm_fountain_config.sub_sources.forEach(function (sub_source) {
         let tag_name = sub_source.tag.name;
@@ -33,7 +33,7 @@ function applyImpliedPropertiesOsm(fountainCollection: Feature[]) {
       });
     });
     // return the fountains with added properties
-    resolve(fountainCollection);
+    resolve(fountainArr);
     // if there is an issue causing a delay, reject the promise
     setTimeout(() => reject('Timed out on applying implied property for fountains'), 500);
   })
