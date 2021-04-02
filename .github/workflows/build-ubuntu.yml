@@ -54,7 +54,7 @@ jobs:
           ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             git checkout \"origin/$BRANCH\" -- server/common/build.info.ts &&
             git pull origin \"$BRANCH\" &&
-            deploy.sh \"$BRANCH\""
+            ./deploy.sh \"$BRANCH\""
 
       - name: cleanup ssh
         if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}

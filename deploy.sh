@@ -15,10 +15,11 @@ cp -r build build.bak
 
 # either do the deploy fully or rollback to the previous "binaries"
 (
-  pm2 delete \"datablue_$branch\" | echo &&
+  echo "going to delete datablue_$branch" &&
+  pm2 delete "datablue_$branch" | echo &&
   npm run compile &&
   cat build/main.js > /dev/null &&
-  echo "build/main.js exists assumging we are good to delete and deploy"
+  echo "build/main.js exists; I assume we are good to deploy new version"
 ) || (
   rm -rf build &&
   mv build.bak build
