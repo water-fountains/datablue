@@ -65,6 +65,7 @@ const osm_fountain_config = {
           "name": "natural",
           "value": "spring"
         },
+        //TODO @ralfhauser, `implies: []` has no effect (at least in applyImplied.service). Is this an old definition which could be removed?
         "implies": []
       },{
         "tag": {
@@ -86,12 +87,14 @@ const osm_fountain_config = {
           "name": "amenity",
           "value": "fountain"
         },
+        //TODO @ralfhauser,`implies: []` has no effect (at least in applyImplied.service). Is this an old definition which could be removed?
         "implies": []
       },{
         "tag": {
           "name": "man_made",
           "value": "water_well"
         },
+        //TODO @ralfhauser, `implies: []` has no effect (at least in applyImplied.service).  Is this an old definition which could be removed?
         "implies": []
       }
     ]

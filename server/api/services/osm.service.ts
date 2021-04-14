@@ -7,9 +7,13 @@
 
 import l from '../../common/logger';
 import osm_fountain_config from "../../../config/fountains.sources.osm";
-import { Feature } from 'geojson';
-//TODO we could use overpas-ts thought I am not
+import { FountainConfig } from '../../common/typealias';
+//TODO we could use overpas-ts thought I am not sure how well it is maintained and up-to-date
 var query_overpass = require('query-overpass');
+
+type OsmFountainConfigCollection = {
+  features: FountainConfig[]
+}
 
 class OsmService {
   /**
@@ -18,14 +22,14 @@ class OsmService {
    * @param {number} lng - longitude of center
    * @param {number} radius - radius around center to conduct search
    */
-  byCenter(lat: number, lng: number, radius: number): Promise<Feature> {
+  byCenter(lat: number, lng: number, radius: number): Promise<FountainConfig[]> {
     // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject)=>{
       let query = queryBuilderCenter(lat, lng, radius);
       if (process.env.NODE_ENV !== 'production') {
         l.info('osm.service byCenter: '+query);
       }
-      query_overpass(query, (error, data)=>{
+      query_overpass(query, (error: any, data: OsmFountainConfigCollection)=>{
         if(error){
           reject(error);
         }else{
@@ -36,12 +40,12 @@ class OsmService {
     })
   }
   
-  byBoundingBox(latMin, lngMin, latMax, lngMax): Promise<Feature> {
+  byBoundingBox(latMin: number, lngMin: number, latMax: number, lngMax: number): Promise<FountainConfig[]> {
     // fetch fountain from OSM by coordinates
     return new Promise((resolve, reject)=>{
       let query = queryBuilderBox(latMin, lngMin, latMax, lngMax);
       // l.info(query);
-      query_overpass(query, (error, data)=>{
+      query_overpass(query, (error: any, data: OsmFountainConfigCollection)=>{
         if(error){
           reject(error);
         }else if(data.features.length === 0){

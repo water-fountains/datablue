@@ -88,9 +88,15 @@ export type SourceConfig<V, RE> = {
   src_path_extra?: string[];
   value_translation_extra?: (text: string) => RE | null;
   //TODO see if we get official types
-  properties?: { image: string; wikimedia_commons?: any };
+  properties?: { 
+    image: string; 
+    wikimedia_commons?: any;
+    man_made?: 'drinking_fountain'|'water_tap'|'water_well';
+    amenity?: 'drinking_water'|'water_point'|'watering_place'|'fountain';
+    natural?: 'spring'
+  };
 };
 
-//TODO @Ralf.Hauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
+//TODO @ralfhauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
 // this currently occurs if metadata.src_config['osm'] or metadata.src_config['wikidata'] returns null in conflate.data.service.ts
 export type SourceType = "osm" | "wikidata" | "";
