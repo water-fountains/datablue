@@ -26,7 +26,7 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // This service finds matching fountains from osm and wikidata
 // and merges their properties
 
-export function conflate(fountains: FountainConfigCollection, dbg: string, debugAll: boolean) {
+export function conflate(fountains: FountainConfigCollection, dbg: string, debugAll: boolean): Promise<Fountain[]> {
   return new Promise((resolve)=> {
     
     let conflated = {
@@ -197,8 +197,7 @@ function conflateByCoordinates(foutains: FountainConfigCollection, dbg: string, 
 
 
 function mergeFountainProperties(
-  namedFountain: { osm: FountainConfig | null, 
-  wikidata: FountainConfig | null }, 
+  namedFountainConfig: { osm: FountainConfig | null, wikidata: FountainConfig | null }, 
   mergeNotes: string = '',
   mergeDistance: number | null = null, 
   debugAll: boolean,
@@ -206,7 +205,7 @@ function mergeFountainProperties(
 ): FountainProperties {
 
   if (debugAll) {
-		  l.info('conflate.data.service.js mergeFountainProperties: '+namedFountain+' fountains, '+mergeNotes+' '+dbg);
+		  l.info('conflate.data.service.js mergeFountainProperties: '+namedFountainConfig+' fountains, '+mergeNotes+' '+dbg);
   }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
@@ -240,7 +239,7 @@ function mergeFountainProperties(
     
     // loop through sources (osm and wikidata) and extract values
     for(let src_name of ['wikidata', 'osm']){
-      const fountain: FountainConfig = namedFountain[src_name];
+      const fountain: FountainConfig = namedFountainConfig[src_name];
       const tmp: Source = temp.sources[src_name];
       if (metadata.src_config[src_name] === null){
         // If property not available, define property as not available for source
@@ -258,17 +257,17 @@ function mergeFountainProperties(
         
         // Get value of property from source
         let value = _.get(fountain, cfg.src_path, null);
-        //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
+        //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         if(value === null && cfg.src_path1 !== undefined && cfg.hasOwnProperty('src_path1')){
             value = _.get(fountain, cfg.src_path1, null);
         }
-        //TODO @Ralf.Hauser, src_path2 never exists on SourceConfig, old obselete code?
+        //TODO @ralfhauser, src_path2 never exists on SourceConfig, old obselete code?
         // if(value === null && cfg.src_path2 !== undefined && cfg.hasOwnProperty('src_path2')){
         //     value = _.get(fountain, cfg.src_path2, null);
         // }
         let useExtra = false;
   
-        //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
+        //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
         if(value === null &&  cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
           value = _.get(fountain, cfg.src_path_extra, null);
@@ -287,7 +286,7 @@ function mergeFountainProperties(
         		  let v = cfg.value_translation(value);
         		  tmp.extracted = v;
         	      if('wiki_commons_name' == temp.id){
-                  //TODO @Ralf.Hauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
+                  //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         	        if(cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
         	    		let valueE = _.get(fountain, cfg.src_path_extra, null);
         	    		if (null != valueE && null != v && 0 < valueE.trim().length) {
@@ -424,7 +423,7 @@ function properties2GeoJson(collection: FountainProperties[]): Fountain[]{
           type: 'Point',
           coordinates: properties.coords.value
         },
-        //TODO most likely not necessary as we don't pass properties to other functions and we immediately resolve the request afterwards
+        //TODO @ralfhauser most likely not necessary as we don't pass properties to other functions and we immediately resolve the request afterwards
         properties: _.cloneDeep(properties)
       }
     } catch (err) {
