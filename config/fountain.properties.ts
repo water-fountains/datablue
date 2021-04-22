@@ -1151,7 +1151,7 @@ const fountain_properties: FountainPropertiesMeta = {
             let urlLc = url.toLowerCase();
             // determine source from url
             let source_name = 'unknown';
-            if(urlLc.includes('goo.gl/maps')){
+            if(urlLc.includes('goo.gl/maps') || urlLc.matches('https://www\.google\..+/maps/.+')){
               source_name = 'Google Street View';
            // }else if(url.includes('instantstreetview')){
               //a first step towards https://github.com/water-fountains/proximap/issues/137
