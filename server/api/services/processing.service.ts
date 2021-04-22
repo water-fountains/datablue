@@ -149,6 +149,7 @@ export function fillWikipediaSummary(fountain: Fountain, dbg: string, tot: numbe
   
 }
 
+// TODO @ralfhauser, Looks like this function is no longer used, I suggest we remove it and the commented out code in processing.services.ts
 export function fillWikipediaSummaries(fountainArr: Fountain[], dbg: string): Promise<Fountain[]>{
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
 	l.info('processing.service.js starting fillWikipediaSummaries: '+dbg);  

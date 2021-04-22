@@ -5,20 +5,16 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-const utf8 = require('utf8');
-const _ = require ('lodash');
-const axios = require ('axios');
-const https = require('https');
-const md5 = require('js-md5');
+import * as _  from 'lodash'
+import axios from "axios"
 import l from '../../common/logger';
-import {PROP_STATUS_OK, PROP_STATUS_WARNING} from "../../common/constants";
 
 const summaryUrlSnippet = "/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=";
 
 class WikipediaService {
   
-    getSummary(wikipediaUrl, dbg) {
-      return new Promise((resolve, reject) =>{
+    getSummary(wikipediaUrl: string, dbg: string) : Promise<string> {
+      return new Promise((resolve) =>{
       // fetches summary text from Wikipedia
       // fetch all images in category
       let url = encodeURI(wikipediaUrl.replace('/wiki/', summaryUrlSnippet));
