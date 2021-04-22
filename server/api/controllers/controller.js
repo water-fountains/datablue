@@ -240,6 +240,7 @@ function byId(req, res, dbg){
           cty = cityCache.get(cityS);
         }
         let fountain = _.find(
+          //TODO @robstoll cty can be undefined here
            cty.features,
            f=>{
               return f.properties['id_'+req.query.database].value === req.query.idval

@@ -12,7 +12,7 @@ import { l } from "../../common/logger"
 import { FountainCollection } from "../../common/typealias";
 
 //TODO type fountainCollection, then it would be clear that features can be undefined
-export function extractProcessingErrors(fountainCollection: FountainCollection | undefined){
+export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): any[] {
   let errorCollection: any[] = [];
   if (fountainCollection !== undefined) {
     // returns collection of processing errors from collection
