@@ -11,7 +11,7 @@ import { cacheAdapterEnhancer } from 'axios-extensions';
 const _ = require ('lodash');
 const wdk = require('wikidata-sdk');
 import {locations} from '../../../config/locations';
-import sharedConstants from './../../common/shared-constants';
+import sharedConstants from '../../common/shared-constants';
 
 // Set up caching of http requests
 const http = axios.create({
