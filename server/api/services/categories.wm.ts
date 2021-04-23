@@ -28,6 +28,7 @@ const blacklistRegExp: RegExp[] = [
   /.*20\d\d .+ photographs.*/,  //too broad Q27229873
   /.*20\d\d\s+in\s+the\s+.+\s+of\s+.+/,  //too broad "canton of Zürich Q27230037 
   /.*fountains\s+in\s+.+/, //normally too broad \w+ instead of just for ' ' for Q98494680 
+  /.*fountain\s+.+\s+in\s+.+/, // 'fountain nozzles' for Q27229958 
   /.*shops in .+/, //Q27230037
   /.*houses in .+/,  //Q27230037
   /.*windows in .+/, //Q27230037
