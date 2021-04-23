@@ -1151,15 +1151,19 @@ const fountain_properties: FountainPropertiesMeta = {
             let urlLc = url.toLowerCase();
             // determine source from url
             let source_name = 'unknown';
-            if(urlLc.includes('goo.gl/maps') || urlLc.matches('https://www\.google\..+/maps/.+')){
-              source_name = 'Google Street View';
-           // }else if(url.includes('instantstreetview')){
-              //a first step towards https://github.com/water-fountains/proximap/issues/137
-             // source_name = 'Google Street View (+)';
-            }else if(urlLc.includes('mapillary')){
-              source_name = 'Mapillary';
-            }else if(urlLc.includes('openstreetcam')){
-              source_name = 'OpenStreetCam';
+            try {
+              if(urlLc.includes('goo.gl/maps') || urlLc.match('^https://www\.google\..+/maps/.+')) {
+                 source_name = 'Google Street View';
+              // }else if(url.includes('instantstreetview')){
+                 //a first step towards https://github.com/water-fountains/proximap/issues/137
+                 // source_name = 'Google Street View (+)';
+              } else if(urlLc.includes('mapillary')){
+                source_name = 'Mapillary';
+              } else if(urlLc.includes('openstreetcam')){
+                source_name = 'OpenStreetCam';
+              }
+            } catch (err) {
+              l.info('360 URL error "'+err+'" '+new Date().toISOString());
             }
             return {
               source_name: source_name,
@@ -1295,7 +1299,7 @@ const fountain_properties: FountainPropertiesMeta = {
           try{
             // for #212, sometimes no coords exist
             return coordList[0].value.slice().reverse();
-          }catch (e) {
+          } catch (e) {
             return null;
           }
         }
