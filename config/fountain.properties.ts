@@ -1163,7 +1163,7 @@ const fountain_properties: FountainPropertiesMeta = {
                 source_name = 'OpenStreetCam';
               }
             } catch (err) {
-              l.info('360 URL error "'+err+'" '+new Date().toISOString());
+              l.info('360 URL error "'+err+'"');
             }
             return {
               source_name: source_name,
