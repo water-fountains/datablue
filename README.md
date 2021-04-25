@@ -34,6 +34,9 @@ With the chrome browser, you can step through the code by placing `chrome:inspec
 
 210425: on debian, I had the problem: https://github.com/nodejs/node/issues/26887 despite chrome being on v 87.0.4280.88 (Official Build) (64-bit) and node on v14.15.4
 
+ `~/git/datablue$ node --inspect build/main.js dev`
+did work (load front-end also via chrome), but did not recompile main.js
+
 # Running the project in *production* mode:
 If you want to run it over https, then you need a private key `privkey.pem` and certificate `cert.pem` for encryption located in the root of your project.
 

@@ -399,7 +399,7 @@ export function getImageInfo(img, dbg, showDetails, fProps){
                 if (null != catArr && 0 < catArr.length) {
                    const ca = catArr[0];
                    img.c = {n:ca};
-        	       l.info('wikimedia.service.js getImageInfo: found category '+img.c+' '+dbg+' "'+url+'" #ofCats "'+catArr.length+'"');
+        	       l.info('wikimedia.service.js getImageInfo: found category '+img.c.n+' '+dbg+' "'+url+'" #ofCats "'+catArr.length+'"');
         	       if (null == fProps.wiki_commons_name) { 
         	           fProps.wiki_commons_name = {value: []}
         	       } else if (null == fProps.wiki_commons_name.value) { 
@@ -421,6 +421,7 @@ export function getImageInfo(img, dbg, showDetails, fProps){
         	          if (null != cat && 0 < cat.trim().length) {
         	              const catTr = cat.trim();
         	              if (!catsSoFar.has(catTr)) {
+        	                 l.info('wikimedia.service.js getImageInfo: adding '+dbg+' "'+url+'" cat "'+img.c.n+'" "'+catTr+'"');
         		             fProps.wiki_commons_name.value.push({s:'wd',
         		                   c:catTr,l:-1});
         		          }
@@ -430,7 +431,7 @@ export function getImageInfo(img, dbg, showDetails, fProps){
              }
           }
           if (showDetails) {
-        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.c+'"');
+        	  l.info('wikimedia.service.js getImageInfo: done '+dbg+' "'+url+'" cat "'+img.c.n+'"');
           }
           return;
         } else{

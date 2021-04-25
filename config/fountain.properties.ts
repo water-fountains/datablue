@@ -1470,6 +1470,9 @@ const fountain_properties: FountainPropertiesMeta = {
         				let cat = { s: 'wd',
                             	c: c,
                             	l:-1};
+                        if (0 < i) {
+         	  	            l.info('fountain.properties.js: adding cat "'+ cat.c +'"');    		
+                        }
         				cats.push(cat);
         			}
         		}
@@ -1480,11 +1483,15 @@ const fountain_properties: FountainPropertiesMeta = {
         	let cats: SCL[] = [];
         	if (null != text) {
             	const txt = text.replace('Category:', '');
-            	if (null != txt && txt.trim()!= '') {
+            	if (null != txt) {
+	              const txtTr =  txt.trim();
+            	  if ('' != txtTr && !isBlacklisted(txtTr)) {
                     let cat = { s: 'wd',
-                            	c: txt,
+                            	c: txtTr,
                             	l:-1};
+         	  	    l.info('fountain.properties.js: adding2 cat "'+ cat.c +'"');    		
                     cats.push(cat);
+                  }
         		}
         	}
             return cats;

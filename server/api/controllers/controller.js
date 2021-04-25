@@ -327,8 +327,8 @@ function byId(req, res, dbg){
     							  lzAtt += i+',';
     							  l.info('controller.js byId lazy getImageInfo: '+cityS+' '+i+'/'+gl+' "'+img.pgTit+'" "'+name+'" '+dbg);
     							  imgMetaPromises.push(getImageInfo(img, i+'/'+gl+' '+dbg+' '+name+' '+cityS,showDetails, props).catch(giiErr=>{
-    								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+cityS+' '+dbgIdWd+' "'+name+'"'
-    										  + '\n'+giiErr.stack);
+    								  l.info('wikimedia.service.js: fillGallery getImageInfo failed for "'+img.pgTit+'" '+dbg+' '+cityS//+' '+dbgIdWd
+    										  +' "'+name+'"\n'+giiErr.stack);
     							  }));
     							  lazyAdded++;
     						  } else {
