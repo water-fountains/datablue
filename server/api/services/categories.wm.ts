@@ -68,6 +68,7 @@ const blacklistRegExp: RegExp[] = [
   /.* drinking fountains.*/, //Q55170978 ch-zh "Outdoor drinking fountains"
   /arcades in .+/, //Q27229859 ch-zh "Arcades in Switzerland"
   /balconies in .+/, //Q27229859 ch-zh "Balconies in Switzerland"
+  /.*iles with derivative versions.+/, // Q27229958
 ]
 
 export function isBlacklisted(categoryName: string | null): boolean {
