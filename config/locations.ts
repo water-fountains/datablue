@@ -427,11 +427,11 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 	      tr: ``,
 	    },
 	    bounding_box: {
-	      //too many categories möve bellevue zürich 47.3670315, 8.5447202
-	         latMin: 47.3670,
-	         lngMin: 8.5447,
-	         latMax: 47.3671,
-	         lngMax: 8.5448
+	      //too many categories möve bellevue zürich 47,3655859, 8,5452455
+	         latMin: 47.3655,
+	         lngMin: 8.5452,
+	         latMax: 47.3656,
+	         lngMax: 8.5453
 	      //categories regex problem https://beta.water-fountains.org/ch-ge?l=de&i=Q98494680  Fontaine de la rue du Mont-Blanc 
 	       //  latMin: 46.2081,
 	       //  lngMin: 6.1447,
