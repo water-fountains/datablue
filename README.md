@@ -30,7 +30,9 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 
 *Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed.*
 
-With the chrome browser, you can step through by placing `chrome:inspect` in the address bar.
+With the chrome browser, you can step through the code by placing `chrome:inspect` in the address bar.
+
+210425: on debian, I had the problem: https://github.com/nodejs/node/issues/26887 despite chrome being on v 87.0.4280.88 (Official Build) (64-bit) and node on v14.15.4
 
 # Running the project in *production* mode:
 If you want to run it over https, then you need a private key `privkey.pem` and certificate `cert.pem` for encryption located in the root of your project.
