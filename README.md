@@ -30,6 +30,8 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 
 *Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed.*
 
+With the chrome browser, you can step through by placing `chrome:inspect` in the address bar.
+
 # Running the project in *production* mode:
 If you want to run it over https, then you need a private key `privkey.pem` and certificate `cert.pem` for encryption located in the root of your project.
 
