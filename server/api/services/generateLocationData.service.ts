@@ -100,7 +100,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
       
       // conflate
       Promise.all([osmPromise, wikidataPromise])
-      // get any missing wikidata fountains for #212
+      // get any missing wikidata fountains for proximap#212
         .then(r=>fillInMissingWikidataFountains(r[0], r[1], locationName))
         .then(r => conflate(
           {

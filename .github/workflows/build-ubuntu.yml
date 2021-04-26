@@ -53,7 +53,8 @@ jobs:
           BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
           ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
             git checkout \"origin/$BRANCH\" -- server/common/build.info.ts &&
-            git pull origin \"$BRANCH\" &&
+            git fetch origin \"$BRANCH\" &&
+            git reset --hard \"origin/$BRANCH\" &&
             ./deploy.sh \"$BRANCH\""
 
       - name: cleanup ssh
