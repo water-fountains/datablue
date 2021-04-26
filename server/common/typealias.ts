@@ -1,16 +1,21 @@
 import { Feature, FeatureCollection, Point } from "geojson";
-import { ImageLikeCollection } from "../../config/text2img";
+import { ImageLikeCollection, ImageLikeType } from "../../config/text2img";
 import { PropStatus } from "./constants";
+import { Category } from "./wikimedia-types";
 
 //TODO @ralfhauser as far as I can see, all features in the FeatureCollection collection has Point as type of `geometry`. Also, geometry is always defined.
 // Do you know if there are exceptions to this rule? `geometry` is defined as different geometry type or null, i.e. it could also not exist. I have the feeling it always is
-type G = Point;
+type FountainGeometry = Point;
 
 //TODO @ralfhauser, same same as above and I also have the feeling properties is always defined. We would need to change this definition if there are cases where it does not exist
-type P = { [name: string]: any };
+export type FountainPropertyCollection<T> = T & { [name: string]: any };
+export type TypedFountainProperty<T> = {value: T}
 
-export type Fountain = Feature<G, P>;
-export type FountainCollection = FeatureCollection<G, P>;
+export type Fountain<P = {}> = Feature<FountainGeometry, FountainPropertyCollection<P>>;
+export type FountainCollection = FeatureCollection<
+  FountainGeometry,
+  FountainPropertyCollection<{}>
+>;
 
 export type FountainConfig = SourceConfig<any, string>;
 
@@ -20,8 +25,8 @@ export type FountainConfigCollection = {
 };
 
 //TODO @ralfhauser, not 100% correct, `gallery` does not fit into FountainProperty type. Should it?
-export type FountainProperties = {
-  [id: string]: FountainProperty;
+export type FountainConfigProperties = {
+  [id: string]: FountainConfigProperty;
 };
 
 export type Source = {
@@ -33,7 +38,7 @@ export type Source = {
   comments: string[];
 };
 
-export type FountainProperty = {
+export type FountainConfigProperty = {
   id: string;
   value: any;
   comments: string;
@@ -64,6 +69,21 @@ export type SCL = {
   l: number;
 };
 
+
+
+export type ImageInfoMetadataCollection = { [key: string]: string | undefined };
+
+export type GalleryValue = {
+  s: string;
+  t: string;
+  pgTit: string;
+  //TODO @ralfhauser, should not every SCPT have a category?
+  c?: Category;
+  metadata?: ImageInfoMetadataCollection;
+  description?: string;
+  typ?: ImageLikeType
+};
+
 export type Translated<T> = {
   en: T;
   de: T;
@@ -71,6 +91,8 @@ export type Translated<T> = {
   it: T;
   tr: T;
 };
+
+
 
 export type NamedSources<W, O> = {
   wikidata: W;
@@ -88,12 +110,12 @@ export type SourceConfig<V, RE> = {
   src_path_extra?: string[];
   value_translation_extra?: (text: string) => RE | null;
   //TODO see if we get official types
-  properties?: { 
-    image: string; 
+  properties?: {
+    image: string;
     wikimedia_commons?: any;
-    man_made?: 'drinking_fountain'|'water_tap'|'water_well';
-    amenity?: 'drinking_water'|'water_point'|'watering_place'|'fountain';
-    natural?: 'spring'
+    man_made?: "drinking_fountain" | "water_tap" | "water_well";
+    amenity?: "drinking_water" | "water_point" | "watering_place" | "fountain";
+    natural?: "spring";
   };
 };
 

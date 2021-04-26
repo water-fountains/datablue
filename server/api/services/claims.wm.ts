@@ -12,13 +12,14 @@ import l from '../../common/logger';
 import axios from 'axios'
 import {sanitizeTitle} from "./wikimedia.service";
 import sharedConstants from './../../common/shared-constants';
+import { MediaWikiEntityCollection } from '../../common/wikimedia-types';
 
 let api = axios.create({});
 
 // a concurrency parameter of 1 makes all api requests sequential
 const lgthWarnSiz = 1500;
 
-export function getCatExtract(singleRefresh: boolean, category: { e: any, c: string } | null, promises: Promise<any>[], dbg) {
+export function getCatExtract(singleRefresh: boolean, category: { e: any, c: string } | null, promises: Promise<any>[], dbg: string): void {
    if (!singleRefresh) {
       return;
    }
@@ -34,6 +35,7 @@ export function getCatExtract(singleRefresh: boolean, category: { e: any, c: str
       l.info('claims.wm.js getCatExtract: extract "'+category.e+'" already exists '+dbg);          
       return;
    }
+   // TODO @ralfhauser, also here, why do we use c and not n for catName? search for other
    let catName = category.c;
    if (null == catName) {
       l.info('claims.wm.js getCatExtract: null == catName '+dbg);          
@@ -85,7 +87,7 @@ export function getCatExtract(singleRefresh: boolean, category: { e: any, c: str
 }
 
 
-export function getImgClaims(singleRefresh,img, promises, dbg) {
+export function getImgClaims(singleRefresh: boolean, img: { pgTit: string } | null, promises, dbg: string): void {
    if (!singleRefresh) {
       return;
    }
@@ -112,7 +114,7 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
     const timeoutSecs = 1;
     const timeout = timeoutSecs*1000; 
     //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg);          
-    let claimsPromise = api.get(url, {timeout: timeout})
+    let claimsPromise = api.get<MediaWikiEntityCollection>(url, {timeout: timeout})
       .then(r => {
         l.info('claims.wm.js getImgClaims: got response for '+url+' '+dbg);          
         const entities = r.data.entities;
@@ -147,7 +149,7 @@ export function getImgClaims(singleRefresh,img, promises, dbg) {
         l.error('claims.wm.js getImgClaims.claims = api.get:\n'+
           `Failed to fetch image claims. Cat "`+fn+'" ' +dbg + + ' url '+url+'\n'+err.stack);
     });
-    //TODO this looks very smelly: adding a property img and caller to a Promise
+    //TODO @ralfhauser this looks very smelly: adding a property img and caller to a Promise, also using the name caller could lead to problems in the future
     const p : { [key: string]: any } = claimsPromise
     p.img = img;
     p.caller = 'getImgClaims '+dbg;

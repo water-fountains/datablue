@@ -1,17 +1,26 @@
 
 import l from '../server/common/logger';
+import { Category } from '../server/common/wikimedia-types';
+
+export type ImageLikeType = 'wm' | 'ext-fullImgUrl' | 'flickr' | 
+  'unk' | // TODO @ralfhauser defined like this in conflate.data.service.ts
+  'ext-flickr' | //TODO @ralfhauser initially only defined for ImageLike and not for ImageLikeCollection but since we assign type to type in wikimedia.service.ts we need this as well.
+  'ext' //TODO @ralfhauser  initially only defined for ImageLikeCollection, same problem as for ext-flicker. Maybe only one of them is correct? 
+
+//TODO @ralfhauser is wd maybe a typo? see wikimedia.service line 490
+export type ImageLikeSrc = 'osm' | 'wm' | 'wd'
 
 export type ImageLike = {
-  typ: 'wm' | 'ext-flickr' | 'ext-fullImgUrl' | 'flickr',
-  src: 'osm'
+  //TODO @ralfhauser, IMO we should rename this to type
+  typ: ImageLikeType,
+  src: ImageLikeSrc,
   value: string,
+  //TODO @ralfhauser cat is not always given, bug or correct behaviour?
+  cat?: Category
 }
 export type ImageLikeCollection = {
-  src: 'osm',
-  type: 
-    'wm' | 'ext' | 'ext-fullImgUrl' | 'flickr' | 
-    'unk' // defined like this in conflate.data.service.ts
-  ,
+  type: ImageLikeType,
+  src: ImageLikeSrc,
   imgs: ImageLike[],
 }
 
