@@ -6,22 +6,27 @@
  */
 
 import l from '../../common/logger';
-const axios = require('axios');
+import axios, { AxiosPromise } from 'axios'
 import { cacheAdapterEnhancer } from 'axios-extensions';
-const _ = require ('lodash');
-const wdk = require('wikidata-sdk');
-import {locations} from '../../../config/locations';
+import * as _ from 'lodash'
+const wdk = require('wikidata-sdk')
 import sharedConstants from '../../common/shared-constants';
+import { Fountain, FountainConfig } from '../../common/typealias';
 
 // Set up caching of http requests
 const http = axios.create({
   headers: { 'Cache-Control': 'no-cache' },
-  // cache enabled by default
-  adapter: cacheAdapterEnhancer(axios.defaults.adapter)
+  // cache enabled by default, we always have an adapter, hence
+  adapter: cacheAdapterEnhancer(axios.defaults.adapter ?? (() => {throw new Error("illegal state, axios.defaults has not defined an adapter")})())
 });
 
+interface WikidataEntityCollection extends FountainConfig {
+  entities: { [key: string]: any | undefined }
+  c: any
+}
+
 class WikidataService {
-  idsByCenter(lat, lng, radius=10,locationName) {
+  idsByCenter(lat: number, lng: number, radius: number=10,locationName: string): Promise<string[]> {
     // fetch fountain from OSM by coordinates, within radius in meters
     const sparql = `
         SELECT ?place
@@ -43,11 +48,11 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-       let res = doSparqlRequest(sparql,locationName, 'idsByCenter'); 
+    let res = doSparqlRequest(sparql,locationName, 'idsByCenter'); 
     return res;
   }
   
-  idsByBoundingBox(latMin, lngMin, latMax, lngMax, locationName){
+  idsByBoundingBox(latMin: number, lngMin: number, latMax: number, lngMax: number, locationName: string): Promise<string[]>{
     const sparql = `
         SELECT ?place
         WHERE
@@ -72,18 +77,17 @@ class WikidataService {
   }
   
   
-  byIds(qids,locationName) {
+  byIds(qids: string[],locationName: string): Promise<WikidataEntityCollection[]> {
     // fetch fountains by their QIDs
     const chunkSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject)=>{
-      let allFountainData = [];
-      let httpPromises = [];
-	  let chkCnt = 0;
+      let httpPromises: AxiosPromise<WikidataEntityCollection>[] = [];
+	    let chunkCount = 0;
       try{
         chunk(qids, chunkSize).forEach(qidChunk=> {
-        	chkCnt++;
-        	if ((chunkSize*chkCnt)> qids.length) {
-        		l.info('wikidata.service.js byIds: chunk '+chkCnt+' for '+locationName);	
+        	chunkCount++;
+        	if ((chunkSize*chunkCount)> qids.length) {
+        		l.info('wikidata.service.js byIds: chunk '+chunkCount+' for '+locationName);	
         	}
           // create sparql url
           const url = wdk.getEntities({
@@ -92,30 +96,33 @@ class WikidataService {
             props: []
           });
           // get data
-          httpPromises.push(http.get(url));
+          httpPromises.push(http.get<WikidataEntityCollection>(url));
         });
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
           .then(responses => {
-            l.info('wikidata.service.js byIds: '+chkCnt+' chunks of '+chunkSize+' prepared for loc "'+locationName+'"');
+            l.info('wikidata.service.js byIds: '+chunkCount+' chunks of '+chunkSize+' prepared for loc "'+locationName+'"');
             // holder for data of all fountains
             let dataAll = [];
             responses.forEach(r => {
               // holder for data from each chunk
-              let data = [];
-              for (let key in r.data.entities) {
-                // simplify object structure of each wikidata entity and add it to 'data'
-                data.push(wdk.simplify.entity(
+              //TODO should be typed as soon as we update wikidata-sdk to the latest version
+              let data: any = [];
+              for (let key in r.data.c) {
+                const entity = wdk.simplify.entity(
                   r.data.entities[key],
                   {
                     // keep qualifiers when simplifying (qualifiers are needed for the operator id)
                     keepQualifiers: true
-                  }));
+                  });
+                // simplify object structure of each wikidata entity and add it to 'data'
+                l.info("==================================================\n"+entity.toString())
+                data.push(entity);
               }
               // concatenate the fountains from each chunk into "dataAll"
               dataAll = dataAll.concat(data);
             });
-            if (1 == chkCnt) {
+            if (1 == chunkCount) {
                let dataAllSize = -1;
                if (null != dataAll) {
             	   dataAllSize = dataAll.length;
@@ -123,10 +130,12 @@ class WikidataService {
                l.info('wikidata.service.js byIds: dataAll '+dataAllSize+' for loc "'+locationName+'"');
             }
             // return dataAll to 
+            //TODO that's a smell, we should not use the resolve of an outer promise
             resolve(dataAll);
           })
           .catch(e=>{
             l.error('wikidata.service.js byIds: catch e '+e.stack+' for loc "'+locationName+'"');
+            //TODO that's a smell, we should not use the reject of an outer promise
             reject(e)
           });
       }catch (error){
@@ -139,14 +148,14 @@ class WikidataService {
     })
   }
   
-  fillArtistName(fountain,dbg){
+  fillArtistName(fountain: Fountain, dbg: string): Promise<Fountain> {
     // created for proximap/#129
     // intialize
     const artNam = fountain.properties.artist_name;
     if (null != artNam.derived && null != artNam.derived.name
       && '' != artNam.derived.name.trim()) {
        l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'"');
-       return fountain;
+       return new Promise(resolve => resolve(fountain));
     }
     artNam.derived = {
       website: {
@@ -156,7 +165,7 @@ class WikidataService {
       name:null
     };
     dbg += ' '+fountain.properties.name.value;
-	const idWd = fountain.properties.id_wikidata.value;
+  	const idWd = fountain.properties.id_wikidata.value;
     // if there is a wikidata entity, then fetch more information with a query
     if(artNam.source === 'wikidata'){
       if (null == idWd) {
@@ -165,16 +174,23 @@ class WikidataService {
       const qid = artNam.value;
       if (null == qid) {
          l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'"');
-         return fountain;
+         return new Promise(resolve => resolve(fountain));
       }
       if (0 == qid.trim().length) {
          l.info('wikidata.service.js fillArtistName: blank qid for "'+idWd+'"');
-         return fountain;
+         return new Promise(resolve => resolve(fountain));
       }
       
       // enter wikidata url
       artNam.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
       
+      //TODO @ralfhauser the following variables did not exist before but are used below. Maybe the reason why proximap#212 exists?
+      const lngMin = undefined
+      const latMin = undefined
+      const lngMax = undefined
+      const latMax = undefined
+      const locationName : string = "undefined"
+
       let newQueryMiro = false;
       if (newQueryMiro) {
          const sparql = `
@@ -209,12 +225,11 @@ class WikidataService {
       });
 //      l.debug(url);
       // get data
-      let data = null;
       let eQid = null;
-      return http.get(url)
+      return http.get<WikidataEntityCollection>(url)
       // parse into an easier to read format
         .then(r=>{
-          data = r.data;
+          const data = r.data;
           const entities = data.entities;
           if (null == entities) {
              l.info('wikidata.service.js fillArtistName: null == entities "'+qid+'" for idWd "'+idWd+'"');
@@ -296,21 +311,22 @@ class WikidataService {
               level: 'error',
               message: `Failed to fetch Wikidata artist name entity information. Url: ${url} `+dbg,
           });
-          return fountain});
+          return fountain
+        });
     } else {
        l.info('wikidata.service.js fillArtistName: source '+artNam.source+' "'+dbg+'"');
-       return fountain;
+       return new Promise(resolve => resolve(fountain));
     }
   }
   
   
-  fillOperatorInfo(fountain, dbg){
+  fillOperatorInfo(fountain: Fountain, dbg: string): Promise<Fountain> {
     // created for proximap/#149
     const opNam = fountain.properties.operator_name;
     if (null != opNam && null != opNam.derived && null != opNam.derived.name &&
           0 < opNam.derived.name.trim().length) {
        l.info('wikidata.service.js fillOperatorInfo: already set "'+opNam.derived.name+'"');
-       return fountain;
+       return new Promise(resolve => resolve(fountain));
     }
     if(opNam.source === 'wikidata'){
       // create sparql url to fetch operator information from QID
@@ -377,39 +393,39 @@ class WikidataService {
           }
           return fountain});
     }else{
-      return fountain;
+      return new Promise(resolve => resolve(fountain));
     }
   }
 }
 
 
-function chunk (arr, len) {
+function chunk<T> (arr: T[], len: number): T[][] {
   
-  let chunks = [],
+  let chunks: T[][] = [],
     i = 0,
     n = arr.length;
   
   while (i < n) {
     chunks.push(arr.slice(i, i += len));
   }
-  
   return chunks;
 }
 
-function doSparqlRequest(sparql, location, dbg){
+function doSparqlRequest(sparql: string , location: string, dbg: string): Promise<string[]> {
   return new Promise((resolve, reject)=> {
     // create url from SPARQL
     const url = wdk.sparqlQuery(sparql);
     
     // get data
-    let request = axios.get(url)
-        .then(res => {
+    //TODO type with correct wikidata-sdk type
+    axios.get(url).then(res => {
 
       if (res.status !== 200) {
-        let error = new Error(`wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusMessage}. Url: ${url}`);
+        let error = new Error(`wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusText}. Url: ${url}`);
         l.error('wikidata.service.js doSparqlRequest: '+dbg+',  location '+location+' '+error.message);
         // consume response data to free up memory
-        res.resume();
+        // TODO @ralfhauser, resume does not exist
+        // res.resume();
         return reject(error);        
       }
 
@@ -424,10 +440,10 @@ function doSparqlRequest(sparql, location, dbg){
         reject(e);
       }
     })
-        .catch(error=>{
-            l.error(`'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}`+' '+dbg+',  location '+location);
-          reject(error)
-        });
+    .catch(error=>{
+        l.error(`'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}`+' '+dbg+',  location '+location);
+      reject(error)
+    });
 
   });
 }

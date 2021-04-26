@@ -324,7 +324,7 @@ export function fillInMissingWikidataFountains(osm_fountains: FountainConfig[] ,
 
     // Fetch fountains with missing qids and add them to the wikidata_fountains collection
     WikidataService.byIds(missing_qids, dbg)
-      .then(missing_wikidata_fountains=>{
+      .then((missing_wikidata_fountains : FountainConfig[])=>{
         resolve({
           osm: osm_fountains,
           wikidata: missing_wikidata_fountains.concat(wikidata_fountains)
