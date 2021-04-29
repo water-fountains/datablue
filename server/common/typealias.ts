@@ -1,7 +1,7 @@
-import { Feature, FeatureCollection, Point } from "geojson";
-import { ImageLikeCollection, ImageLikeType } from "../../config/text2img";
-import { PropStatus } from "./constants";
-import { Category } from "./wikimedia-types";
+import { Feature, FeatureCollection, Point } from 'geojson';
+import { ImageLikeCollection, ImageLikeType } from '../../config/text2img';
+import { PropStatus } from './constants';
+import { Category } from './wikimedia-types';
 
 //TODO @ralfhauser as far as I can see, all features in the FeatureCollection collection has Point as type of `geometry`. Also, geometry is always defined.
 // Do you know if there are exceptions to this rule? `geometry` is defined as different geometry type or null, i.e. it could also not exist. I have the feeling it always is
@@ -9,13 +9,10 @@ type FountainGeometry = Point;
 
 //TODO @ralfhauser, same same as above and I also have the feeling properties is always defined. We would need to change this definition if there are cases where it does not exist
 export type FountainPropertyCollection<T> = T & { [name: string]: any };
-export type TypedFountainProperty<T> = {value: T}
+export type TypedFountainProperty<T> = { value: T };
 
 export type Fountain<P = {}> = Feature<FountainGeometry, FountainPropertyCollection<P>>;
-export type FountainCollection = FeatureCollection<
-  FountainGeometry,
-  FountainPropertyCollection<{}>
->;
+export type FountainCollection = FeatureCollection<FountainGeometry, FountainPropertyCollection<{}>>;
 
 export type FountainConfig = SourceConfig<any, string>;
 
@@ -69,8 +66,6 @@ export type SCL = {
   l: number;
 };
 
-
-
 export type ImageInfoMetadataCollection = { [key: string]: string | undefined };
 
 export type GalleryValue = {
@@ -81,7 +76,7 @@ export type GalleryValue = {
   c?: Category;
   metadata?: ImageInfoMetadataCollection;
   description?: string;
-  typ?: ImageLikeType
+  typ?: ImageLikeType;
 };
 
 export type Translated<T> = {
@@ -111,12 +106,12 @@ export type SourceConfig<V, RE> = {
   properties?: {
     image: string;
     wikimedia_commons?: any;
-    man_made?: "drinking_fountain" | "water_tap" | "water_well";
-    amenity?: "drinking_water" | "water_point" | "watering_place" | "fountain";
-    natural?: "spring";
+    man_made?: 'drinking_fountain' | 'water_tap' | 'water_well';
+    amenity?: 'drinking_water' | 'water_point' | 'watering_place' | 'fountain';
+    natural?: 'spring';
   };
 };
 
 //TODO @ralfhauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
 // this currently occurs if metadata.src_config['osm'] or metadata.src_config['wikidata'] returns null in conflate.data.service.ts
-export type SourceType = "osm" | "wikidata" | "";
+export type SourceType = 'osm' | 'wikidata' | '';

@@ -17,13 +17,11 @@ import cookieParser from 'cookie-parser';
 import { swaggerify } from './swagger';
 import { l } from './logger';
 import * as fs from 'fs';
-import { logIncomingRequests } from "../middleware/log.incoming";
+import { logIncomingRequests } from '../middleware/log.incoming';
 import buildInfo from './build.info';
 
-
 export class ExpressServer {
-
-  private app = express()
+  private app = express();
 
   constructor() {
     const root = path.normalize(`${__dirname}/../..`);
@@ -35,7 +33,6 @@ export class ExpressServer {
     this.app.use(cookieParser(process.env.SESSION_SECRET)); // sign cookies. not sure what benefit is. See https://github.com/expressjs/cookie-parser
     this.app.use(logIncomingRequests(l)); // log all incoming requests for debugging
     this.app.use(express.static(`${root}/public`));
-    
   }
 
   // swaggerify uses the api definition in common/swagger/Api.yml to configure api endpoints
@@ -43,7 +40,7 @@ export class ExpressServer {
     swaggerify(this.app, routeProvider);
     return this;
   }
-  
+
   listen() {
     let privateKey = '';
     let certificate = '';
@@ -54,23 +51,33 @@ export class ExpressServer {
       try {
         privateKey = fs.readFileSync('privatekey.pem').toString();
         certificate = fs.readFileSync('certificate.pem').toString();
-      } catch(error) {
-        l.info("could not read privatekey or/and certificate, will startup in http")
+      } catch (error) {
+        l.info('could not read privatekey or/and certificate, will startup in http');
       }
       // use port 3001 running the stable branch, otherwise use port 3000
-      port = buildInfo.branch==='stable' ? '3001' : '3000';
+      port = buildInfo.branch === 'stable' ? '3001' : '3000';
     } else {
       // if not running in production, then use the port as defined in the .env file and if not defined, fall back to 3000
       port = process.env.PORT || '3000';
     }
 
-    const hasCertificate = privateKey && certificate
-    const welcome = (p: string) => () => l.info(`server.js: up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p} via ${hasCertificate ? 'https': 'http'}`);
-    if (hasCertificate) { 
-      https.createServer({
-        key: privateKey,
-        cert: certificate
-      }, this.app).listen(port, welcome(port));
+    const hasCertificate = privateKey && certificate;
+    const welcome = (p: string) => () =>
+      l.info(
+        `server.js: up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p} via ${
+          hasCertificate ? 'https' : 'http'
+        }`
+      );
+    if (hasCertificate) {
+      https
+        .createServer(
+          {
+            key: privateKey,
+            cert: certificate,
+          },
+          this.app
+        )
+        .listen(port, welcome(port));
       return this.app;
     } else {
       http.createServer(this.app).listen(port, welcome(port));

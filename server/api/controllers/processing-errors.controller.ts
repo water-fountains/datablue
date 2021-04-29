@@ -7,15 +7,15 @@
 
 // Created for proximap#206
 
-import _ from "lodash"
-import { l } from "../../common/logger"
-import { FountainCollection } from "../../common/typealias";
+import _ from 'lodash';
+import { l } from '../../common/logger';
+import { FountainCollection } from '../../common/typealias';
 
 //TODO @ralfhauser, I don't know the type of errorCollection since I was not able to get a real example of an issue, please narrow down accordingly
-export type ProcessingError = any
+export type ProcessingError = any;
 
 export function hasProcessingIssues(obj: any): obj is { issues: ProcessingError[] } {
-  return obj.hasOwnProperty('issues') && Array.isArray(obj.issues)
+  return obj.hasOwnProperty('issues') && Array.isArray(obj.issues);
 }
 
 export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): ProcessingError[] {
@@ -24,11 +24,11 @@ export function extractProcessingErrors(fountainCollection: FountainCollection |
     // returns collection of processing errors from collection
     if (process.env.NODE_ENV !== 'production') {
       l.info('extractProcessingErrors: start');
-    }  
-    fountainCollection.features.forEach(fountain =>
-      _.forIn(fountain.properties, p =>{
-        if(hasProcessingIssues(p)){
-          p.issues.forEach(issue => {
+    }
+    fountainCollection.features.forEach((fountain) =>
+      _.forIn(fountain.properties, (p) => {
+        if (hasProcessingIssues(p)) {
+          p.issues.forEach((issue) => {
             // create copy
             let error = _.cloneDeep(issue);
             // append error to collection
@@ -36,8 +36,8 @@ export function extractProcessingErrors(fountainCollection: FountainCollection |
           });
         }
       })
-    )
+    );
   }
-  l.info('extractProcessingErrors: found '+errorCollection.length+' processing errors');  
+  l.info('extractProcessingErrors: found ' + errorCollection.length + ' processing errors');
   return errorCollection;
 }

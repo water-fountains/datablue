@@ -5,7 +5,7 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import {Express, Router} from 'express';
+import { Express, Router } from 'express';
 import middleware from 'swagger-express-middleware';
 import * as path from 'path';
 
@@ -17,37 +17,36 @@ export function swaggerify(app: Express, routerProvider: (app: Express) => Route
     app.enable('strict routing');
 
     app.use(mw.metadata());
-    app.use(mw.files({
-      useBasePath: true,
-      apiPath: process.env.SWAGGER_API_SPEC,
-      // Disable serving the "Api.yaml" file
-      // rawFilesPath: false
-    }));
+    app.use(
+      mw.files({
+        useBasePath: true,
+        apiPath: process.env.SWAGGER_API_SPEC,
+        // Disable serving the "Api.yaml" file
+        // rawFilesPath: false
+      })
+    );
 
-    app.use(mw.parseRequest({
-      // Configure the cookie parser to use secure cookies
-      cookie: {
-        secret: process.env.SESSION_SECRET,
-      },
-      // Don't allow JSON content over 100kb (default is 1mb)
-      json: {
-        limit: process.env.REQUEST_LIMIT,
-      },
-    }));
+    app.use(
+      mw.parseRequest({
+        // Configure the cookie parser to use secure cookies
+        cookie: {
+          secret: process.env.SESSION_SECRET,
+        },
+        // Don't allow JSON content over 100kb (default is 1mb)
+        json: {
+          limit: process.env.REQUEST_LIMIT,
+        },
+      })
+    );
 
     // These two middleware don't have any options (yet)
-    app.use(
-      mw.CORS(),
-      mw.validateRequest()
-    );
+    app.use(mw.CORS(), mw.validateRequest());
 
     // Error handler to display the validation error as HTML
     app.use((err, _req, res, _next) => {
       res.status(err.status || 500);
-      res.header("Content-Type","text/html");
-      res.send(
-        `<h1>${err.status || 500} Error</h1>` +
-        `<pre>${err.message}</pre>`);
+      res.header('Content-Type', 'text/html');
+      res.send(`<h1>${err.status || 500} Error</h1>` + `<pre>${err.message}</pre>`);
     });
 
     routerProvider(app);

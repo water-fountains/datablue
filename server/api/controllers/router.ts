@@ -6,7 +6,7 @@
  */
 
 import * as express from 'express';
-import {controller} from './controller';
+import { controller } from './controller';
 import { buildInfoController } from './build-info.controller';
 
 // This file maps API routes to functions
@@ -18,5 +18,4 @@ export const Router = express
   .get('/metadata/locations/', controller.getLocationMetadata)
   .get('/metadata/shared-constants/', controller.getSharedConstants)
   .get('/processing-errors/', controller.getProcessingErrors)
-  .get('/build-info', buildInfoController)
-
+  .get('/build-info', buildInfoController);

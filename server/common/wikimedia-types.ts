@@ -1,5 +1,5 @@
-import { isArray } from "lodash";
-import { FountainConfig, FountainPropertyCollection, TypedFountainProperty } from "./typealias";
+import { isArray } from 'lodash';
+import { FountainConfig, FountainPropertyCollection, TypedFountainProperty } from './typealias';
 
 //TODO would be nice to have official types, couldn't find some maybe worth contributing back?
 
@@ -39,8 +39,14 @@ export type WikiCommonsCategoryCollection = {
 };
 
 //TODO @robstoll turn into extension function, would be a bit nicer to use
-export function hasWikiCommonsCategories(collection: FountainPropertyCollection<{}>) : collection is FountainPropertyCollection<WikiCommonsCategoryCollection> {
-    return collection.wiki_commons_name !== undefined && collection.wiki_commons_name.value != undefined && isArray(collection.wiki_commons_name.value)
+export function hasWikiCommonsCategories(
+  collection: FountainPropertyCollection<{}>
+): collection is FountainPropertyCollection<WikiCommonsCategoryCollection> {
+  return (
+    collection.wiki_commons_name !== undefined &&
+    collection.wiki_commons_name.value != undefined &&
+    isArray(collection.wiki_commons_name.value)
+  );
 }
 
 export type Category = {
@@ -48,5 +54,5 @@ export type Category = {
   c: string;
   l: number;
   //TODO @ralfhauser provide a more precise typing please
-  e?: any
+  e?: any;
 };
