@@ -21,7 +21,7 @@
     "dev": "node build.js && backpack dev",
     "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect",
-    "format": "prettier --write 'server/**/*.{ts,scss,json,html}' && prettier --write *.js"
+    "format": "prettier --write 'server/**/*.{ts,scss,json,html,yml}' && prettier --write '.github/**/*.yml' && prettier --write '*.js'"
   },
   "dependencies": {
     "axios": "^0.21.1",
