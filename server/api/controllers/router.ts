@@ -6,7 +6,7 @@
  */
 
 import * as express from 'express';
-import controller from './controller';
+import {controller} from './controller';
 import { buildInfoController } from './build-info.controller';
 
 // This file maps API routes to functions
