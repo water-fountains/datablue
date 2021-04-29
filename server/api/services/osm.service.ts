@@ -6,14 +6,14 @@
  */
 
 import l from '../../common/logger';
-import osm_fountain_config from "../../../config/fountains.sources.osm";
+import osm_fountain_config from '../../../config/fountains.sources.osm';
 import { FountainConfig } from '../../common/typealias';
 //TODO we could use overpas-ts thought I am not sure how well it is maintained and up-to-date
 var query_overpass = require('query-overpass');
 
 type OsmFountainConfigCollection = {
-  features: FountainConfig[]
-}
+  features: FountainConfig[];
+};
 
 class OsmService {
   /**
@@ -24,51 +24,63 @@ class OsmService {
    */
   byCenter(lat: number, lng: number, radius: number): Promise<FountainConfig[]> {
     // fetch fountains from OSM by coordinates and radius
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       let query = queryBuilderCenter(lat, lng, radius);
       if (process.env.NODE_ENV !== 'production') {
-        l.info('osm.service byCenter: '+query);
+        l.info('osm.service byCenter: ' + query);
       }
-      query_overpass(query, (error: any, data: OsmFountainConfigCollection)=>{
-        if(error){
-          reject(error);
-        }else{
-          l.info('osm.service byCenter: resulted in '+data.features.length+' foutains ');
-          resolve(data.features);
-        }
-      }, {flatProperties: true})
-    })
+      query_overpass(
+        query,
+        (error: any, data: OsmFountainConfigCollection) => {
+          if (error) {
+            reject(error);
+          } else {
+            l.info('osm.service byCenter: resulted in ' + data.features.length + ' foutains ');
+            resolve(data.features);
+          }
+        },
+        { flatProperties: true }
+      );
+    });
   }
-  
+
   byBoundingBox(latMin: number, lngMin: number, latMax: number, lngMax: number): Promise<FountainConfig[]> {
     // fetch fountain from OSM by coordinates
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       let query = queryBuilderBox(latMin, lngMin, latMax, lngMax);
       // l.info(query);
-      query_overpass(query, (error: any, data: OsmFountainConfigCollection)=>{
-        if(error){
-          reject(error);
-        }else if(data.features.length === 0){
-          l.info('osm.service.js byBoundingBox - NO_FOUNTAIN_AT_LOCATION: '+query);
-          resolve(data.features);
-        }else{
-          if (process.env.NODE_ENV !== 'production') {
-            l.info('osm.service.js byBoundingBox: '+query);
+      query_overpass(
+        query,
+        (error: any, data: OsmFountainConfigCollection) => {
+          if (error) {
+            reject(error);
+          } else if (data.features.length === 0) {
+            l.info('osm.service.js byBoundingBox - NO_FOUNTAIN_AT_LOCATION: ' + query);
+            resolve(data.features);
+          } else {
+            if (process.env.NODE_ENV !== 'production') {
+              l.info('osm.service.js byBoundingBox: ' + query);
+            }
+            l.info('osm.service.js byBoundingBox: resulted in ' + data.features.length + ' fountains');
+            resolve(data.features);
           }
-          l.info('osm.service.js byBoundingBox: resulted in '+data.features.length+' fountains');
-          resolve(data.features);
-        }
-      }, {flatProperties: true})
-    })
+        },
+        { flatProperties: true }
+      );
+    });
   }
 }
 
 function queryBuilderCenter(lat: number, lng: number, radius: number = 10): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
-    (${['node', 'way'].map(e=>
-      osm_fountain_config.sub_sources.map(item=>
-        `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`).join('')).join('')}
+    (${['node', 'way']
+      .map((e) =>
+        osm_fountain_config.sub_sources
+          .map((item) => `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`)
+          .join('')
+      )
+      .join('')}
     );out center;
   `;
 }
@@ -76,12 +88,15 @@ function queryBuilderCenter(lat: number, lng: number, radius: number = 10): stri
 function queryBuilderBox(latMin: number, lngMin: number, latMax: number, lngMax: number): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
-    (${['node', 'way'].map(e=>
-      osm_fountain_config.sub_sources.map(item=>
-    `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`).join('')).join('')}
+    (${['node', 'way']
+      .map((e) =>
+        osm_fountain_config.sub_sources
+          .map((item) => `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`)
+          .join('')
+      )
+      .join('')}
     );out center;
   `;
-
 }
 
 export default new OsmService();

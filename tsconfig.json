@@ -13,8 +13,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
-    "noImplicitAny": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    //TODO needs more effort but it would be better if we don't have to use this
+    "noImplicitAny": false
   }
 }

@@ -5,26 +5,23 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 [
-  "PORT", //
-  "REQUEST_LIMIT",
-  "SESSION_SECRET",
-  "SWAGGER_API_SPEC",
+  'PORT', //
+  'REQUEST_LIMIT',
+  'SESSION_SECRET',
+  'SWAGGER_API_SPEC',
 ].forEach((name) => {
   if (process.env[name] === undefined) {
     throw Error(`make sure you define ${name} in .env, cannot start server`);
   }
 });
 
-import { Router } from "./api/controllers/router";
-import { ExpressServer } from "./common/server";
-import { Express } from "express";
+import { Router } from './api/controllers/router';
+import { ExpressServer } from './common/server';
+import { Express } from 'express';
 
-
-export default new ExpressServer()
-  .router((app: Express) => app.use("/api/v1", Router))
-  .listen();
+export default new ExpressServer().router((app: Express) => app.use('/api/v1', Router)).listen();
