@@ -123,7 +123,7 @@ export class Controller {
           cityCache.set<FountainCollection>(city, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db);
 
           // create a reduced version of the data as well
-          let r_essential = essenceOf(fountainCollection);
+          const r_essential = essenceOf(fountainCollection);
           cityCache.set<FountainCollection>(city + '_essential', r_essential);
 
           // return either the full or reduced version, depending on the "essential" parameter of the query
@@ -190,7 +190,7 @@ export class Controller {
     // returns all processing errors for a given location
     // made for #206
     const city = getSingleQueryParam(req, 'city');
-    let key = city + '_errors';
+    const key = city + '_errors';
 
     if (cityCache.keys().indexOf(key) < 0) {
       // if data not in cache, create error list
@@ -201,7 +201,7 @@ export class Controller {
         sendJson(res, value, 'cityCache.get ' + key);
         l.info('controller.js: getProcessingErrors !err sent');
       } else {
-        let errMsg = 'Error with cache: ' + err;
+        const errMsg = 'Error with cache: ' + err;
         l.info('controller.js: getProcessingErrors ' + errMsg);
         res.statusMessage = errMsg;
         res.status(500).send(err.stack);
@@ -211,7 +211,7 @@ export class Controller {
 }
 export const controller = new Controller();
 
-function sendJson(resp: Response, obj: object | undefined, dbg: string): void {
+function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: string): void {
   //TODO consider using https://github.com/timberio/timber-js/issues/69 or rather https://github.com/davidmarkclements/fast-safe-stringify
   try {
     if (obj == undefined) {
@@ -230,7 +230,7 @@ function sendJson(resp: Response, obj: object | undefined, dbg: string): void {
     //           ' -  '+dbg);
     //   }
     // }
-  } catch (err) {
+  } catch (err: unknown) {
     const errS = 'controller.js doJson errors: "' + err + '" ' + dbg;
     l.error(errS);
     console.trace(errS);
@@ -242,13 +242,13 @@ function sendJson(resp: Response, obj: object | undefined, dbg: string): void {
  * Function to respond to request by returning the fountain as defined by the provided identifier
  */
 function byId(req: Request, res: Response, dbg: string): Promise<Fountain | undefined> {
-  let city = getSingleQueryParam(req, 'city');
+  const city = getSingleQueryParam(req, 'city');
   let name = 'unkNamById';
   //  l.info('controller.js byId: '+cityS+' '+dbg);
   let fountainCollection = cityCache.get<FountainCollection>(city);
 
   //	  l.info('controller.js byId in promise: '+cityS+' '+dbg);
-  let cityPromises: Promise<FountainCollection | void>[] = [];
+  const cityPromises: Promise<FountainCollection | void>[] = [];
   if (fountainCollection === undefined) {
     l.info('controller.js byId: ' + city + ' not found in cache ' + dbg + ' - start city lazy load');
     const genLocPrms = generateLocationDataAndCache(city, cityCache);
@@ -256,17 +256,17 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
   }
   return Promise.all(cityPromises)
     .then(
-      (_) => {
+      () => {
         if (fountainCollection === undefined) {
           fountainCollection = cityCache.get<FountainCollection>(city);
         }
         if (fountainCollection !== undefined) {
-          let fountain = fountainCollection.features.find(
+          const fountain = fountainCollection.features.find(
             (f) => f.properties['id_' + req.query.database].value === req.query.idval
           );
-          let imgMetaPromises: Promise<any>[] = [];
+          const imgMetaPromises: Promise<any>[] = [];
           let lazyAdded = 0;
-          let gl = -1;
+          const gl = -1;
           if (fountain === undefined) {
             l.info('controller.js byId: of ' + city + ' not found in cache ' + dbg);
             return undefined;
@@ -290,11 +290,11 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                   let lzAtt = '';
                   const showDetails = true;
                   const singleRefresh = true;
-                  let imgUrlSet = new Set<string>();
-                  let catPromises: Promise<ImageLike[]>[] = [];
+                  const imgUrlSet = new Set<string>();
+                  const catPromises: Promise<ImageLike[]>[] = [];
                   let numberOfCategories = -1;
                   let numberOfCategoriesLazyAdded = 0;
-                  let imgUrlsLazyByCategory: ImageLike[] = [];
+                  const imgUrlsLazyByCategory: ImageLike[] = [];
                   // TODO @ralfhauser, this condition does not make sense, if value.length < 0 means basically if it is empty and if it is empty, then numberOfCategories will always be 0 and the for-loop will do nothing
                   if (hasWikiCommonsCategories(props) && 0 < props.wiki_commons_name.value.length) {
                     numberOfCategories = props.wiki_commons_name.value.length;
@@ -343,7 +343,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                         //between 6 && 50 imgs are on the gallery-preview
                         const img = imgUrlsLazyByCategory[k];
                         //TODO @ralfhauser, val does not exist on GalleryValue but value, changed it
-                        let nImg: GalleryValue = {
+                        const nImg: GalleryValue = {
                           s: img.src,
                           pgTit: img.value,
                           c: img.cat,
@@ -372,7 +372,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                         );
                       }
                       for (const img of gallery.value) {
-                        let imMetaDat = img.metadata;
+                        const imMetaDat = img.metadata;
                         if (null == imMetaDat && 'wm' == img.t) {
                           lzAtt += i + ',';
                           l.info(
@@ -546,7 +546,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
   );
 
   // OSM promise
-  let osmPromise = OsmService
+  const osmPromise = OsmService
     // Get data from OSM within given radius
     .byCenter(lat, lng, radius)
     // Process OSM data to apply implied properties
@@ -559,7 +559,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
       throw e;
     });
 
-  let wikidataPromise = WikidataService
+  const wikidataPromise = WikidataService
     // Fetch all wikidata items within radius
     .idsByCenter(lat, lng, radius, dbg)
     // Fetch detailed information for fountains based on wikidata ids
@@ -570,7 +570,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
       // res.status(500).send(e.stack);
       throw e;
     });
-  let debugAll = true;
+  const debugAll = true;
   // When both OSM and Wikidata data have been collected, continue with joint processing
   Promise.all([osmPromise, wikidataPromise])
 
@@ -591,7 +591,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
 
     // return only the fountain that is closest to the coordinates of the query
     .then((r) => {
-      let distances = _.map(r, (f) => {
+      const distances = _.map(r, (f) => {
         // compute distance to center for each fountain
         return haversine(f.geometry.coordinates, [lng, lat], {
           unit: 'meter',
@@ -599,7 +599,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
         });
       });
       // return closest
-      let closest = r[_.indexOf(distances, _.min(distances))];
+      const closest = r[_.indexOf(distances, _.min(distances))];
       return [closest];
     })
 
@@ -610,7 +610,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
     // Update cache with newly processed fountain
     .then((r) => {
       const city = getSingleQueryParam(req, 'city');
-      let closest = updateCacheWithFountain(cityCache, r[0], city);
+      const closest = updateCacheWithFountain(cityCache, r[0], city);
       sendJson(res, closest, 'after updateCacheWithFountain');
     })
     .catch((e) => {

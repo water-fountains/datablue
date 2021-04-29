@@ -37,7 +37,7 @@ export function updateCacheWithFountain(cache: NodeCache, fountain: Fountain, ci
     // a remaining city-cache-time could be calculated with getTtl(cityname)
     cache.set(cityName, fountains, cacheTimeInSecs);
     // create a reduced version of the data as well
-    let r_essential = essenceOf(fountains);
+    const r_essential = essenceOf(fountains);
     cache.set(cityName + '_essential', r_essential, cacheTimeInSecs);
     return fountain;
   }
@@ -57,7 +57,7 @@ function replaceFountain(
 ): [FountainCollection, Fountain] {
   //    update cache with fountain and assign correct datablue id
 
-  let distances: [number, Fountain, number][] = [];
+  const distances: [number, Fountain, number][] = [];
 
   for (let i = 0; i < fountains.features.length; i++) {
     if (isMatch(fountains.features[i], fountain)) {
@@ -79,7 +79,7 @@ function replaceFountain(
     }
   }
 
-  let triple = _.minBy(distances, (p) => p[2]);
+  const triple = _.minBy(distances, (p) => p[2]);
   if (triple !== undefined && triple[2] < 15) {
     //TODO @ralf.hauser `f` did not exist here. I assumed that the fountain should be replaced by the fountain which is nearest. Please verify this change is correct
     const [index, nearestFountain, distance] = triple;
@@ -114,8 +114,8 @@ function replaceFountain(
 
 function isMatch(f1: Fountain, f2: Fountain): boolean {
   // returns true if match, otherwise returns distance
-  let ids = ['id_wikidata', 'id_operator', 'id_osm'];
-  for (let id_name of ids) {
+  const ids = ['id_wikidata', 'id_operator', 'id_osm'];
+  for (const id_name of ids) {
     if (f1.properties && f2.properties && f1.properties[id_name].value === f2.properties[id_name].value) {
       return true;
     }

@@ -9,7 +9,7 @@ import l from '../../common/logger';
 import axios, { AxiosPromise } from 'axios';
 import { cacheAdapterEnhancer } from 'axios-extensions';
 import * as _ from 'lodash';
-const wdk = require('wikidata-sdk');
+import wdk from 'wikidata-sdk';
 import sharedConstants from '../../common/shared-constants';
 import { Fountain } from '../../common/typealias';
 import { MediaWikiEntity, MediaWikiEntityCollection } from '../../common/wikimedia-types';
@@ -27,7 +27,7 @@ const http = axios.create({
 });
 
 class WikidataService {
-  idsByCenter(lat: number, lng: number, radius: number = 10, locationName: string): Promise<string[]> {
+  idsByCenter(lat: number, lng: number, radius = 10, locationName: string): Promise<string[]> {
     // fetch fountain from OSM by coordinates, within radius in meters
     const sparql = `
         SELECT ?place
@@ -49,7 +49,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    let res = doSparqlRequest(sparql, locationName, 'idsByCenter');
+    const res = doSparqlRequest(sparql, locationName, 'idsByCenter');
     return res;
   }
 
@@ -79,7 +79,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    let res = doSparqlRequest(sparql, locationName, 'idsByBoundingBox');
+    const res = doSparqlRequest(sparql, locationName, 'idsByBoundingBox');
     return res;
   }
 
@@ -87,7 +87,7 @@ class WikidataService {
     // fetch fountains by their QIDs
     const chunkSize = 50; // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject) => {
-      let httpPromises: AxiosPromise<MediaWikiEntityCollection>[] = [];
+      const httpPromises: AxiosPromise<MediaWikiEntityCollection>[] = [];
       let chunkCount = 0;
       try {
         chunk(qids, chunkSize).forEach((qidChunk) => {
@@ -121,8 +121,8 @@ class WikidataService {
             responses.forEach((r) => {
               // holder for data from each chunk
               //TODO should be typed as soon as we update wikidata-sdk to the latest version
-              let data: any = [];
-              for (let key in r.data.c) {
+              const data: any = [];
+              for (const key in r.data.c) {
                 const entity = wdk.simplify.entity(r.data.entities[key], {
                   // keep qualifiers when simplifying (qualifiers are needed for the operator id)
                   keepQualifiers: true,
@@ -150,7 +150,7 @@ class WikidataService {
             //TODO that's a smell, we should not use the reject of an outer promise
             reject(e);
           });
-      } catch (error) {
+      } catch (error: any) {
         l.error('wikidata.service.js byIds: catch error ' + error.stack + ' for loc "' + locationName + '"');
         reject(error);
       }
@@ -199,9 +199,9 @@ class WikidataService {
       const latMin = undefined;
       const lngMax = undefined;
       const latMax = undefined;
-      const locationName: string = 'undefined';
+      const locationName = 'undefined';
 
-      let newQueryMiro = false;
+      const newQueryMiro = false;
       if (newQueryMiro) {
         const sparql = `
         SELECT ?place
@@ -222,7 +222,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-        let res = doSparqlRequest(sparql, locationName, 'fillArtistName');
+        const res = doSparqlRequest(sparql, locationName, 'fillArtistName');
         l.info('wikidata.service.js fillArtistName: new Miro response ' + res + ' "' + idWd + '"');
       }
 
@@ -310,8 +310,8 @@ class WikidataService {
             artistName.derived.name = artName;
             // Try to find a useful link
             // Look for Wikipedia entry in different languages
-            for (let lang of sharedConstants.LANGS) {
-              if (entity.sitelinks.hasOwnProperty(lang + 'wiki')) {
+            for (const lang of sharedConstants.LANGS) {
+              if (Object.prototype.hasOwnProperty.call(entity.sitelinks, lang + 'wiki')) {
                 artistName.derived.website.url = `https://${lang}.wikipedia.org/wiki/${
                   entity.sitelinks[lang + 'wiki']
                 }`;
@@ -340,9 +340,9 @@ class WikidataService {
                 idWd +
                 '"'
             );
-            for (let pid of ['P856', 'P973', 'P854', 'P2699']) {
+            for (const pid of ['P856', 'P973', 'P854', 'P2699']) {
               // get the url value if the path exists
-              let url = _.get(entity.claims, [pid, 0, 'value'], false);
+              const url = _.get(entity.claims, [pid, 0, 'value'], false);
               if (url) {
                 artistName.derived.website.url = url;
                 l.info(
@@ -412,7 +412,7 @@ class WikidataService {
     }
     if (opNam.source === 'wikidata') {
       // create sparql url to fetch operator information from QID
-      let qid = opNam.value;
+      const qid = opNam.value;
       const url = wdk.getEntities({
         ids: [qid],
         format: 'json',
@@ -453,7 +453,7 @@ class WikidataService {
               return fountain;
             }
             // Get label of operator in English
-            let langs = Object.keys(entity.labels);
+            const langs = Object.keys(entity.labels);
             opNam.derived = {
               name: '',
               url: '',
@@ -468,7 +468,7 @@ class WikidataService {
             // Try to find a useful link
             // Official website P856 // described at URL P973 // reference URL P854 // URL P2699
             let url = null;
-            for (let pid of ['P856', 'P973', 'P854', 'P2699']) {
+            for (const pid of ['P856', 'P973', 'P854', 'P2699']) {
               // get the url value if the path exists
               url = _.get(entity.claims, [pid, 0, 'value'], false);
               if (url) {
@@ -494,9 +494,9 @@ class WikidataService {
 }
 
 function chunk<T>(arr: T[], len: number): T[][] {
-  let chunks: T[][] = [],
-    i = 0,
-    n = arr.length;
+  const chunks: T[][] = [];
+  const n = arr.length;
+  let i = 0;
 
   while (i < n) {
     chunks.push(arr.slice(i, (i += len)));
@@ -515,7 +515,7 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
       .get(url)
       .then((res) => {
         if (res.status !== 200) {
-          let error = new Error(
+          const error = new Error(
             `wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusText}. Url: ${url}`
           );
           l.error('wikidata.service.js doSparqlRequest: ' + dbg + ',  location ' + location + ' ' + error.message);
@@ -526,7 +526,7 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
         }
 
         try {
-          let simplifiedResults = wdk.simplifySparqlResults(res.data);
+          const simplifiedResults = wdk.simplifySparqlResults(res.data);
           l.info(
             'wikidata.service.js doSparqlRequest: ' +
               dbg +
@@ -538,7 +538,7 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
               location
           );
           resolve(simplifiedResults);
-        } catch (e) {
+        } catch (e: any) {
           l.error(
             'wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.' +
               e.stack +

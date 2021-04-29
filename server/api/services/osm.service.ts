@@ -9,11 +9,11 @@ import l from '../../common/logger';
 import osm_fountain_config from '../../../config/fountains.sources.osm';
 import { FountainConfig } from '../../common/typealias';
 //TODO we could use overpas-ts thought I am not sure how well it is maintained and up-to-date
-var query_overpass = require('query-overpass');
+import query_overpass from 'query-overpass';
 
-type OsmFountainConfigCollection = {
+interface OsmFountainConfigCollection {
   features: FountainConfig[];
-};
+}
 
 class OsmService {
   /**
@@ -25,7 +25,7 @@ class OsmService {
   byCenter(lat: number, lng: number, radius: number): Promise<FountainConfig[]> {
     // fetch fountains from OSM by coordinates and radius
     return new Promise((resolve, reject) => {
-      let query = queryBuilderCenter(lat, lng, radius);
+      const query = queryBuilderCenter(lat, lng, radius);
       if (process.env.NODE_ENV !== 'production') {
         l.info('osm.service byCenter: ' + query);
       }
@@ -47,7 +47,7 @@ class OsmService {
   byBoundingBox(latMin: number, lngMin: number, latMax: number, lngMax: number): Promise<FountainConfig[]> {
     // fetch fountain from OSM by coordinates
     return new Promise((resolve, reject) => {
-      let query = queryBuilderBox(latMin, lngMin, latMax, lngMax);
+      const query = queryBuilderBox(latMin, lngMin, latMax, lngMax);
       // l.info(query);
       query_overpass(
         query,
@@ -71,7 +71,7 @@ class OsmService {
   }
 }
 
-function queryBuilderCenter(lat: number, lng: number, radius: number = 10): string {
+function queryBuilderCenter(lat: number, lng: number, radius = 10): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
     (${['node', 'way']

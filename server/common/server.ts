@@ -21,7 +21,7 @@ import { logIncomingRequests } from '../middleware/log.incoming';
 import buildInfo from './build.info';
 
 export class ExpressServer {
-  private app = express();
+  private readonly app = express();
 
   constructor() {
     const root = path.normalize(`${__dirname}/../..`);
@@ -36,12 +36,12 @@ export class ExpressServer {
   }
 
   // swaggerify uses the api definition in common/swagger/Api.yml to configure api endpoints
-  router(routeProvider: (express: express.Express) => express.Router) {
+  router(routeProvider: (express: express.Express) => express.Router): ExpressServer {
     swaggerify(this.app, routeProvider);
     return this;
   }
 
-  listen() {
+  listen(): express.Express {
     let privateKey = '';
     let certificate = '';
     let port = '';
@@ -51,7 +51,7 @@ export class ExpressServer {
       try {
         privateKey = fs.readFileSync('privatekey.pem').toString();
         certificate = fs.readFileSync('certificate.pem').toString();
-      } catch (error) {
+      } catch (error: unknown) {
         l.info('could not read privatekey or/and certificate, will startup in http');
       }
       // use port 3001 running the stable branch, otherwise use port 3000

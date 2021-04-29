@@ -15,7 +15,7 @@ import sharedConstants from './../../common/shared-constants';
 import { Category, MediaWikiEntityCollection } from '../../common/wikimedia-types';
 import { GalleryValue } from '../../common/typealias';
 
-let api = axios.create({});
+const api = axios.create({});
 
 // a concurrency parameter of 1 makes all api requests sequential
 const lgthWarnSiz = 1500;
@@ -42,7 +42,7 @@ export function getCatExtract(
     return;
   }
   // TODO @ralfhauser, also here, why do we use c and not n for catName? search for other
-  let catName = category.c;
+  const catName = category.c;
   if (null == catName) {
     l.info('claims.wm.js getCatExtract: null == catName ' + dbg);
     return;
@@ -55,9 +55,9 @@ export function getCatExtract(
   const sanTit = sanitizeTitle(encCat);
   const url = `https://commons.wikimedia.org/w/api.php?action=query&titles=Category:${sanTit}&prop=extracts&format=json&explaintext`;
   const timeoutSecs = 1;
-  let timeout = timeoutSecs * 1000;
+  const timeout = timeoutSecs * 1000;
   //      l.info('claims.wm.js: getCatExtract '+dbg+' '+url);
-  let extractPomise = api
+  const extractPomise = api
     .get(url, { timeout: timeout })
     .then((r) => {
       const keys = Object.keys(r.data.query.pages);
@@ -129,7 +129,7 @@ export function getImgClaims(
     return;
   }
   //TODO @ralfhauser, we should check for === undefined or could it also be null sometimes?
-  let fn = img.pgTit;
+  const fn = img.pgTit;
   if (null == fn) {
     l.info('claims.wm.js getImgClaims: null == img.pgTit  ' + dbg);
     return;
@@ -144,7 +144,7 @@ export function getImgClaims(
   const timeoutSecs = 1;
   const timeout = timeoutSecs * 1000;
   //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg);
-  let claimsPromise = api
+  const claimsPromise = api
     .get<MediaWikiEntityCollection>(url, { timeout: timeout })
     .then((r) => {
       l.info('claims.wm.js getImgClaims: got response for ' + url + ' ' + dbg);
