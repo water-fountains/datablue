@@ -16,7 +16,7 @@ import {
 
 import _ from "lodash"
 import haversine from "haversine";
-import { Fountain, FountainConfig, FountainConfigCollection, FountainProperties, FountainProperty, Source, SourceConfig } from '../../common/typealias';
+import { Fountain, FountainConfig, FountainConfigCollection, FountainConfigProperties, FountainConfigProperty, Source, SourceConfig } from '../../common/typealias';
 
 
 // wikidata property paths: path for accessing the wikidata QID of a fountain, either in the query result of wikidata or the query result from OSM
@@ -30,8 +30,8 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
   return new Promise((resolve)=> {
     
     let conflated = {
-      wikidata: new Array<FountainProperties>(),
-      coord: new Array<FountainProperties>()
+      wikidata: new Array<FountainConfigProperties>(),
+      coord: new Array<FountainConfigProperties>()
     };
     
     // Only try to find matching fountains if both lists contain fountains
@@ -47,8 +47,8 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
     
     // process remaining fountains that were not matched by either QID or coordinates
     let unmatched = {
-      osm: Array<FountainProperties>(),
-      wikidata: Array<FountainProperties>()
+      osm: Array<FountainConfigProperties>(),
+      wikidata: Array<FountainConfigProperties>()
     };
     unmatched.osm = _.map(fountains.osm, f_osm =>{
       return mergeFountainProperties({osm:f_osm, wikidata: null}, 'unmatched.osm', null, debugAll,dbg)});
@@ -72,9 +72,9 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
  * This function finds matching pairs of fountains between osm and wikidata. It returns the list of matches and removes the matched fountains from the 'ftns' argument
  * @param {Object} fountains - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByWikidata(fountains: FountainConfigCollection, dbg: string, debugAll: boolean): FountainProperties[] {
+function conflateByWikidata(fountains: FountainConfigCollection, dbg: string, debugAll: boolean): FountainConfigProperties[] {
   // Holder for conflated (matched) fountains
-  let conflated_fountains: FountainProperties[] = [];
+  let conflated_fountains: FountainConfigProperties[] = [];
   // Holders for matched fountain indexes
   let matched_idx_osm: number[] = [];
   let matched_idx_wd: number[] = [];
@@ -145,12 +145,12 @@ function cleanFountainCollections(fountains: FountainConfigCollection, matched_i
  * Find matching fountains based on coordinates alone
  * @param {Object} foutains - Object (passed by reference) with two properties: 'osm' is a list of fountains returned from OSM and 'wikidata' is list from wikidata
  */
-function conflateByCoordinates(foutains: FountainConfigCollection, dbg: string, debugAll: boolean): FountainProperties[] {
+function conflateByCoordinates(foutains: FountainConfigCollection, dbg: string, debugAll: boolean): FountainConfigProperties[] {
 	if (debugAll) {
 		  l.info('conflate.data.service.js conflateByCoordinates: '+foutains+' ftns '+dbg);
 	}
   // Holder for conflated fountains
-  let conflated_fountains : FountainProperties[] = [];
+  let conflated_fountains : FountainConfigProperties[] = [];
   // Temporary holders for matched fountain indexes
   let matched_idx_osm: number[] = [];
   let matched_idx_wd: number[] = [];
@@ -202,7 +202,7 @@ function mergeFountainProperties(
   mergeDistance: number | null = null, 
   debugAll: boolean,
   dbg: string
-): FountainProperties {
+): FountainConfigProperties {
 
   if (debugAll) {
 		  l.info('conflate.data.service.js mergeFountainProperties: '+namedFountainConfig+' fountains, '+mergeNotes+' '+dbg);
@@ -213,7 +213,7 @@ function mergeFountainProperties(
   // loop through each property in the metadata
   _.forEach(fountain_property_metadata, (metadata)=>{
     // fountain template with default property values copied in
-    let temp : FountainProperty = {
+    let temp : FountainConfigProperty = {
       id: metadata.id,
       value: metadata.value,
       comments: metadata.comments,
@@ -414,7 +414,7 @@ function mergeFountainProperties(
   return mergedProperties
 }
 
-function properties2GeoJson(collection: FountainProperties[]): Fountain[]{
+function properties2GeoJson(collection: FountainConfigProperties[]): Fountain[]{
   return _.map(collection, properties=>{
     try{
       return {

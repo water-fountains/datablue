@@ -220,9 +220,9 @@ export function essenceOf(fountainCollection: FountainCollection) {
         props.ph = '';
         strVw++;
       } else {
-        props.ph = { s:fGV0.s,
-                     pt:fGV0.pgTit,
-                     t:fGV0.t};
+        props.ph = { s: fGV0.s,
+                     pt: fGV0.pgTit,
+                     t: fGV0.t};
         withGallery++;
       }
     }

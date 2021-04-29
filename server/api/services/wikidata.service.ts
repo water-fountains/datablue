@@ -11,7 +11,8 @@ import { cacheAdapterEnhancer } from 'axios-extensions';
 import * as _ from 'lodash'
 const wdk = require('wikidata-sdk')
 import sharedConstants from '../../common/shared-constants';
-import { Fountain, FountainConfig } from '../../common/typealias';
+import { Fountain} from '../../common/typealias';
+import { MediaWikiEntity, MediaWikiEntityCollection } from '../../common/wikimedia-types';
 
 // Set up caching of http requests
 const http = axios.create({
@@ -20,10 +21,6 @@ const http = axios.create({
   adapter: cacheAdapterEnhancer(axios.defaults.adapter ?? (() => {throw new Error("illegal state, axios.defaults has not defined an adapter")})())
 });
 
-interface WikidataEntityCollection extends FountainConfig {
-  entities: { [key: string]: any | undefined }
-  c: any
-}
 
 class WikidataService {
   idsByCenter(lat: number, lng: number, radius: number=10,locationName: string): Promise<string[]> {
@@ -77,11 +74,11 @@ class WikidataService {
   }
   
   
-  byIds(qids: string[],locationName: string): Promise<WikidataEntityCollection[]> {
+  byIds(qids: string[],locationName: string): Promise<MediaWikiEntityCollection[]> {
     // fetch fountains by their QIDs
     const chunkSize = 50;  // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject)=>{
-      let httpPromises: AxiosPromise<WikidataEntityCollection>[] = [];
+      let httpPromises: AxiosPromise<MediaWikiEntityCollection>[] = [];
 	    let chunkCount = 0;
       try{
         chunk(qids, chunkSize).forEach(qidChunk=> {
@@ -96,7 +93,7 @@ class WikidataService {
             props: []
           });
           // get data
-          httpPromises.push(http.get<WikidataEntityCollection>(url));
+          httpPromises.push(http.get<MediaWikiEntityCollection>(url));
         });
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
@@ -151,13 +148,13 @@ class WikidataService {
   fillArtistName(fountain: Fountain, dbg: string): Promise<Fountain> {
     // created for proximap/#129
     // intialize
-    const artNam = fountain.properties.artist_name;
-    if (null != artNam.derived && null != artNam.derived.name
-      && '' != artNam.derived.name.trim()) {
-       l.info('wikidata.service.js fillArtistName: already set "'+artNam.derived.name+'"');
+    const artistName = fountain.properties.artist_name;
+    if (null != artistName.derived && null != artistName.derived.name
+      && '' != artistName.derived.name.trim()) {
+       l.info('wikidata.service.js fillArtistName: already set "'+artistName.derived.name+'"');
        return new Promise(resolve => resolve(fountain));
     }
-    artNam.derived = {
+    artistName.derived = {
       website: {
         url: null,
         wikidata: null,
@@ -167,11 +164,11 @@ class WikidataService {
     dbg += ' '+fountain.properties.name.value;
   	const idWd = fountain.properties.id_wikidata.value;
     // if there is a wikidata entity, then fetch more information with a query
-    if(artNam.source === 'wikidata'){
+    if(artistName.source === 'wikidata'){
       if (null == idWd) {
     	 l.info('wikidata.service.js fillArtistName: null == idWd');
       }
-      const qid = artNam.value;
+      const qid = artistName.value;
       if (null == qid) {
          l.info('wikidata.service.js fillArtistName: null == qid for "'+idWd+'"');
          return new Promise(resolve => resolve(fountain));
@@ -182,7 +179,7 @@ class WikidataService {
       }
       
       // enter wikidata url
-      artNam.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
+      artistName.derived.website.wikidata = `https://www.wikidata.org/wiki/${qid}`;
       
       //TODO @ralfhauser the following variables did not exist before but are used below. Maybe the reason why proximap#212 exists?
       const lngMin = undefined
@@ -225,8 +222,8 @@ class WikidataService {
       });
 //      l.debug(url);
       // get data
-      let eQid = null;
-      return http.get<WikidataEntityCollection>(url)
+      let eQid : MediaWikiEntity | undefined = undefined;
+      return http.get<MediaWikiEntityCollection>(url)
       // parse into an easier to read format
         .then(r=>{
           const data = r.data;
@@ -234,18 +231,15 @@ class WikidataService {
           if (null == entities) {
              l.info('wikidata.service.js fillArtistName: null == entities "'+qid+'" for idWd "'+idWd+'"');
              return fountain;
-          }
+          } 
           l.info('wikidata.service.js fillArtistName: null != entities "'+qid+'" for idWd "'+idWd+'"');
           eQid = entities[qid];
-          if (null == eQid) {
+          if (undefined === eQid) {
              l.info('wikidata.service.js fillArtistName: null == eQid "'+qid+'" for idWd "'+idWd+'"');
              return fountain;
           }
           l.info('wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "'+eQid+'", qid  "'+qid+'" for idWd "'+idWd+'"');
-          const simplified = wdk.simplify.entity(eQid,
-            {
-              keepQualifiers: true
-            });
+          const simplified = wdk.simplify.entity(eQid, { keepQualifiers: true });
           l.info('wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
           return simplified;
         })
@@ -266,13 +260,13 @@ class WikidataService {
             artName = entity.labels[langs[0]];
           }
           //artNam.value = artName;
-          artNam.derived.name = artName;
+          artistName.derived.name = artName;
           // Try to find a useful link
           // Look for Wikipedia entry in different languages
           for(let lang of sharedConstants.LANGS){
             if(entity.sitelinks.hasOwnProperty(lang+'wiki')){
-              artNam.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
-              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
+              artistName.derived.website.url = `https://${lang}.wikipedia.org/wiki/${entity.sitelinks[lang+'wiki']}`;
+              l.info('wikidata.service.js fillArtistName: found url '+artistName.derived.website.url+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
               return fountain;
             }
           }
@@ -283,8 +277,8 @@ class WikidataService {
             // get the url value if the path exists
             let url = _.get(entity.claims, [pid, 0, 'value'], false);
             if(url){
-              artNam.derived.website.url = url;
-              l.info('wikidata.service.js fillArtistName: found url '+artNam.derived.website.url+' based on pid '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
+              artistName.derived.website.url = url;
+              l.info('wikidata.service.js fillArtistName: found url '+artistName.derived.website.url+' based on pid '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
               return fountain;
             }
             l.info('wikidata.service.js fillArtistName: url not found for '+pid+' - eQid "'+eQid+'", qid "'+qid+'" for idWd "'+idWd+'"');
@@ -298,7 +292,7 @@ class WikidataService {
           l.error(`wikidata.service.ts fillArtistName: Error collecting artist name and url from wikidata: `+dbg);
           l.info(`stack: ${err.stack}`);
           l.info(`url: ${url}\n`);
-          artNam.issues.push({
+          artistName.issues.push({
             data: err,
               context: {
               fountain_name: fountain.properties.name.value,
@@ -314,7 +308,7 @@ class WikidataService {
           return fountain
         });
     } else {
-       l.info('wikidata.service.js fillArtistName: source '+artNam.source+' "'+dbg+'"');
+       l.info('wikidata.service.js fillArtistName: source '+artistName.source+' "'+dbg+'"');
        return new Promise(resolve => resolve(fountain));
     }
   }
