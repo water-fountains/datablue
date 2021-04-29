@@ -11,17 +11,23 @@ import _ from "lodash"
 import { l } from "../../common/logger"
 import { FountainCollection } from "../../common/typealias";
 
-//TODO type fountainCollection, then it would be clear that features can be undefined
-export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): any[] {
-  let errorCollection: any[] = [];
+//TODO @ralfhauser, I don't know the type of errorCollection since I was not able to get a real example of an issue, please narrow down accordingly
+export type ProcessingError = any
+
+export function hasProcessingIssues(obj: any): obj is { issues: ProcessingError[] } {
+  return obj.hasOwnProperty('issues') && Array.isArray(obj.issues)
+}
+
+export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): ProcessingError[] {
+  let errorCollection: ProcessingError[] = [];
   if (fountainCollection !== undefined) {
     // returns collection of processing errors from collection
     if (process.env.NODE_ENV !== 'production') {
       l.info('extractProcessingErrors: start');
     }  
     fountainCollection.features.forEach(fountain =>
-      _.forIn(fountain.properties, (p: any) =>{
-        if(p.hasOwnProperty('issues') && Array.isArray(p.issues)){
+      _.forIn(fountain.properties, p =>{
+        if(hasProcessingIssues(p)){
           p.issues.forEach(issue => {
             // create copy
             let error = _.cloneDeep(issue);

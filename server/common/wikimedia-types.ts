@@ -47,4 +47,6 @@ export type Category = {
   n: string;
   c: string;
   l: number;
+  //TODO @ralfhauser provide a more precise typing please
+  e?: any
 };

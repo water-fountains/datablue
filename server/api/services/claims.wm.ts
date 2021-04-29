@@ -12,14 +12,15 @@ import l from '../../common/logger';
 import axios from 'axios'
 import {sanitizeTitle} from "./wikimedia.service";
 import sharedConstants from './../../common/shared-constants';
-import { MediaWikiEntityCollection } from '../../common/wikimedia-types';
+import { Category, MediaWikiEntityCollection } from '../../common/wikimedia-types';
+import { GalleryValue } from '../../common/typealias';
 
 let api = axios.create({});
 
 // a concurrency parameter of 1 makes all api requests sequential
 const lgthWarnSiz = 1500;
 
-export function getCatExtract(singleRefresh: boolean, category: { e: any, c: string } | null, promises: Promise<any>[], dbg: string): void {
+export function getCatExtract(singleRefresh: boolean, category: Category | null, promises: Promise<any>[], dbg: string): void {
    if (!singleRefresh) {
       return;
    }
@@ -31,7 +32,7 @@ export function getCatExtract(singleRefresh: boolean, category: { e: any, c: str
       l.info('claims.wm.js getCatExtract: null == promises '+dbg);          
       return;
    }
-   if (null != category.e) {
+   if (category.e !== undefined) {
       l.info('claims.wm.js getCatExtract: extract "'+category.e+'" already exists '+dbg);          
       return;
    }
@@ -87,10 +88,11 @@ export function getCatExtract(singleRefresh: boolean, category: { e: any, c: str
 }
 
 
-export function getImgClaims(singleRefresh: boolean, img: { pgTit: string } | null, promises, dbg: string): void {
+export function getImgClaims(singleRefresh: boolean, img: GalleryValue | undefined, promises: Promise<any>[], dbg: string): void {
    if (!singleRefresh) {
       return;
    }
+   //TODO @ralfhauser, we should check for === undefined or could it also be null sometimes?
    if (null == img) {
       l.info('claims.wm.js getImgClaims: null == img '+dbg);          
       return;
@@ -99,6 +101,7 @@ export function getImgClaims(singleRefresh: boolean, img: { pgTit: string } | nu
       l.info('claims.wm.js getImgClaims: null == promises '+dbg);          
       return;
    }
+   //TODO @ralfhauser, we should check for === undefined or could it also be null sometimes?
    let fn = img.pgTit;
    if (null == fn) {
       l.info('claims.wm.js getImgClaims: null == img.pgTit  '+dbg);          

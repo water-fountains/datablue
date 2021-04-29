@@ -18,15 +18,11 @@ import { Fountain, FountainCollection, FountainConfig, FountainConfigCollection 
 
 export function defaultCollectionEnhancement(fountainArr: Fountain[],dbg: string, debugAll: boolean): Promise<Fountain[]> {
   l.info('processing.service.js defaultCollectionEnhancement: '+dbg);
-  return new Promise((resolve, reject)=>{
-    fillImageGalleries(fountainArr,dbg, debugAll)
+  return fillImageGalleries(fountainArr,dbg, debugAll)
       .then(r => fillOutNames(r,dbg))
 //      .then(r => fillWikipediaSummaries(r,dbg))
 //      .then(r => fillArtistNames(r,dbg)) as per LAZY_ARTIST_NAME_LOADING_i41db
 //      .then(r => fillOperatorInfo(r,dbg))
-      .then(r => resolve(r))
-      .catch(err=>reject(err))
-  })
 }
 
 

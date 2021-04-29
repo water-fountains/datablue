@@ -76,7 +76,7 @@ export type ImageInfoMetadataCollection = { [key: string]: string | undefined };
 export type GalleryValue = {
   s: string;
   t: string;
-  pgTit: string;
+  pgTit?: string;
   //TODO @ralfhauser, should not every SCPT have a category?
   c?: Category;
   metadata?: ImageInfoMetadataCollection;
@@ -91,8 +91,6 @@ export type Translated<T> = {
   it: T;
   tr: T;
 };
-
-
 
 export type NamedSources<W, O> = {
   wikidata: W;

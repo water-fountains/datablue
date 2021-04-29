@@ -257,7 +257,6 @@ function mergeFountainProperties(
         
         // Get value of property from source
         let value = _.get(fountain, cfg.src_path, null);
-        //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         if(value === null && cfg.src_path1 !== undefined && cfg.hasOwnProperty('src_path1')){
             value = _.get(fountain, cfg.src_path1, null);
         }
@@ -266,8 +265,6 @@ function mergeFountainProperties(
         //     value = _.get(fountain, cfg.src_path2, null);
         // }
         let useExtra = false;
-  
-        //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
         if(value === null &&  cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
           value = _.get(fountain, cfg.src_path_extra, null);
@@ -286,7 +283,6 @@ function mergeFountainProperties(
         		  let v = cfg.value_translation(value);
         		  tmp.extracted = v;
         	      if('wiki_commons_name' == temp.id){
-                  //TODO @ralfhauser, I guess it does not really matter where the property is defined and the check for !== undefined would suffice
         	        if(cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')){
         	    		let valueE = _.get(fountain, cfg.src_path_extra, null);
         	    		if (null != valueE && null != v && 0 < valueE.trim().length) {

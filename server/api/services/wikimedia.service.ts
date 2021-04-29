@@ -33,7 +33,6 @@ class WikimediaService {
     return props.name.value;
   }
     
-  //TODO @ralfhauser
   private getImgsFromCats(fProps: FountainPropertyCollection<WikiCommonsCategoryCollection>, dbg: string,city: string,dbgIdWd: string,name: string,imgNoInfoPomises: Promise<ImageLike[]>[], imgUrlSet: Set<string>, imgUrls: ImageLike[], debugAll: boolean): void {
 	  let catNames = fProps.wiki_commons_name.value;
 	  if (1 < catNames.length) {
@@ -44,7 +43,7 @@ class WikimediaService {
 	  let catName = 'unkCatNam';
 	  for(let i = 0;i < catNames.length; i++) {
 		  const cat = catNames[i];
-      // TODO @ralfhauser, 
+      // TODO @ralfhauser, also here we extract catName from cat.c and not from n (I think by now I saw more c than n so maybe n is the real problem)
 		  catName = cat.c;
 		  if (isBlacklisted(catName)) {
 			  l.info('wikimedia.service.js: '+catNames.length+' commons category blacklisted  "'+catName+'" "'+dbg+' ' +city+' '+dbgIdWd+' "'+name+'"');
@@ -65,7 +64,7 @@ class WikimediaService {
     allMap: Map<String, { i: GalleryValue, c?: any, clrs: Set<string> }>, 
     numbOfFntsInCollection: number
   ): Promise<Fountain> {
-    //TODO @ralfhauser, change from null to '' to satisfy the type string
+    //TODO @ralfhauser, changed it from null to '' to satisfy the type string
     let dbgIdWd = '';
 //    if (debugAll) {
 //       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd);
@@ -471,7 +470,8 @@ export function getImageInfo(img: GalleryValue, dbg : string, showDetails : bool
     return iiPr;
   }
 
-export function getImgsOfCat(cat: Category, dbg: string, city: string, imgUrlSet: Set<string>, imgUrls: ImageLike[], dbgIdWd: string, fProps, debugAll: boolean): Promise<ImageLike[]> {
+//TODO it would be better if we don't have side effects, i.e. dont add stuff to imgUrlSet and imgUrls but only return 
+export function getImgsOfCat(cat: Category, dbg: string, city: string, imgUrlSet: Set<string>, imgUrls: ImageLike[], dbgIdWd: string, fProps: FountainPropertyCollection<{}>, debugAll: boolean): Promise<ImageLike[]> {
     // TODO @ralfhauser, I don't get the naming schema yet, I figured n is the name of the category
 	  let catName = cat.c;
     // if there is a gallery, then fetch all images in category
