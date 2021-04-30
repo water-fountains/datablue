@@ -78,7 +78,7 @@ export function isBlacklisted(categoryName: string | null): boolean {
         if (blacklist.has(name)) {
           return ['on blacklist', true];
         } else {
-          return ['on blacklistRegExp', blacklistRegExp.some((regex) => regex.test(name))];
+          return ['on blacklistRegExp', blacklistRegExp.some(regex => regex.test(name))];
         }
       }
     }

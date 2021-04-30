@@ -54,7 +54,7 @@ const cityCache = new NodeCache({
  */
 
 // when cached data expires, regenerate it (ignore non-essential)
-cityCache.on('expired', (key) => {
+cityCache.on('expired', key => {
   // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if (!key.includes('_essential') && !key.includes('_errors')) {
     l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`);
@@ -66,9 +66,9 @@ export class Controller {
   constructor() {
     // In production mode, process all fountains when starting the server so that the data are ready for the first requests
     if (process.env.NODE_ENV === 'production') {
-      Object.keys(locations).forEach((locationCode) => {
+      Object.keys(locations).forEach(locationCode => {
         l.info(`controller.js Generating data for ${locationCode}`);
-        generateLocationData(locationCode).then((fountainCollection) => {
+        generateLocationData(locationCode).then(fountainCollection => {
           // save new data to storage
           //TODO @ralfhauser, the old comment states  // expire after two hours but CACHE_FOR_HRS_i45db is currently 48, which means after two days
           cityCache.set<FountainCollection>(
@@ -118,7 +118,7 @@ export class Controller {
     if (req.query.refresh || cityCache.keys().indexOf(city) === -1) {
       l.info(`controller.js byLocation: refresh: ${req.query.refresh} , city: ` + city);
       generateLocationData(city)
-        .then((fountainCollection) => {
+        .then(fountainCollection => {
           // save new data to storage
           cityCache.set<FountainCollection>(city, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db);
 
@@ -139,7 +139,7 @@ export class Controller {
           const elapse = (end.getTime() - start.getTime()) / 1000;
           l.info('controller.js byLocation generateLocationData: finished after ' + elapse.toFixed(1) + ' secs');
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.message) {
             res.statusMessage = error.message;
           }
@@ -262,7 +262,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
         }
         if (fountainCollection !== undefined) {
           const fountain = fountainCollection.features.find(
-            (f) => f.properties['id_' + req.query.database].value === req.query.idval
+            f => f.properties['id_' + req.query.database].value === req.query.idval
           );
           const imgMetaPromises: Promise<any>[] = [];
           let lazyAdded = 0;
@@ -338,7 +338,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                     }
                   }
                   Promise.all(catPromises).then(
-                    (r) => {
+                    r => {
                       for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
                         //between 6 && 50 imgs are on the gallery-preview
                         const img = imgUrlsLazyByCategory[k];
@@ -395,7 +395,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                               i + '/' + gl + ' ' + dbg + ' ' + name + ' ' + city,
                               showDetails,
                               props
-                            ).catch((giiErr) => {
+                            ).catch(giiErr => {
                               //TODO @ralfhauser, dbgIdWd does not exist
                               const dbgIdWd = undefined;
                               l.info(
@@ -440,7 +440,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                         );
                       }
                       Promise.all(imgMetaPromises).then(
-                        (r) => {
+                        r => {
                           if (0 < lazyAdded) {
                             l.info(
                               'controller.js byId lazy img metadata loading after promise: attempted ' +
@@ -461,14 +461,14 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                           l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
                           return fountain;
                         },
-                        (err) => {
+                        err => {
                           l.error(
                             `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                           );
                         }
                       );
                     },
-                    (err) => {
+                    err => {
                       l.error(
                         `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                       );
@@ -477,7 +477,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                 } else {
                   l.info('controller.js byId: of ' + city + ' gl < 1  ' + dbg);
                   Promise.all(imgMetaPromises).then(
-                    (r) => {
+                    r => {
                       if (0 < lazyAdded) {
                         l.info(
                           'controller.js byId lazy img metadata loading after promise: attempted ' +
@@ -498,7 +498,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                       l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
                       return fountain;
                     },
-                    (err) => {
+                    err => {
                       l.error(
                         `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                       );
@@ -516,12 +516,12 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
         return undefined;
         //      l.info('controller.js byId: end of '+cityS+' '+dbg);
       },
-      (err) => {
+      err => {
         l.error(`controller.js byId: Failed on genLocPrms: ${err.stack} .` + dbg + ' ' + city);
         return undefined;
       }
     )
-    .catch((e) => {
+    .catch(e => {
       //TODO @ralfhauser, this error will never occurr because we already defined an error case two lines above
       l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: ` + city + ' ' + dbg);
       l.error(e.stack);
@@ -550,8 +550,8 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
     // Get data from OSM within given radius
     .byCenter(lat, lng, radius)
     // Process OSM data to apply implied properties
-    .then((r) => applyImpliedPropertiesOsm(r))
-    .catch((e) => {
+    .then(r => applyImpliedPropertiesOsm(r))
+    .catch(e => {
       l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `);
       // TODO @ralfhauser, this is an ugly side effect, this does nost stop the program but implies return void
       // hence I changed it because we already catch errors in Promise.all
@@ -563,8 +563,8 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
     // Fetch all wikidata items within radius
     .idsByCenter(lat, lng, radius, dbg)
     // Fetch detailed information for fountains based on wikidata ids
-    .then((r) => WikidataService.byIds(r, dbg))
-    .catch((e) => {
+    .then(r => WikidataService.byIds(r, dbg))
+    .catch(e => {
       l.error(`Error collecting Wikidata data: ${e}`);
       // TODO @ralfhauser, same same as above
       // res.status(500).send(e.stack);
@@ -575,10 +575,10 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
   Promise.all([osmPromise, wikidataPromise])
 
     // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
-    .then((r) => fillInMissingWikidataFountains(r[0], r[1], dbg))
+    .then(r => fillInMissingWikidataFountains(r[0], r[1], dbg))
 
     // Conflate osm and wikidata fountains together
-    .then((r) =>
+    .then(r =>
       conflate(
         {
           osm: r.osm,
@@ -590,8 +590,8 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
     )
 
     // return only the fountain that is closest to the coordinates of the query
-    .then((r) => {
-      const distances = _.map(r, (f) => {
+    .then(r => {
+      const distances = _.map(r, f => {
         // compute distance to center for each fountain
         return haversine(f.geometry.coordinates, [lng, lat], {
           unit: 'meter',
@@ -605,15 +605,15 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
 
     // fetch more information about fountains (Artist information, gallery, etc.)
     //TOOD @ralfhauser, the last parameter for debugAll was missing undefined is falsy hence I used false
-    .then((r) => defaultCollectionEnhancement(r, dbg, false))
+    .then(r => defaultCollectionEnhancement(r, dbg, false))
 
     // Update cache with newly processed fountain
-    .then((r) => {
+    .then(r => {
       const city = getSingleQueryParam(req, 'city');
       const closest = updateCacheWithFountain(cityCache, r[0], city);
       sendJson(res, closest, 'after updateCacheWithFountain');
     })
-    .catch((e) => {
+    .catch(e => {
       l.error(`Error collecting data: ${e.stack}`);
       res.status(500).send(e.stack);
     });
@@ -622,7 +622,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
 export function generateLocationDataAndCache(key: string, cityCache: NodeCache): Promise<FountainCollection | void> {
   // trigger a reprocessing of the location's data, based on the key.
   const genLocPrms = generateLocationData(key)
-    .then((fountainCollection) => {
+    .then(fountainCollection => {
       // save newly generated fountainCollection to the cache
       let ftns = -1;
       if (null != fountainCollection && null != fountainCollection.features) {
@@ -659,7 +659,7 @@ export function generateLocationDataAndCache(key: string, cityCache: NodeCache):
       );
       return fountainCollection;
     })
-    .catch((error) => {
+    .catch(error => {
       l.error(`controller.js unable to set Cache. Error: ${error.stack}`);
       // TODO @ralfhauser, return void is not so nice IMO but that's what was defined beforehand implicitly
       return;

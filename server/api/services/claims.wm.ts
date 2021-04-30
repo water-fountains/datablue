@@ -59,7 +59,7 @@ export function getCatExtract(
   //      l.info('claims.wm.js: getCatExtract '+dbg+' '+url);
   const extractPomise = api
     .get(url, { timeout: timeout })
-    .then((r) => {
+    .then(r => {
       const keys = Object.keys(r.data.query.pages);
       const key = keys[0];
       const pags = r.data.query.pages;
@@ -87,7 +87,7 @@ export function getCatExtract(
       }
       return;
     })
-    .catch((err) => {
+    .catch(err => {
       l.error(
         'claims.wm.js getCatExtract.categorymembers = api.get:\n' +
           `Failed to fetch category extract. Cat "` +
@@ -146,7 +146,7 @@ export function getImgClaims(
   //l.info('claims.wm.js getImgClaims: about to query '+url+' '+dbg);
   const claimsPromise = api
     .get<MediaWikiEntityCollection>(url, { timeout: timeout })
-    .then((r) => {
+    .then(r => {
       l.info('claims.wm.js getImgClaims: got response for ' + url + ' ' + dbg);
       const entities = r.data.entities;
       const keys = Object.keys(entities);
@@ -183,7 +183,7 @@ export function getImgClaims(
       }
       return;
     })
-    .catch((err) => {
+    .catch(err => {
       // If there is an error getting the category members, then reject with error
       l.error(
         'claims.wm.js getImgClaims.claims = api.get:\n' +

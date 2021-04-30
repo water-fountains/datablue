@@ -188,7 +188,7 @@ class WikimediaService {
           );
         }
         //TODO @ralfhauser, changed it from boolean to empty array to satisfy types, In the end the array of imgNoInfoPomises is ignored anways, so I guess it does not matter
-        imgNoInfoPomises.push(new Promise((resolve) => resolve([])));
+        imgNoInfoPomises.push(new Promise(resolve => resolve([])));
       } else {
         this.getImgsFromCats(fProps, dbg, city, dbgIdWd, name, imgNoInfoPomises, imgUrlSet, imgUrls, debugAll);
       }
@@ -198,7 +198,7 @@ class WikimediaService {
         l.info('wikimedia.service.js: no commons category defined "' + dbg + ' ' + city + ' ' + dbgIdWd);
       }
       //TODO @ralfhauser, changed it from boolean to empty array to satisfy types, In the end the array of imgNoInfoPomises is ignored anways, so I guess it does not matter
-      imgNoInfoPomises.push(new Promise((resolve) => resolve([])));
+      imgNoInfoPomises.push(new Promise(resolve => resolve([])));
     }
     return Promise.all(imgNoInfoPomises)
       .then(
@@ -242,7 +242,7 @@ class WikimediaService {
               //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
               const imgFromMap = allMap.get(img.typ + '_' + img.value);
               if (imgFromMap !== undefined) {
-                galValPromises.push(new Promise((resolve) => resolve(imgFromMap.i)));
+                galValPromises.push(new Promise(resolve => resolve(imgFromMap.i)));
                 // TODO  @ralfhauser, here it is named c, in line 202 it is named clrs. Are those the same things?
                 const callers = imgFromMap.c;
                 //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
@@ -268,7 +268,7 @@ class WikimediaService {
                   //TODO @ralfhauser getImageInfo returns Promise<void> this statement most likely does not make sense
                   // My guess, galValPromises should have nImg instead, hence I added the `then` after the catch, please check if this fix is correct
                   getImageInfo(nImg, k + '/' + imgL + ' "' + dbg + '" ' + city + ' ' + dbgIdWd, showDetails, fProps)
-                    .catch((giiErr) => {
+                    .catch(giiErr => {
                       //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                       l.info(
                         'wikimedia.service.js: fillGallery getImageInfo failed for "' +
@@ -287,7 +287,7 @@ class WikimediaService {
                       );
                       return;
                     })
-                    .then((_) => nImg)
+                    .then(_ => nImg)
                 );
               }
             }
@@ -298,7 +298,7 @@ class WikimediaService {
               //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
               const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
               //TODO @ralfhauser, this does not make sense at all with the current typings. is galValPromises really supposed to have both promises and
-              galValPromises.push(new Promise((resolve) => resolve(nImg)));
+              galValPromises.push(new Promise(resolve => resolve(nImg)));
             }
             if (debugAll) {
               l.info(
@@ -312,7 +312,7 @@ class WikimediaService {
                   dbgIdWd
               );
             }
-            return Promise.all(galValPromises).then((r) => {
+            return Promise.all(galValPromises).then(r => {
               if (debugAll) {
                 l.info(
                   'wikimedia.service.js: fillGallery galValPromises.r.length ' +
@@ -363,7 +363,7 @@ class WikimediaService {
           }
         }
       )
-      .catch((err) => {
+      .catch(err => {
         // If there is an error getting the category members, then reject with error
         l.error(
           'fillGallery.gallery_image_promise = api.get:\n' +
@@ -431,7 +431,7 @@ function makeMetadata(data: ImageInfoExtMetadataCollection): ImageInfoMetadataCo
     },
   ];
   const metadata = {};
-  _.forEach(template, (pair) => {
+  _.forEach(template, pair => {
     if (Object.prototype.hasOwnProperty.call(data.extmetadata, pair.sourceName)) {
       metadata[pair.outputName] = data.extmetadata[pair.sourceName].value;
     } else {
@@ -593,7 +593,7 @@ export function getImageInfo(
   //      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url);
   const iiPr = api
     .get<MediaWikiQuery<MediaWikiImageInfoCollection<ImageInfoExtMetadataCollection>>>(url, { timeout: timeout })
-    .then((response) => {
+    .then(response => {
       const keys = Object.keys(response.data.query.pages);
       const key = keys[0];
       const pages = response.data.query.pages;
@@ -706,7 +706,7 @@ export function getImageInfo(
         return;
       }
     })
-    .catch((error) => {
+    .catch(error => {
       l.error(
         `wikimedia.service.js getImageInfo: http req when getting metadata for "${pageTitle}" "${dbg}" timed out or failed.\nError message: ${error.stack}.\nUrl: ${url}` +
           '\ncat "' +
@@ -746,7 +746,7 @@ export function getImgsOfCat(
   const imgValsCumul: ImageLike[] = [];
   const imgNoInfoPomise = api
     .get(url, { timeout: 1000 })
-    .then((r) => {
+    .then(r => {
       const rDat = r.data;
       if (null == rDat.error) {
         const category_members = rDat.query['categorymembers'];
@@ -820,7 +820,7 @@ export function getImgsOfCat(
       }
       return Promise.all(imgValsCumul);
     })
-    .catch((err) => {
+    .catch(err => {
       // If there is an error getting the category members, then reject with error
       l.error(
         'getImgsOfCat.categorymembers = api.get:\n' +

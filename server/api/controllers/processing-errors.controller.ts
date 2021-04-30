@@ -25,10 +25,10 @@ export function extractProcessingErrors(fountainCollection: FountainCollection |
     if (process.env.NODE_ENV !== 'production') {
       l.info('extractProcessingErrors: start');
     }
-    fountainCollection.features.forEach((fountain) =>
-      _.forIn(fountain.properties, (p) => {
+    fountainCollection.features.forEach(fountain =>
+      _.forIn(fountain.properties, p => {
         if (hasProcessingIssues(p)) {
-          p.issues.forEach((issue) => {
+          p.issues.forEach(issue => {
             // create copy
             const error = _.cloneDeep(issue);
             // append error to collection

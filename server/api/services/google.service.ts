@@ -16,7 +16,7 @@ export interface Image {
 }
 
 export function getStaticStreetView(fountain: Fountain): Promise<Image> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     resolve({
       big: `//maps.googleapis.com/maps/api/streetview?size=1200x600&location=${fountain.geometry.coordinates[1]},${fountain.geometry.coordinates[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
       medium: `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.geometry.coordinates[1]},${fountain.geometry.coordinates[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`,

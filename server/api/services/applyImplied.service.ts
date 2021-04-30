@@ -14,15 +14,15 @@ import { FountainConfig } from '../../common/typealias';
 function applyImpliedPropertiesOsm(fountainConfigArr: FountainConfig[]): Promise<FountainConfig[]> {
   return new Promise((resolve, reject) => {
     // for each fountain in the collection, remap the properties
-    fountainConfigArr.forEach((fountainConfig) => {
+    fountainConfigArr.forEach(fountainConfig => {
       // for each implied property, extract the tag name-value pair
-      osm_fountain_config.sub_sources.forEach((sub_source) => {
+      osm_fountain_config.sub_sources.forEach(sub_source => {
         const tag_name = sub_source.tag.name;
         const tag_value = sub_source.tag.value;
         // check if our fountain has the tag and if that tag has the right value
         const properties = fountainConfig.properties;
         if (properties != null && tag_name in properties && properties[tag_name] === tag_value) {
-          sub_source.implies.forEach((implication) => {
+          sub_source.implies.forEach(implication => {
             // if so, apply implied property values, but only if the property doesn't already have a value defined
             if (!Object.prototype.hasOwnProperty.call(properties, implication.key)) {
               properties[implication.key] = implication.value;

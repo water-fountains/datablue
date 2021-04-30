@@ -12,14 +12,14 @@ const summaryUrlSnippet = '/w/api.php?format=json&action=query&prop=extracts&exi
 
 class WikipediaService {
   getSummary(wikipediaUrl: string, dbg: string): Promise<string> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // fetches summary text from Wikipedia
       // fetch all images in category
       const url = encodeURI(wikipediaUrl.replace('/wiki/', summaryUrlSnippet));
 
       axios
         .get(url)
-        .then((r) => {
+        .then(r => {
           const data = r.data.query.pages;
           const summary = data[Object.keys(data)[0]].extract;
 
