@@ -30,9 +30,10 @@ const buildInfo = {
   revision: '${revision}',
   branch: '${branch}',
   commit_time: '${commit_time}',
-  build_time: '${new Date()}'
+  build_time: '${new Date()}',
 };
-export default buildInfo;`;
+export default buildInfo;
+`;
 
   writeFileSync(filename, content, { encoding: 'utf8' });
 }
