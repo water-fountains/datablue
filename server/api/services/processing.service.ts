@@ -265,7 +265,7 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
       if (fProps.name.value === null) {
         for (const lang of sharedConstants.LANGS) {
           const fPopLng = fProps[`name_${lang}`];
-          if (fPopLng?.value !== null) {
+          if (fPopLng?.value != null) {
             // take the first language-specific name that is not null and apply it to the default name
             fProps.name.value = fPopLng.value;
             fProps.name.source_name = fPopLng.source_name;
@@ -275,9 +275,8 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
             break;
           }
         }
-      }
-      // fill lang-specific names if null and if a default name exists
-      if (fProps.name.value !== null) {
+      } else {
+        // fill lang-specific names if null and if a default name exists
         for (const lang of sharedConstants.LANGS) {
           const fPopLng = fProps[`name_${lang}`];
           if (fPopLng != null && fPopLng.value === null) {

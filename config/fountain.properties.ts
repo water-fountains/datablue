@@ -720,22 +720,22 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         src_info: {
           en: `The catalog code must have a 'catalog' qualifier referring to the catalog documented in the location metadata. (${mapLocations(
-            (l) => `${l.name}: ${l.operator_fountain_catalog_qid}`
+            l => `${l.name}: ${l.operator_fountain_catalog_qid}`
           ).join(', ')})`,
           de: `Der Katalogcode muss einen 'Katalog'-Qualifizierer haben, der sich auf den in den Standortmetadaten dokumentierten Katalog bezieht. (${mapLocations(
-            (l) => `${l.name}: ${l.operator_fountain_catalog_qid}`
+            l => `${l.name}: ${l.operator_fountain_catalog_qid}`
           ).join(', ')})`,
           fr: `Le code de catalogue doit avoir un qualificatif 'catalogue' faisant référence au catalogue documenté dans les métadonnées de localisation. (${mapLocations(
-            (l) => `${l.name}: ${l.operator_fountain_catalog_qid}`
+            l => `${l.name}: ${l.operator_fountain_catalog_qid}`
           ).join(', ')})`,
           it: `Il codice del catalogo deve avere un qualificatore 'catalogo' che faccia riferimento al catalogo documentato nei metadati della località. (${mapLocations(
-            (l) => `${l.name}: ${l.operator_fountain_catalog_qid}`
+            l => `${l.name}: ${l.operator_fountain_catalog_qid}`
           ).join(', ')})`,
           tr: `Katalog kodunun kiralık üstveride kataloğa kaydetmek için kataloğu olmalı. (${mapLocations(
-            (l) => `${l.name}: ${l.operator_fountain_catalog_qid}`
+            l => `${l.name}: ${l.operator_fountain_catalog_qid}`
           ).join(', ')}) `,
         },
-        value_translation: (catCodes) => {
+        value_translation: catCodes => {
           // loop through all catalog codes to find the right one
           for (const code of catCodes) {
             // return value only if qualifier matches the operator id
@@ -860,7 +860,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore ritornato da wikidata sarà conservato.',
           tr: "Sadece Wikidata'dan geri gelen ilk değer saklandı.",
         },
-        value_translation: (values) => {
+        value_translation: values => {
           //just keep the year first date
           return parseInt(values[0].value.substring(0, 4));
         },
@@ -883,7 +883,7 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'year'],
         },
         value_translation: identity,
-        value_translation_extra: (text) => {
+        value_translation_extra: text => {
           if (null != text) {
             const txt = text.trim();
             if (/\d{2,4}/.exec(txt)) {
@@ -934,7 +934,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore ritornato da wikidata sarà conservato.',
           tr: "Sadece Wikidata'dan geri gelen ilk değer saklandı.",
         },
-        value_translation: (values) => {
+        value_translation: values => {
           //just keep the year of the first date returned
           return parseInt(values[0].value.substring(0, 4));
         },
@@ -981,7 +981,7 @@ const fountain_properties: FountainPropertiesMeta = {
           tr:
             "Sadece Wikidata'dan geri gelen ilk değer saklandı. Eğer QID \"anonim\" (Q4233718) 'e karşılık verirse' geçersiz döner.",
         },
-        value_translation: (values) => {
+        value_translation: values => {
           //just return the first value that is not anonymous.
           for (const value of values) {
             if (value.value !== 'Q4233718') {
@@ -1008,7 +1008,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore sarà conservato.',
           tr: 'Yalnızca ilk değer korunur.',
         },
-        value_translation: (text) => {
+        value_translation: text => {
           return text.split(';')[0];
         },
       },
@@ -1156,7 +1156,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore ritornato da wikidata sarà conservato.',
           tr: "Sadece Wikidata'dan geri gelen ilk değer saklandı.",
         },
-        value_translation: (values) => {
+        value_translation: values => {
           //just keep the first name
           return values[0].value;
         },
@@ -1199,8 +1199,8 @@ const fountain_properties: FountainPropertiesMeta = {
           it: "La fonte delle immagini è determinata automaticamente in base all'url.",
           tr: 'Görüntü kaynağı URL temelinde otomatik olarak belirlenir. ',
         },
-        value_translation: (list) => {
-          return _.map(list, (el) => {
+        value_translation: list => {
+          return _.map(list, el => {
             const url = el.value;
             const urlLc = url.toLowerCase();
             // determine source from url
@@ -1279,10 +1279,10 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Attributo', 'image'],
           tr: ['Özellik', 'image'],
         },
-        value_translation: (text) => {
+        value_translation: text => {
           return text2img(text);
         },
-        value_translation_extra: (text) => {
+        value_translation_extra: text => {
           return text2img(text);
         },
       },
@@ -1302,7 +1302,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore ritornato da wikidata sarà conservato.',
           tr: 'yalnızca Wikidata tarafından gönderilen değer tutulur.',
         },
-        value_translation: (values) => {
+        value_translation: values => {
           const img = { src: 'wd', imgs: values, type: 'wm' };
           return img;
         },
@@ -1358,7 +1358,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: "L'ordine delle coordinate è invertito per corrispondere al formato longitudine-latitudine",
           tr: 'Sıra koordinatı boylam-enlem formatı olarak ters çevrilir.',
         },
-        value_translation: (coordList) => {
+        value_translation: coordList => {
           // return coords in lng lat format !! reverse will mutate array
           try {
             // for #212, sometimes no coords exist
@@ -1427,7 +1427,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: "I Wikidata QIDs della qualità dell'acqua sono direttamente tradotti in valori di parole chiave.",
           tr: "Wikidata su kalitesi QID'leri klavye değerlerine doğrudan çevrilir. ",
         },
-        value_translation: (vals) => {
+        value_translation: vals => {
           switch (vals[0].value) {
             case 'Q53633635':
               return 'tapwater';
@@ -1465,7 +1465,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'I valori conosciuti in OpenStreetMap sono tradotti in valori di parole chiave.',
           tr: 'OpenStreetMap da olan ?? değerleri klavye değerlerine çevrilir.',
         },
-        value_translation: (value) => {
+        value_translation: value => {
           switch (value) {
             case 'Leitungswasser':
               return 'tapwater';
@@ -1528,7 +1528,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Tutti i valori ritornati sono utilizzati.',
           tr: 'Yalnızca gönderilen ilk değer kullanılır.',
         },
-        value_translation: (values) => {
+        value_translation: values => {
           //TODO introduce own type
           const cats: { s: string; c: any; l: number }[] = [];
           if (null != values) {
@@ -1547,7 +1547,7 @@ const fountain_properties: FountainPropertiesMeta = {
           }
           return cats;
         },
-        value_translation_extra: (text) => {
+        value_translation_extra: text => {
           const cats: SCL[] = [];
           if (null != text) {
             const txt = text.replace('Category:', '');
@@ -1580,7 +1580,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Attributo', 'wikimedia_commons'],
           tr: ['Özellik', 'wikimedia_commons'],
         },
-        value_translation: (text) => {
+        value_translation: text => {
           const cats: SCL[] = [];
           if (null != text) {
             const txtLc = text.toLowerCase();
@@ -1645,7 +1645,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Wikipedia', 'en'],
           tr: ['Wikipedia', 'en'],
         },
-        value_translation: (name) => {
+        value_translation: name => {
           return `https://en.wikipedia.org/wiki/${name}`;
         },
       },
@@ -1676,7 +1676,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo i valori con codice del linguaggio locale "en" saranno convervati e trasformati in URL.',
           tr: 'Yalnizca yerel dil kodlu "fr" değerleri tutulur ve bir URL\'e çevrilir.',
         },
-        value_translation: (val) => {
+        value_translation: val => {
           const parts = val.split(':');
           if (parts[0] === 'en') {
             return `https://en.wikipedia.org/wiki/${parts[1]}`;
@@ -1716,7 +1716,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Wikipedia', 'de'],
           tr: ['Wikipedia', 'de'],
         },
-        value_translation: (name) => {
+        value_translation: name => {
           return `https://de.wikipedia.org/wiki/${name}`;
         },
       },
@@ -1747,7 +1747,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo i valori con codice del linguaggio locale "de" saranno conservati e trasformati in URL.',
           tr: 'Yalnizca yerel dil kodlu "de" değerleri tutulur ve bir URL\'e çevrilir.',
         },
-        value_translation: (val) => {
+        value_translation: val => {
           const parts = val.split(':');
           if (parts[0] === 'de') {
             return `https://de.wikipedia.org/wiki/${parts[1]}`;
@@ -1787,7 +1787,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Wikipedia', 'fr'],
           tr: ['Wikipedia', 'fr'],
         },
-        value_translation: (name) => {
+        value_translation: name => {
           return `https://fr.wikipedia.org/wiki/${name}`;
         },
       },
@@ -1818,7 +1818,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo i valori con codice del linguaggio locale "fr" saranno conservati e trasformati in URL.',
           tr: 'Yalnizca yerel dil kodlu "fr" değerleri tutulur ve bir URL\'e çevrilir.',
         },
-        value_translation: (val) => {
+        value_translation: val => {
           const parts = val.split(':');
           if (parts[0] === 'fr') {
             return `https://fr.wikipedia.org/wiki/${parts[1]}`;
@@ -1858,7 +1858,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Wikipedia', 'it'],
           tr: ['Wikipedia', 'it'],
         },
-        value_translation: (name) => {
+        value_translation: name => {
           return `https://it.wikipedia.org/wiki/${name}`;
         },
       },
@@ -1889,7 +1889,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo i valori con codice del linguaggio locale "it" saranno conservati e trasformati in URL.',
           tr: 'Yalnizca yerel dil kodlu "it" değerleri tutulur ve bir URL\'e çevrilir.',
         },
-        value_translation: (val) => {
+        value_translation: val => {
           const parts = val.split(':');
           if (parts[0] === 'it') {
             return `https://it.wikipedia.org/wiki/${parts[1]}`;
@@ -1929,7 +1929,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: ['Wikipedia', 'it'],
           tr: ['Wikipedia', 'it'],
         },
-        value_translation: (name) => {
+        value_translation: name => {
           return `https://it.wikipedia.org/wiki/${name}`;
         },
       },
@@ -1960,7 +1960,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo i valori con codice del linguaggio locale "it" saranno conservati e trasformati in URL.',
           tr: 'Yalnizca yerel dil kodlu "it" değerleri tutulur ve bir URL\'e çevrilir.',
         },
-        value_translation: (val) => {
+        value_translation: val => {
           const parts = val.split(':');
           if (parts[0] === 'tr') {
             return `https://tr.wikipedia.org/wiki/${parts[1]}`;
@@ -2006,7 +2006,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Solo il primo valore ritornato da Wikidata sarà conservato.',
           tr: 'Yalnızca Wikipedia tarafından döndürülen Wikipedia sayfası tutulur.',
         },
-        value_translation: (vals) => {
+        value_translation: vals => {
           return vals[0].value;
         },
       },
@@ -2026,7 +2026,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'I valori conosciuti da OpenStreetMap sono tradotti in "nomi ufficiali".',
           tr: 'Bilinen OpenStreetMap değerleri "resmi isimlere\' çevrilir.',
         },
-        value_translation: (value) => {
+        value_translation: value => {
           switch (value) {
             case 'WVZ':
               return 'Wasserversorgung Zürich';
@@ -2306,7 +2306,7 @@ const fountain_properties: FountainPropertiesMeta = {
             'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q12004466).',
           tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q12004466) olduğunu gösterir.',
         },
-        value_translation: (parents) => {
+        value_translation: parents => {
           // loop through all instances to see if swimming pool or swimming place is among them
           for (const code of parents) {
             // return value only if qualifier matches the operator id
@@ -2356,9 +2356,9 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Tutti gli URL definiti vengono ritornati.',
           tr: 'Tanımlanmış tüm URL değerleri verilir.',
         },
-        value_translation: (urls) => {
+        value_translation: urls => {
           const validUrls: string[] = [];
-          urls.forEach((elt) => {
+          urls.forEach(elt => {
             const url = elt.value;
             if (!_.startsWith(url, 'https://h2o.do')) {
               //as per https://github.com/water-fountains/import2wikidata/issues/10#issuecomment-528876473
@@ -2409,7 +2409,7 @@ const fountain_properties: FountainPropertiesMeta = {
           it: 'Tutti gli ID definiti vengono ritornati.',
           tr: 'Tüm tanımlanmış IDler verilir.',
         },
-        value_translation: (ids) => {
+        value_translation: ids => {
           return _.map(ids, 'value');
         },
       },
