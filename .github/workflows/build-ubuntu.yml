@@ -18,7 +18,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: npm ci
-      - name: check
+      - name: lint
+        run: npm run lint
+      - name: check build
         run: |
           set -e
           cp .envTEMPLATE .env
