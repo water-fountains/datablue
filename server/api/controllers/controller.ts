@@ -90,19 +90,24 @@ export class Controller {
   getSingle(req: Request, res: Response): void {
     // const start = new Date();
     // let what: string;
-    const refresh = getSingleQueryParam(req, 'refresh');
-    const city = getSingleQueryParam(req, 'city');
+    const queryType = getSingleQueryParam(req, 'queryType');
+    const refresh = getSingleQueryParam(req, 'refresh', /* isOptional = */ true);
 
-    l.info(`controller.js getSingle: refresh: ${refresh} , city: ` + city);
-    if (req.query.queryType === 'byCoords') {
+    if (queryType === 'byCoords') {
+      const city = getSingleQueryParam(req, 'city');
+      l.info(`controller.js getSingle byCoords: refresh: ${refresh} , city: ` + city);
+
       // byCoords will return the nearest fountain to the given coordinates.
       // The databases are queried and fountains are reprocessed for this
       reprocessFountainAtCoords(req, res, city);
       // what = 'reprocessFountainAtCoords';
-    } else {
+    } else if (queryType === 'byId') {
+      l.info(`controller.js getSingle by: refresh: ${refresh}`);
       // byId will look into the fountain cache and return the fountain with the given identifier
       byId(req, res, req.query.idval?.toString() ?? '');
       // what = 'byId';
+    } else {
+      res.status(400).send('only byCoords and byId supported');
     }
     // const end = new Date();
     // const elapse = (end - start)/1000;
