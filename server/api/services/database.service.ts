@@ -79,7 +79,7 @@ function replaceFountain(
     }
   }
 
-  const triple = _.minBy(distances, (p) => p[2]);
+  const triple = _.minBy(distances, p => p[2]);
   if (triple !== undefined && triple[2] < 15) {
     //TODO @ralf.hauser `f` did not exist here. I assumed that the fountain should be replaced by the fountain which is nearest. Please verify this change is correct
     const [index, nearestFountain, distance] = triple;
@@ -98,7 +98,7 @@ function replaceFountain(
     return [fountains, fountain];
   } else {
     // fountain was not found; just add it to the list
-    fountain.properties.id = _.max(fountains.features.map((f) => f.properties.id)) + 1;
+    fountain.properties.id = _.max(fountains.features.map(f => f.properties.id)) + 1;
     fountains.features.push(fountain);
     l.info(
       'database.services.js replaceFountain: added with distance ' +

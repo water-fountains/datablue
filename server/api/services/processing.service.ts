@@ -24,7 +24,7 @@ export function defaultCollectionEnhancement(
   debugAll: boolean
 ): Promise<Fountain[]> {
   l.info('processing.service.js defaultCollectionEnhancement: ' + dbg);
-  return fillImageGalleries(fountainArr, dbg, debugAll).then((r) => fillOutNames(r, dbg));
+  return fillImageGalleries(fountainArr, dbg, debugAll).then(r => fillOutNames(r, dbg));
   //      .then(r => fillWikipediaSummaries(r,dbg))
   //      .then(r => fillArtistNames(r,dbg)) as per LAZY_ARTIST_NAME_LOADING_i41db
   //      .then(r => fillOperatorInfo(r,dbg))
@@ -56,7 +56,7 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
     }
     const allMap = new Map();
     let dbgAll = debugAll;
-    _.forEach(fountainArr, (fountain) => {
+    _.forEach(fountainArr, fountain => {
       i = i + 1;
       if (!debugAll) {
         dbgAll = 0 == i % step;
@@ -66,8 +66,8 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
     });
 
     Promise.all(promises)
-      .then((r) => resolve(r))
-      .catch((err) => reject(err));
+      .then(r => resolve(r))
+      .catch(err => reject(err));
   });
 }
 
@@ -87,7 +87,7 @@ export function fillArtistNames(fountainArr: Fountain[], dbg: string): Promise<F
   return new Promise((resolve, reject) => {
     const promises: Promise<Fountain>[] = [];
     let i = 0;
-    _.forEach(fountainArr, (fountain) => {
+    _.forEach(fountainArr, fountain => {
       i++;
       const idWd = fountain.properties.id_wikidata.value;
       const dbgHere = dbg + ' ' + idWd + ' ' + i + '/' + fountainArr.length;
@@ -95,8 +95,8 @@ export function fillArtistNames(fountainArr: Fountain[], dbg: string): Promise<F
     });
 
     Promise.all(promises)
-      .then((r) => resolve(r))
-      .catch((err) => reject(err));
+      .then(r => resolve(r))
+      .catch(err => reject(err));
   });
 }
 
@@ -107,20 +107,20 @@ export function fillOperatorInfo(fountainArr: Fountain[], dbg: string): Promise<
   l.info('processing.service.js starting fillOperatorInfo: ' + dbg);
   return new Promise((resolve, reject) => {
     const promises: Promise<Fountain>[] = [];
-    _.forEach(fountainArr, (fountain) => {
+    _.forEach(fountainArr, fountain => {
       promises.push(WikidataService.fillOperatorInfo(fountain, dbg));
     });
 
     Promise.all(promises)
-      .then((r) => resolve(r))
-      .catch((err) => reject(err));
+      .then(r => resolve(r))
+      .catch(err => reject(err));
   });
 }
 
 export function fillWikipediaSummary(fountain: Fountain, dbg: string, tot: number, promises: Promise<void>[]): void {
   // check all languages to see if a wikipedia page is referenced
   let i = 0;
-  _.forEach(sharedConstants.LANGS, (lang) => {
+  _.forEach(sharedConstants.LANGS, lang => {
     const urlParam = `wikipedia_${lang}_url`;
     i = i + 1;
     const dbgHere = i + '/' + tot + ' ' + dbg;
@@ -135,14 +135,14 @@ export function fillWikipediaSummary(fountain: Fountain, dbg: string, tot: numbe
       promises.push(
         new Promise((resolve, reject) => {
           WikipediaService.getSummary(url.value, dbgHere + ' ' + lang + ' ' + dbgIdWd)
-            .then((summary) => {
+            .then(summary => {
               // add summary as derived information to url property
               url.derived = {
                 summary: summary,
               };
               resolve();
             })
-            .catch((error) => {
+            .catch(error => {
               l.error(`Error creating Wikipedia summary: ${error}`);
               reject(error);
             });
@@ -160,21 +160,21 @@ export function fillWikipediaSummaries(fountainArr: Fountain[], dbg: string): Pr
     const promises = [];
     // loop through fountains
     const tot = fountainArr.length;
-    _.forEach(fountainArr, (fountain) => {
+    _.forEach(fountainArr, fountain => {
       fillWikipediaSummary(fountain, dbg, tot, promises);
     });
 
     Promise.all(promises)
       .then(() => resolve(fountainArr))
-      .catch((err) => reject(err));
+      .catch(err => reject(err));
   });
 }
 
 export function createUniqueIds(fountainArr: Fountain[]): Promise<Fountain[]> {
   // takes a collection of fountains and returns the same collection, enhanced with unique and as persistent as possible ids
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let i_n = 0;
-    fountainArr.forEach((f) => {
+    fountainArr.forEach(f => {
       f.properties.id = i_n;
       f.properties.id_datablue = {
         value: i_n,
@@ -207,10 +207,10 @@ export function essenceOf(fountainCollection: FountainCollection): FountainColle
   let withGallery = 0;
   let strVw = 0;
   // Use the list of essential property names to create a compact version of the fountain data
-  fountainCollection.features.forEach((f) => {
+  fountainCollection.features.forEach(f => {
     const fPrps = f.properties;
     let props = _.pick(fPrps, essentialPropNames);
-    props = _.mapValues(props, (obj) => {
+    props = _.mapValues(props, obj => {
       return obj.value;
     });
     // add id manually, since it does not have the standard property structure
@@ -249,7 +249,7 @@ export function essenceOf(fountainCollection: FountainCollection): FountainColle
 export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Fountain[]> {
   // takes a collection of fountains and returns the same collection, with blanks in fountain names filled from other languages or from 'name' property
   l.info('processing.service.js starting fillOutNames: ' + dbg);
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let i = 0;
     for (const f of fountainArr) {
       // if the default name (aka title) if not filled, then fill it from one of the other languages
@@ -307,9 +307,9 @@ export function fillInMissingWikidataFountains(
   // fountains referenced in OSM have been fetched, and fetches any missing wikidata fountains.
   // It returns the original OSM fountain collection and the completed Wikidata fountain collection.
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     // Get list of all Wikidata fountain qids referenced by OSM
-    const qid_from_osm = _.compact(_.map(osm_fountains, (f) => _.get(f, ['properties', 'wikidata'])));
+    const qid_from_osm = _.compact(_.map(osm_fountains, f => _.get(f, ['properties', 'wikidata'])));
     if (process.env.NODE_ENV !== 'production') {
       l.info(
         'processing.service.js fillInMissingWikidataFountains osm_fountains ' +

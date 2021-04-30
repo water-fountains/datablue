@@ -75,9 +75,9 @@ function queryBuilderCenter(lat: number, lng: number, radius = 10): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
     (${['node', 'way']
-      .map((e) =>
+      .map(e =>
         osm_fountain_config.sub_sources
-          .map((item) => `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`)
+          .map(item => `${e}[${item.tag.name}=${item.tag.value}](around:${radius},${lat},${lng});`)
           .join('')
       )
       .join('')}
@@ -89,9 +89,9 @@ function queryBuilderBox(latMin: number, lngMin: number, latMax: number, lngMax:
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
     (${['node', 'way']
-      .map((e) =>
+      .map(e =>
         osm_fountain_config.sub_sources
-          .map((item) => `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`)
+          .map(item => `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`)
           .join('')
       )
       .join('')}

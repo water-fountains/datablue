@@ -35,7 +35,7 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 // and merges their properties
 
 export function conflate(fountains: FountainConfigCollection, dbg: string, debugAll: boolean): Promise<Fountain[]> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const conflated = {
       wikidata: new Array<FountainConfigProperties>(),
       coord: new Array<FountainConfigProperties>(),
@@ -56,10 +56,10 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
       osm: Array<FountainConfigProperties>(),
       wikidata: Array<FountainConfigProperties>(),
     };
-    unmatched.osm = _.map(fountains.osm, (f_osm) => {
+    unmatched.osm = _.map(fountains.osm, f_osm => {
       return mergeFountainProperties({ osm: f_osm, wikidata: null }, 'unmatched.osm', null, debugAll, dbg);
     });
-    unmatched.wikidata = _.map(fountains.wikidata, (f_wd) => {
+    unmatched.wikidata = _.map(fountains.wikidata, f_wd => {
       return mergeFountainProperties({ osm: null, wikidata: f_wd }, 'unmatched.wikidata', null, debugAll, dbg);
     });
 
@@ -91,7 +91,7 @@ function conflateByWikidata(
   // loop through OSM fountains
   for (const [idx_osm, f_osm] of fountains.osm.entries()) {
     // find the index of the fountain in the wikidata list with a wikidata QID that matches the wikidata id referenced in OSM
-    const idx_wd = _.findIndex(fountains.wikidata, (f_wd) => {
+    const idx_wd = _.findIndex(fountains.wikidata, f_wd => {
       return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1); // check for match. Use default values 0 and 1 to ensure no match if no data is found
     });
     // if a match was found
@@ -178,7 +178,7 @@ function conflateByCoordinates(
   const matched_idx_wd: number[] = [];
 
   // make ordered list of coordinates from all Wikidata fountains
-  const coords_all_wd = _.map(foutains.wikidata, (f_wd) => {
+  const coords_all_wd = _.map(foutains.wikidata, f_wd => {
     return get_prop(f_wd, 'wikidata', 'coords');
   });
   l.info(foutains.wikidata.length + ' fountains conflateByCoordinates ' + dbg);
@@ -187,7 +187,7 @@ function conflateByCoordinates(
   for (const [idx_osm, f_osm] of foutains.osm.entries()) {
     // compute distance array between OSM fountain and all wikidata fountains
     const coords_osm = get_prop(f_osm, 'osm', 'coords');
-    const distances: number[] = _.map(coords_all_wd, (c_wd) => {
+    const distances: number[] = _.map(coords_all_wd, c_wd => {
       return haversine(c_wd, coords_osm, {
         unit: 'meter',
         format: '[lon,lat]',
@@ -244,7 +244,7 @@ function mergeFountainProperties(
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
   const mergedProperties = {};
   // loop through each property in the metadata
-  _.forEach(fountain_property_metadata, (metadata) => {
+  _.forEach(fountain_property_metadata, metadata => {
     // fountain template with default property values copied in
     const temp: FountainConfigProperty = {
       id: metadata.id,
@@ -445,7 +445,7 @@ function mergeFountainProperties(
 }
 
 function properties2GeoJson(collection: FountainConfigProperties[]): Fountain[] {
-  return _.map(collection, (properties) => {
+  return _.map(collection, properties => {
     return {
       type: 'Feature',
       geometry: {

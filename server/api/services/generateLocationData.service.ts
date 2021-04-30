@@ -79,8 +79,8 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
 
       // get data from Osm
       const osmPromise = OsmService.byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
-        .then((r) => applyImpliedPropertiesOsm(r))
-        .catch((e) => {
+        .then(r => applyImpliedPropertiesOsm(r))
+        .catch(e => {
           if ('getaddrinfo' == e.syscall) {
             l.info('Are you offline from the internet?');
           }
@@ -107,15 +107,15 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
         bbox.latMax,
         bbox.lngMax,
         locationName
-      ).then((r) => WikidataService.byIds(r, locationName));
+      ).then(r => WikidataService.byIds(r, locationName));
 
       const debugAll = -1 != locationName.indexOf('test');
 
       // conflate
       Promise.all([osmPromise, wikidataPromise])
         // get any missing wikidata fountains for proximap#212
-        .then((r) => fillInMissingWikidataFountains(r[0], r[1], locationName))
-        .then((r) =>
+        .then(r => fillInMissingWikidataFountains(r[0], r[1], locationName))
+        .then(r =>
           conflate(
             {
               osm: r.osm,
@@ -125,9 +125,9 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
             debugAll
           )
         )
-        .then((r) => defaultCollectionEnhancement(r, locationName, debugAll))
-        .then((r) => createUniqueIds(r))
-        .then((r) => {
+        .then(r => defaultCollectionEnhancement(r, locationName, debugAll))
+        .then(r => createUniqueIds(r))
+        .then(r => {
           const end = new Date();
           const elapse = (end.getTime() - start.getTime()) / 1000;
           l.info(
@@ -145,7 +145,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
             features: r,
           });
         })
-        .catch((err) => {
+        .catch(err => {
           l.error('generateLocationData.service.js - Promise.all([osmPromise, wikidataPromise]): ' + err.stack);
           reject(err);
         });

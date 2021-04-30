@@ -14,7 +14,7 @@ dotenv.config();
   'REQUEST_LIMIT',
   'SESSION_SECRET',
   'SWAGGER_API_SPEC',
-].forEach((name) => {
+].forEach(name => {
   if (process.env[name] === undefined) {
     throw Error(`make sure you define ${name} in .env, cannot start server`);
   }
