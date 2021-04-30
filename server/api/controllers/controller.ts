@@ -267,7 +267,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
         }
         if (fountainCollection !== undefined) {
           const fountain = fountainCollection.features.find(
-            f => f.properties['id_' + req.query.database].value === req.query.idval
+            f => f.properties['id_' + req.query.database]?.value === req.query.idval
           );
           const imgMetaPromises: Promise<any>[] = [];
           let lazyAdded = 0;
