@@ -33,7 +33,7 @@ export class ExpressServer {
       helmet.contentSecurityPolicy({
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          'script-src': ["'unsafe-inline'"],
+          'script-src': ["'self'", "'unsafe-inline'"],
         },
       })
     );
