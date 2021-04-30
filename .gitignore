@@ -8,6 +8,7 @@ server/common/build.info.js
 /.project
 /nbproject/private/
 .history
+.eslintcache
 
 .DS_Store
 nbproject/*

@@ -33,12 +33,14 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
     };
 
     // get bounding box of location
-    const location = locations[locationName];
+    const location = Object.prototype.hasOwnProperty.call(locations, locationName)
+      ? locations[locationName]
+      : undefined;
     if (location == undefined) {
       logAndRejectError(`location not found in config: ${locationName}`);
     } else {
       //TODO @ralfhauser the following checks are unnecessary IMO as they cannot be null according to the definition
-      let bbox = location.bounding_box;
+      const bbox = location.bounding_box;
       if (null == bbox) {
         const err = `fatal: null == bbox for ${locationName}`;
         l.error(err);
@@ -76,7 +78,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
       }
 
       // get data from Osm
-      let osmPromise = OsmService.byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
+      const osmPromise = OsmService.byBoundingBox(bbox.latMin, bbox.lngMin, bbox.latMax, bbox.lngMax)
         .then((r) => applyImpliedPropertiesOsm(r))
         .catch((e) => {
           if ('getaddrinfo' == e.syscall) {
@@ -99,7 +101,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
         });
 
       // get data from Wikidata
-      let wikidataPromise: Promise<FountainConfig[]> = WikidataService.idsByBoundingBox(
+      const wikidataPromise: Promise<FountainConfig[]> = WikidataService.idsByBoundingBox(
         bbox.latMin,
         bbox.lngMin,
         bbox.latMax,
@@ -107,7 +109,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
         locationName
       ).then((r) => WikidataService.byIds(r, locationName));
 
-      let debugAll = -1 != locationName.indexOf('test');
+      const debugAll = -1 != locationName.indexOf('test');
 
       // conflate
       Promise.all([osmPromise, wikidataPromise])

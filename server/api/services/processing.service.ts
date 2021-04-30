@@ -35,9 +35,9 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
   // enhanced with image galleries when available or default images
   l.info('processing.service.js starting fillImageGalleries: ' + city + ' debugAll ' + debugAll);
   return new Promise((resolve, reject) => {
-    let promises: Promise<Fountain>[] = [];
+    const promises: Promise<Fountain>[] = [];
     let i = 0;
-    let tot = fountainArr.length;
+    const tot = fountainArr.length;
     let step = 1;
     if (tot >= 50) {
       step = 10;
@@ -54,7 +54,7 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
         }
       }
     }
-    let allMap = new Map();
+    const allMap = new Map();
     let dbgAll = debugAll;
     _.forEach(fountainArr, (fountain) => {
       i = i + 1;
@@ -85,12 +85,12 @@ export function fillArtistNames(fountainArr: Fountain[], dbg: string): Promise<F
     );
   }
   return new Promise((resolve, reject) => {
-    let promises: Promise<Fountain>[] = [];
+    const promises: Promise<Fountain>[] = [];
     let i = 0;
     _.forEach(fountainArr, (fountain) => {
       i++;
       const idWd = fountain.properties.id_wikidata.value;
-      let dbgHere = dbg + ' ' + idWd + ' ' + i + '/' + fountainArr.length;
+      const dbgHere = dbg + ' ' + idWd + ' ' + i + '/' + fountainArr.length;
       promises.push(WikidataService.fillArtistName(fountain, dbgHere));
     });
 
@@ -106,7 +106,7 @@ export function fillOperatorInfo(fountainArr: Fountain[], dbg: string): Promise<
   // enhanced with operator information if that information is available in Wikidata
   l.info('processing.service.js starting fillOperatorInfo: ' + dbg);
   return new Promise((resolve, reject) => {
-    let promises: Promise<Fountain>[] = [];
+    const promises: Promise<Fountain>[] = [];
     _.forEach(fountainArr, (fountain) => {
       promises.push(WikidataService.fillOperatorInfo(fountain, dbg));
     });
@@ -117,11 +117,11 @@ export function fillOperatorInfo(fountainArr: Fountain[], dbg: string): Promise<
   });
 }
 
-export function fillWikipediaSummary(fountain: Fountain, dbg: string, tot: number, promises: Promise<void>[]) {
+export function fillWikipediaSummary(fountain: Fountain, dbg: string, tot: number, promises: Promise<void>[]): void {
   // check all languages to see if a wikipedia page is referenced
   let i = 0;
   _.forEach(sharedConstants.LANGS, (lang) => {
-    let urlParam = `wikipedia_${lang}_url`;
+    const urlParam = `wikipedia_${lang}_url`;
     i = i + 1;
     const dbgHere = i + '/' + tot + ' ' + dbg;
     const props = fountain.properties;
@@ -157,15 +157,15 @@ export function fillWikipediaSummaries(fountainArr: Fountain[], dbg: string): Pr
   // takes a collection of fountains and returns the same collection, enhanced with wikipedia summaries
   l.info('processing.service.js starting fillWikipediaSummaries: ' + dbg);
   return new Promise((resolve, reject) => {
-    let promises = [];
+    const promises = [];
     // loop through fountains
-    let tot = fountainArr.length;
+    const tot = fountainArr.length;
     _.forEach(fountainArr, (fountain) => {
       fillWikipediaSummary(fountain, dbg, tot, promises);
     });
 
     Promise.all(promises)
-      .then((_) => resolve(fountainArr))
+      .then(() => resolve(fountainArr))
       .catch((err) => reject(err));
   });
 }
@@ -185,9 +185,9 @@ export function createUniqueIds(fountainArr: Fountain[]): Promise<Fountain[]> {
   });
 }
 
-export function essenceOf(fountainCollection: FountainCollection) {
+export function essenceOf(fountainCollection: FountainCollection): FountainCollection {
   // returns a version of the fountain data with only the essential data
-  let newCollection: FountainCollection = {
+  const newCollection: FountainCollection = {
     type: 'FeatureCollection',
     features: [],
   };
@@ -199,7 +199,7 @@ export function essenceOf(fountainCollection: FountainCollection) {
   };
 
   // Get list of property names that are marked as essential in the metadata
-  let essentialPropNames: string[] = _.map(fountain_property_metadata, (p, p_name) => {
+  const essentialPropNames: string[] = _.map(fountain_property_metadata, (p, p_name) => {
     if (p.essential) {
       return p_name;
     } else return null;
@@ -208,7 +208,7 @@ export function essenceOf(fountainCollection: FountainCollection) {
   let strVw = 0;
   // Use the list of essential property names to create a compact version of the fountain data
   fountainCollection.features.forEach((f) => {
-    let fPrps = f.properties;
+    const fPrps = f.properties;
     let props = _.pick(fPrps, essentialPropNames);
     props = _.mapValues(props, (obj) => {
       return obj.value;
@@ -216,9 +216,9 @@ export function essenceOf(fountainCollection: FountainCollection) {
     // add id manually, since it does not have the standard property structure
     props.id = fPrps.id;
     // add photo if it is not google street view
-    let fGal = fPrps.gallery;
-    let fGV = fGal.value;
-    let fGV0 = fGV[0];
+    const fGal = fPrps.gallery;
+    const fGV = fGal.value;
+    const fGV0 = fGV[0];
     if (null == fGV0) {
       // l.info(fPrps.id+" null == fGV0 - essenceOf processing.service.js");
     } else {
@@ -251,7 +251,7 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
   l.info('processing.service.js starting fillOutNames: ' + dbg);
   return new Promise((resolve) => {
     let i = 0;
-    for (let f of fountainArr) {
+    for (const f of fountainArr) {
       // if the default name (aka title) if not filled, then fill it from one of the other languages
       const fProps = f.properties;
       if (fProps == null) {
@@ -263,9 +263,9 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
       }
       i++;
       if (fProps.name.value === null) {
-        for (let lang of sharedConstants.LANGS) {
-          let fPopLng = fProps[`name_${lang}`];
-          if (fPopLng != null && fPopLng.value !== null) {
+        for (const lang of sharedConstants.LANGS) {
+          const fPopLng = fProps[`name_${lang}`];
+          if (fPopLng?.value !== null) {
             // take the first language-specific name that is not null and apply it to the default name
             fProps.name.value = fPopLng.value;
             fProps.name.source_name = fPopLng.source_name;
@@ -278,8 +278,8 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
       }
       // fill lang-specific names if null and if a default name exists
       if (fProps.name.value !== null) {
-        for (let lang of sharedConstants.LANGS) {
-          let fPopLng = fProps[`name_${lang}`];
+        for (const lang of sharedConstants.LANGS) {
+          const fPopLng = fProps[`name_${lang}`];
           if (fPopLng != null && fPopLng.value === null) {
             fPopLng.value = fProps.name.value;
             fPopLng.source_name = fProps.name.source_name;
@@ -309,7 +309,7 @@ export function fillInMissingWikidataFountains(
 
   return new Promise((resolve) => {
     // Get list of all Wikidata fountain qids referenced by OSM
-    let qid_from_osm = _.compact(_.map(osm_fountains, (f) => _.get(f, ['properties', 'wikidata'])));
+    const qid_from_osm = _.compact(_.map(osm_fountains, (f) => _.get(f, ['properties', 'wikidata'])));
     if (process.env.NODE_ENV !== 'production') {
       l.info(
         'processing.service.js fillInMissingWikidataFountains osm_fountains ' +
@@ -321,7 +321,7 @@ export function fillInMissingWikidataFountains(
       );
     }
     // Get list of all Wikidata fountain qids collected
-    let qid_from_wikidata = _.map(wikidata_fountains, 'id');
+    const qid_from_wikidata = _.map(wikidata_fountains, 'id');
     if (process.env.NODE_ENV !== 'production') {
       l.info(
         'processing.service.js fillInMissingWikidataFountains qid_from_wikidata ' + qid_from_wikidata.length + ' ' + dbg
@@ -329,7 +329,7 @@ export function fillInMissingWikidataFountains(
     }
 
     // Get qids not included in wikidata collection
-    let missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
+    const missing_qids = _.difference(qid_from_osm, qid_from_wikidata);
     if (null == missing_qids || 0 == missing_qids.length) {
       l.info('processing.service.js fillInMissingWikidataFountains: none for ' + dbg);
       resolve({

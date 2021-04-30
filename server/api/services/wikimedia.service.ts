@@ -27,13 +27,13 @@ import {
   WikiCommonsCategoryCollection,
 } from '../../common/wikimedia-types';
 
-let api = axios.create({});
+const api = axios.create({});
 
 class WikimediaService {
   private getName(fountain: Fountain) {
     const props = fountain.properties;
     if (props.name.value === null) {
-      for (let lang of sharedConstants.LANGS) {
+      for (const lang of sharedConstants.LANGS) {
         const pL = props[`name_${lang}`];
         if (null != pL && pL.value !== null) {
           return pL.value;
@@ -54,7 +54,7 @@ class WikimediaService {
     imgUrls: ImageLike[],
     debugAll: boolean
   ): void {
-    let catNames = fProps.wiki_commons_name.value;
+    const catNames = fProps.wiki_commons_name.value;
     if (1 < catNames.length) {
       if (debugAll || 2 < catNames.length) {
         l.info(
@@ -123,7 +123,7 @@ class WikimediaService {
     city: string,
     debugAll: boolean,
     //TODO @ralfhauser, please improve the typing of  c and clrs
-    allMap: Map<String, { i: GalleryValue; c?: any; clrs: Set<string> }>,
+    allMap: Map<string, { i: GalleryValue; c?: any; clrs: Set<string> }>,
     numbOfFntsInCollection: number
   ): Promise<Fountain> {
     //TODO @ralfhauser, changed it from null to '' to satisfy the type string
@@ -135,14 +135,14 @@ class WikimediaService {
       dbgIdWd = fountain.properties.id_wikidata.value;
     }
     //TODO @ralfhauser, those variables are all not used, I guess they can be removed
-    let url = 'unkUrl';
-    let lastCatName = 'undefCatNam';
-    let lastCatUrl = 'undefCatUrl';
+    const url = 'unkUrl';
+    const lastCatName = 'undefCatNam';
+    const lastCatUrl = 'undefCatUrl';
 
-    let name = this.getName(fountain);
+    const name = this.getName(fountain);
     // fills gallery with images from wikidata, wikimedia commons,
     // todo: add osm as a possible source (although images shouldn't really be linked there.
-    let fProps = fountain.properties;
+    const fProps = fountain.properties;
     // initialize default gallery
     // setTimeout(()=>{
     //   l.info(`fountain ran out of time getting information. Osm ID: ${fountain.properties.id_osm.value}`);
@@ -157,11 +157,11 @@ class WikimediaService {
       comments: '',
     };
 
-    let galVal: GalleryValue[] = fProps.gallery.value;
-    let imgUrls: ImageLike[] = [];
-    let imgUrlSet = new Set<string>();
-    let foFeaImgs = fProps.featured_image_name;
-    let foFeaImgsV = foFeaImgs.value;
+    const galVal: GalleryValue[] = fProps.gallery.value;
+    const imgUrls: ImageLike[] = [];
+    const imgUrlSet = new Set<string>();
+    const foFeaImgs = fProps.featured_image_name;
+    const foFeaImgsV = foFeaImgs.value;
 
     addToImgList(
       foFeaImgsV,
@@ -172,7 +172,7 @@ class WikimediaService {
       //TODO @ralfhauser, c and l where not specified are they not mandatory?
       { n: 'wd:p18', c: 'wd:p18', l: 1 }
     );
-    let imgNoInfoPomises: Promise<ImageLike[]>[] = [];
+    const imgNoInfoPomises: Promise<ImageLike[]>[] = [];
     if (hasWikiCommonsCategories(fProps) && fProps.wiki_commons_name.value.length > 0) {
       if (0 < imgUrls.length && 1 < numbOfFntsInCollection) {
         if (process.env.NODE_ENV !== 'production' && debugAll) {
@@ -202,10 +202,8 @@ class WikimediaService {
     }
     return Promise.all(imgNoInfoPomises)
       .then(
-        /* TODO @ralfhauser cr was ignored (hence renamed it to _cr so that typer is still happy), IMO we should turn imgNoInfoPromises into void */ (
-          _cr
-        ) => {
-          let totImgFound = imgUrlSet.size;
+        /* TODO @ralfhauser cr was ignored, IMO we should turn imgNoInfoPromises into void if it is ignored after all. But better would be to not use side effects */ () => {
+          const totImgFound = imgUrlSet.size;
           if (0 < totImgFound) {
             if (debugAll) {
               l.info(
@@ -233,7 +231,7 @@ class WikimediaService {
                   dbgIdWd
               );
             }
-            let galValPromises: Promise<GalleryValue>[] = [];
+            const galValPromises: Promise<GalleryValue>[] = [];
             let k = 0;
             const imgL = imgUrls.length;
             const showDetails = false;
@@ -246,7 +244,7 @@ class WikimediaService {
               if (imgFromMap !== undefined) {
                 galValPromises.push(new Promise((resolve) => resolve(imgFromMap.i)));
                 // TODO  @ralfhauser, here it is named c, in line 202 it is named clrs. Are those the same things?
-                let callers = imgFromMap.c;
+                const callers = imgFromMap.c;
                 //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                 l.info(
                   'wikimedia.service.js: fillGallery img "' +
@@ -258,14 +256,14 @@ class WikimediaService {
                     ' ' +
                     dbgIdWd
                 );
-                for (let clr of callers) {
+                for (const clr of callers) {
                   l.info('wikimedia.service.js: fillGallery img also in  "' + clr + '"');
                 }
                 callers.push(dbg);
               } else {
                 //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                 //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
-                let nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
+                const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
                 galValPromises.push(
                   //TODO @ralfhauser getImageInfo returns Promise<void> this statement most likely does not make sense
                   // My guess, galValPromises should have nImg instead, hence I added the `then` after the catch, please check if this fix is correct
@@ -298,7 +296,7 @@ class WikimediaService {
               const img = imgUrls[k];
               //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
               //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
-              let nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
+              const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
               //TODO @ralfhauser, this does not make sense at all with the current typings. is galValPromises really supposed to have both promises and
               galValPromises.push(new Promise((resolve) => resolve(nImg)));
             }
@@ -331,14 +329,14 @@ class WikimediaService {
               try {
                 if (null != allGalVal && 0 < allGalVal.length) {
                   for (let i = 0; i < allGalVal.length && i < maxImgPreFetched; i++) {
-                    let img = allGalVal[i];
+                    const img = allGalVal[i];
                     if (null != img) {
-                      let imMetaDat = img.metadata;
+                      const imMetaDat = img.metadata;
                       if (null != imMetaDat) {
                         //TODO @ralfhauser, I am not sure if GalleryValue has this attribute, please check
                         const fromMap = allMap.get(img.typ + '_' + img.pgTit);
                         if (null == fromMap) {
-                          let callers = new Set<string>();
+                          const callers = new Set<string>();
                           callers.add(dbg);
                           allMap.set(img.typ + '_' + img.pgTit, { i: img, clrs: callers });
                         }
@@ -346,7 +344,7 @@ class WikimediaService {
                     }
                   }
                 }
-              } catch (err) {
+              } catch (err: any) {
                 l.info('wikimedia.service.js fillGallery: map operation failed ' + err.stack);
               }
               fountain.properties.gallery.value = galVal;
@@ -402,7 +400,7 @@ class WikimediaService {
 }
 
 function makeMetadata(data: ImageInfoExtMetadataCollection): ImageInfoMetadataCollection {
-  let template = [
+  const template = [
     {
       sourceName: 'ImageDescription',
       outputName: 'description',
@@ -432,9 +430,9 @@ function makeMetadata(data: ImageInfoExtMetadataCollection): ImageInfoMetadataCo
       outputName: 'wikimedia_categories',
     },
   ];
-  let metadata = {};
+  const metadata = {};
   _.forEach(template, (pair) => {
-    if (data.extmetadata.hasOwnProperty(pair.sourceName)) {
+    if (Object.prototype.hasOwnProperty.call(data.extmetadata, pair.sourceName)) {
       metadata[pair.outputName] = data.extmetadata[pair.sourceName].value;
     } else {
       metadata[pair.outputName] = null;
@@ -468,15 +466,15 @@ function addToImgList(
   if (null != imageLikeCollection && null != imageLikeCollection.imgs) {
     i++;
     let duplicateCount = 0;
-    for (let imageLike of imageLikeCollection.imgs) {
-      let imageName = imageLike.value;
+    for (const imageLike of imageLikeCollection.imgs) {
+      const imageName = imageLike.value;
       if (null == imageLike.typ) {
         imageLike.typ = imageLikeCollection.type;
       }
-      let pageTitle = imageName.toLowerCase();
-      let dotPos = pageTitle.lastIndexOf('.');
+      const pageTitle = imageName.toLowerCase();
+      const dotPos = pageTitle.lastIndexOf('.');
       // only use photo media, not videos
-      let ext = pageTitle.substring(dotPos + 1);
+      const ext = pageTitle.substring(dotPos + 1);
       if (
         ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'svg', 'ogv', 'webm'].indexOf(ext) < 0 &&
         !imageLike.typ.startsWith('ext-')
@@ -583,35 +581,35 @@ export function getImageInfo(
   img: GalleryValue,
   dbg: string,
   showDetails: boolean,
-  fProps: FountainPropertyCollection<{}>
+  fProps: FountainPropertyCollection<Record<string, unknown>>
 ): Promise<void> {
-  let pageTitle = img.pgTit;
+  const pageTitle = img.pgTit;
   //TODO: could also say which category it was
-  let url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(
     'File:' + pageTitle
   )}&prop=imageinfo&iiprop=extmetadata&format=json`;
   const timeoutSecs = 1;
-  let timeout = timeoutSecs * 1000;
+  const timeout = timeoutSecs * 1000;
   //      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url);
   const iiPr = api
     .get<MediaWikiQuery<MediaWikiImageInfoCollection<ImageInfoExtMetadataCollection>>>(url, { timeout: timeout })
     .then((response) => {
-      let keys = Object.keys(response.data.query.pages);
-      let key = keys[0];
-      let pages = response.data.query.pages;
-      let data = pages[key];
+      const keys = Object.keys(response.data.query.pages);
+      const key = keys[0];
+      const pages = response.data.query.pages;
+      const data = pages[key];
       let i = 0;
       let n = 0;
-      if (data.hasOwnProperty('imageinfo')) {
+      if (Object.prototype.hasOwnProperty.call(data, 'imageinfo')) {
         img.metadata = makeMetadata(data.imageinfo[0]);
         const imgMeta = img.metadata;
-        if (imgMeta && imgMeta.wikimedia_categories && 0 < imgMeta.wikimedia_categories.trim().length) {
+        if (imgMeta.wikimedia_categories && 0 < imgMeta.wikimedia_categories.trim().length) {
           const categories = imgMeta.wikimedia_categories.trim().split('|');
           if (
             null != categories &&
             (null == img.c || null == img.c.n || 0 == img.c.n.trim().length || 'wd:p18' == img.c.n)
           ) {
-            let catSet = new Set<string>();
+            const catSet = new Set<string>();
             for (; i < categories.length; i++) {
               const category = categories[i];
               if (null != category) {
@@ -629,7 +627,7 @@ export function getImageInfo(
               img.c = { n: ca, c: ca, l: 1 };
               l.info(
                 'wikimedia.service.js getImageInfo: found category "' +
-                  img.c?.n +
+                  img.c.n +
                   '" ' +
                   dbg +
                   ' "' +
@@ -644,7 +642,7 @@ export function getImageInfo(
                 fProps.wiki_commons_name.value = [];
               }
               const fPrCats = fProps.wiki_commons_name.value;
-              let catsSoFar = new Set();
+              const catsSoFar = new Set();
               for (let j = 0; j < fPrCats.length; j++) {
                 const cat = fPrCats[j];
                 if (null != cat && null != cat.c) {
@@ -734,19 +732,19 @@ export function getImgsOfCat(
   imgUrlSet: Set<string>,
   imgUrls: ImageLike[],
   dbgIdWd: string,
-  fProps: FountainPropertyCollection<{}>,
+  fProps: FountainPropertyCollection<Record<string, unknown>>,
   debugAll: boolean
 ): Promise<ImageLike[]> {
   // TODO @ralfhauser, I don't get the naming schema yet, I figured n is the name of the category
-  let catName = cat.c;
+  const catName = cat.c;
   // if there is a gallery, then fetch all images in category
   const imgsPerCat = 20;
-  let encCat = encodeURIComponent(catName);
-  let sanTit = sanitizeTitle(encCat);
-  let url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=${imgsPerCat}&cmtitle=Category:${sanTit}&prop=imageinfo&format=json`;
+  const encCat = encodeURIComponent(catName);
+  const sanTit = sanitizeTitle(encCat);
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&cmlimit=${imgsPerCat}&cmtitle=Category:${sanTit}&prop=imageinfo&format=json`;
   // make array of image promises
-  let imgValsCumul: ImageLike[] = [];
-  let imgNoInfoPomise = api
+  const imgValsCumul: ImageLike[] = [];
+  const imgNoInfoPomise = api
     .get(url, { timeout: 1000 })
     .then((r) => {
       const rDat = r.data;

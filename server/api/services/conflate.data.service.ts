@@ -36,7 +36,7 @@ const idwd_path_osm = fountain_property_metadata.id_wikidata.src_config.osm.src_
 
 export function conflate(fountains: FountainConfigCollection, dbg: string, debugAll: boolean): Promise<Fountain[]> {
   return new Promise((resolve) => {
-    let conflated = {
+    const conflated = {
       wikidata: new Array<FountainConfigProperties>(),
       coord: new Array<FountainConfigProperties>(),
     };
@@ -52,7 +52,7 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
     }
 
     // process remaining fountains that were not matched by either QID or coordinates
-    let unmatched = {
+    const unmatched = {
       osm: Array<FountainConfigProperties>(),
       wikidata: Array<FountainConfigProperties>(),
     };
@@ -64,7 +64,7 @@ export function conflate(fountains: FountainConfigCollection, dbg: string, debug
     });
 
     // append the matched (conflated) and unmatched fountains to the list "conflated_fountains_all"
-    let conflated_fountains_all = _.concat(conflated.coord, conflated.wikidata, unmatched.osm, unmatched.wikidata);
+    const conflated_fountains_all = _.concat(conflated.coord, conflated.wikidata, unmatched.osm, unmatched.wikidata);
 
     // return fountains (first turn list of fountains into geojson)
     resolve(properties2GeoJson(conflated_fountains_all));
@@ -81,17 +81,17 @@ function conflateByWikidata(
   debugAll: boolean
 ): FountainConfigProperties[] {
   // Holder for conflated (matched) fountains
-  let conflated_fountains: FountainConfigProperties[] = [];
+  const conflated_fountains: FountainConfigProperties[] = [];
   // Holders for matched fountain indexes
-  let matched_idx_osm: number[] = [];
-  let matched_idx_wd: number[] = [];
+  const matched_idx_osm: number[] = [];
+  const matched_idx_wd: number[] = [];
   if (debugAll) {
     l.info('conflate.data.service.js conflateByWikidata: ' + fountains + ' ftns ' + dbg);
   }
   // loop through OSM fountains
   for (const [idx_osm, f_osm] of fountains.osm.entries()) {
     // find the index of the fountain in the wikidata list with a wikidata QID that matches the wikidata id referenced in OSM
-    let idx_wd = _.findIndex(fountains.wikidata, (f_wd) => {
+    const idx_wd = _.findIndex(fountains.wikidata, (f_wd) => {
       return _.get(f_osm, idwd_path_osm, 0) === _.get(f_wd, idwd_path_wd, 1); // check for match. Use default values 0 and 1 to ensure no match if no data is found
     });
     // if a match was found
@@ -107,7 +107,7 @@ function conflateByWikidata(
             format: '[lon,lat]',
           }
         );
-      } catch (e) {
+      } catch (e: unknown) {
         // some wikidata fountains have no coordinates, so distance cannot be calculated. That is ok.
       }
       // merge the two fountains' properties and add to "conflated_fountains" list
@@ -172,13 +172,13 @@ function conflateByCoordinates(
     l.info('conflate.data.service.js conflateByCoordinates: ' + foutains + ' ftns ' + dbg);
   }
   // Holder for conflated fountains
-  let conflated_fountains: FountainConfigProperties[] = [];
+  const conflated_fountains: FountainConfigProperties[] = [];
   // Temporary holders for matched fountain indexes
-  let matched_idx_osm: number[] = [];
-  let matched_idx_wd: number[] = [];
+  const matched_idx_osm: number[] = [];
+  const matched_idx_wd: number[] = [];
 
   // make ordered list of coordinates from all Wikidata fountains
-  let coords_all_wd = _.map(foutains.wikidata, (f_wd) => {
+  const coords_all_wd = _.map(foutains.wikidata, (f_wd) => {
     return get_prop(f_wd, 'wikidata', 'coords');
   });
   l.info(foutains.wikidata.length + ' fountains conflateByCoordinates ' + dbg);
@@ -186,16 +186,16 @@ function conflateByCoordinates(
   // todo: loop through wikidata fountains instead, since this is the more incomplete list the matching will go much faster
   for (const [idx_osm, f_osm] of foutains.osm.entries()) {
     // compute distance array between OSM fountain and all wikidata fountains
-    let coords_osm = get_prop(f_osm, 'osm', 'coords');
-    let distances: number[] = _.map(coords_all_wd, (c_wd) => {
+    const coords_osm = get_prop(f_osm, 'osm', 'coords');
+    const distances: number[] = _.map(coords_all_wd, (c_wd) => {
       return haversine(c_wd, coords_osm, {
         unit: 'meter',
         format: '[lon,lat]',
       });
     });
     // find the value and index of the smallest distance
-    let dMin = _.min(distances) ?? Number.MAX_VALUE;
-    let idx_wd = _.indexOf(distances, dMin);
+    const dMin = _.min(distances) ?? Number.MAX_VALUE;
+    const idx_wd = _.indexOf(distances, dMin);
     // selection criteria: dMin smaller than 10 meters
     if (dMin < 10) {
       // conflate the two fountains
@@ -225,7 +225,7 @@ function conflateByCoordinates(
 
 function mergeFountainProperties(
   namedFountainConfig: { osm: FountainConfig | null; wikidata: FountainConfig | null },
-  mergeNotes: string = '',
+  mergeNotes = '',
   mergeDistance: number | null = null,
   debugAll: boolean,
   dbg: string
@@ -242,11 +242,11 @@ function mergeFountainProperties(
   }
   // combines fountain properties from osm and wikidata
   // For https://github.com/water-fountains/proximap/issues/160 we keep values from both sources when possible
-  let mergedProperties = {};
+  const mergedProperties = {};
   // loop through each property in the metadata
   _.forEach(fountain_property_metadata, (metadata) => {
     // fountain template with default property values copied in
-    let temp: FountainConfigProperty = {
+    const temp: FountainConfigProperty = {
       id: metadata.id,
       value: metadata.value,
       comments: metadata.comments,
@@ -271,7 +271,7 @@ function mergeFountainProperties(
     };
 
     // loop through sources (osm and wikidata) and extract values
-    for (let src_name of ['wikidata', 'osm']) {
+    for (const src_name of ['wikidata', 'osm']) {
       const fountain: FountainConfig = namedFountainConfig[src_name];
       const tmp: Source = temp.sources[src_name];
       if (metadata.src_config[src_name] === null) {
@@ -288,7 +288,7 @@ function mergeFountainProperties(
 
         // Get value of property from source
         let value = _.get(fountain, cfg.src_path, null);
-        if (value === null && cfg.src_path1 !== undefined && cfg.hasOwnProperty('src_path1')) {
+        if (value === null && cfg.src_path1 !== undefined && Object.prototype.hasOwnProperty.call(cfg, 'src_path1')) {
           value = _.get(fountain, cfg.src_path1, null);
         }
         //TODO @ralfhauser, src_path2 never exists on SourceConfig, old obselete code?
@@ -297,7 +297,11 @@ function mergeFountainProperties(
         // }
         let useExtra = false;
         // If value is null and property has an additional source of data (e.g., wiki commons for #155), use that
-        if (value === null && cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')) {
+        if (
+          value === null &&
+          cfg.src_path_extra !== undefined &&
+          Object.prototype.hasOwnProperty.call(cfg, 'src_path_extra')
+        ) {
           value = _.get(fountain, cfg.src_path_extra, null);
           useExtra = true;
         }
@@ -311,14 +315,14 @@ function mergeFountainProperties(
             if (useExtra && cfg.value_translation_extra !== undefined) {
               tmp.extracted = cfg.value_translation_extra(value);
             } else {
-              let v = cfg.value_translation(value);
+              const v = cfg.value_translation(value);
               tmp.extracted = v;
               if ('wiki_commons_name' == temp.id) {
-                if (cfg.src_path_extra !== undefined && cfg.hasOwnProperty('src_path_extra')) {
-                  let valueE = _.get(fountain, cfg.src_path_extra, null);
+                if (cfg.src_path_extra !== undefined && Object.prototype.hasOwnProperty.call(cfg, 'src_path_extra')) {
+                  const valueE = _.get(fountain, cfg.src_path_extra, null);
                   if (null != valueE && null != v && 0 < valueE.trim().length) {
-                    let catSet = new Set();
-                    for (let c of v) {
+                    const catSet = new Set();
+                    for (const c of v) {
                       catSet.add(c.c);
                     }
                     let vE: any | null = null;
@@ -344,9 +348,9 @@ function mergeFountainProperties(
             if (tmp.extracted !== null) {
               tmp.status = PROP_STATUS_OK;
             }
-          } catch (err) {
+          } catch (err: any) {
             tmp.status = PROP_STATUS_ERROR;
-            let warning = `conflate.data.service.js: Lost in translation of "${metadata.id}" from "${src_name}": ${err.stack}`;
+            const warning = `conflate.data.service.js: Lost in translation of "${metadata.id}" from "${src_name}": ${err.stack}`;
             tmp.comments.push(warning);
             l.error(warning);
           }
@@ -357,29 +361,29 @@ function mergeFountainProperties(
         if ('osm' == src_name && 'featured_image_name' == metadata.id) {
           const osmProps = fountain.properties;
           if (null != osmProps) {
-            let osmImgs: any[] = [];
+            const osmImgs: any[] = [];
             if (null != osmProps.image) {
-              let v = cfg.value_translation(osmProps.image);
+              const v = cfg.value_translation(osmProps.image);
               if (null != v) {
                 osmImgs.push(v);
               }
             }
             if (null != osmProps.wikimedia_commons) {
-              let v = cfg.value_translation(osmProps.wikimedia_commons);
+              const v = cfg.value_translation(osmProps.wikimedia_commons);
               if (null != v) {
                 osmImgs.push(v);
               }
             }
-            let imgsSoFar = new Set();
+            const imgsSoFar = new Set();
             if (null != tmp.extracted && null != tmp.extracted.imgs) {
-              for (let v of tmp.extracted.imgs) {
+              for (const v of tmp.extracted.imgs) {
                 imgsSoFar.add(v.value);
               }
             } else {
               tmp.extracted = { src: 'osm', imgs: [], type: 'unk' };
             }
-            for (let v0 of osmImgs) {
-              for (let v of v0.imgs) {
+            for (const v0 of osmImgs) {
+              for (const v of v0.imgs) {
                 if (!imgsSoFar.has(v.value)) {
                   tmp.extracted.imgs.push(v);
                   tmp.status = PROP_STATUS_OK;
@@ -389,17 +393,17 @@ function mergeFountainProperties(
             }
             if (0 < tmp.extracted.imgs.length) {
               //test with ch-zh Q27230145 or rather node/1415970706
-              for (let pSrc_name of metadata.src_pref) {
+              for (const pSrc_name of metadata.src_pref) {
                 // add the osm images to wikidata if that is the preferred source
                 const tmpSrc = temp.sources[pSrc_name];
                 if (tmpSrc.status === PROP_STATUS_OK && pSrc_name != src_name) {
-                  let pTmp = tmpSrc.extracted;
+                  const pTmp = tmpSrc.extracted;
                   if (null != pTmp && null != pTmp.imgs && 0 < pTmp.imgs.length) {
-                    let pImgsSoFar = new Set();
-                    for (let pV of pTmp.imgs) {
+                    const pImgsSoFar = new Set();
+                    for (const pV of pTmp.imgs) {
                       pImgsSoFar.add(pV.value.replace(/ /g, '_'));
                     }
-                    for (let vO of tmp.extracted.imgs) {
+                    for (const vO of tmp.extracted.imgs) {
                       if (!pImgsSoFar.has(vO.value)) {
                         pTmp.imgs.push(vO);
                       }
@@ -414,7 +418,7 @@ function mergeFountainProperties(
     }
 
     // Get preferred value to display
-    for (let src_name of metadata.src_pref) {
+    for (const src_name of metadata.src_pref) {
       // check if value is available
       if (temp.sources[src_name].status === PROP_STATUS_OK) {
         temp.value = temp.sources[src_name].extracted;
@@ -442,18 +446,14 @@ function mergeFountainProperties(
 
 function properties2GeoJson(collection: FountainConfigProperties[]): Fountain[] {
   return _.map(collection, (properties) => {
-    try {
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: properties.coords.value,
-        },
-        //TODO @ralfhauser most likely not necessary as we don't pass properties to other functions and we immediately resolve the request afterwards
-        properties: _.cloneDeep(properties),
-      };
-    } catch (err) {
-      throw err;
-    }
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: properties.coords.value,
+      },
+      //TODO @ralfhauser most likely not necessary as we don't pass properties to other functions and we immediately resolve the request afterwards
+      properties: _.cloneDeep(properties),
+    };
   });
 }

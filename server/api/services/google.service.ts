@@ -6,14 +6,14 @@
  */
 import { Fountain } from '../../common/typealias';
 
-export type Image = {
+export interface Image {
   big: string;
   medium: string;
   small: string;
   description: string;
   source_name: string;
   source_url: string;
-};
+}
 
 export function getStaticStreetView(fountain: Fountain): Promise<Image> {
   return new Promise((resolve) => {

@@ -6,7 +6,7 @@
  *
  */
 export class CustomLogger {
-  getCaller() {
+  getCaller(): string {
     let calr = 'callerNotFound';
     const stack = new Error().stack;
     if (null != stack) {
@@ -27,17 +27,17 @@ export class CustomLogger {
     }
     return calr;
   }
-  info(str: string, trace: boolean = false) {
+  info(str: string, trace = false): void {
     if (null == trace || !trace) {
-      let calr = this.getCaller();
+      const calr = this.getCaller();
       console.log(new Date().toISOString() + ' | i: ' + str + ' ' + calr);
     } else {
       console.trace(str);
     }
   }
-  error(str: string, trace: boolean = false) {
+  error(str: string, trace = false): void {
     if (null == trace || !trace) {
-      let calr = this.getCaller();
+      const calr = this.getCaller();
       console.log(new Date().toISOString() + ' | e: ' + str + ' ' + calr);
     } else {
       console.trace(str);

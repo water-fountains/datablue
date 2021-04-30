@@ -3,30 +3,35 @@ import { FountainConfig, FountainPropertyCollection, TypedFountainProperty } fro
 
 //TODO would be nice to have official types, couldn't find some maybe worth contributing back?
 
-export type MediaWikiEntity = {
+export interface MediaWikiEntity {
   title: string;
   labels: { [lang: string]: any };
-};
+}
 
-export type ExtMetadata = { value: string; source: string };
+export interface ExtMetadata {
+  value: string;
+  source: string;
+}
 
-export type ImageInfo = { [key: string]: string };
-export type ImageInfoExtMetadataCollection = {
+export interface ImageInfo {
+  [key: string]: string;
+}
+export interface ImageInfoExtMetadataCollection {
   extmetadata: { [key: string]: ExtMetadata };
-};
+}
 
-export type MediaWikiImageInfoCollection<P> = {
+export interface MediaWikiImageInfoCollection<P> {
   imageinfo: P[];
-};
+}
 
 export type MediaWikiPage<T> = T & {
   pageid: string;
   title: string;
 };
 
-export type MediaWikiQuery<T> = {
+export interface MediaWikiQuery<T> {
   query: { pages: { [pageid: string]: MediaWikiPage<T> } };
-};
+}
 
 // FountainConfig is the overlapping type of MediaWiki and OSM
 export interface MediaWikiEntityCollection extends FountainConfig {
@@ -34,25 +39,21 @@ export interface MediaWikiEntityCollection extends FountainConfig {
   c: any;
 }
 
-export type WikiCommonsCategoryCollection = {
+export interface WikiCommonsCategoryCollection {
   wiki_commons_name: TypedFountainProperty<Category[]>;
-};
+}
 
 //TODO @robstoll turn into extension function, would be a bit nicer to use
 export function hasWikiCommonsCategories(
-  collection: FountainPropertyCollection<{}>
+  collection: FountainPropertyCollection<Record<string, unknown>>
 ): collection is FountainPropertyCollection<WikiCommonsCategoryCollection> {
-  return (
-    collection.wiki_commons_name !== undefined &&
-    collection.wiki_commons_name.value != undefined &&
-    isArray(collection.wiki_commons_name.value)
-  );
+  return collection.wiki_commons_name?.value != undefined && isArray(collection.wiki_commons_name.value);
 }
 
-export type Category = {
+export interface Category {
   n: string;
   c: string;
   l: number;
   //TODO @ralfhauser provide a more precise typing please
   e?: any;
-};
+}

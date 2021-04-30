@@ -9,7 +9,7 @@ import { Express, Router } from 'express';
 import middleware from 'swagger-express-middleware';
 import * as path from 'path';
 
-export function swaggerify(app: Express, routerProvider: (app: Express) => Router) {
+export function swaggerify(app: Express, routerProvider: (app: Express) => Router): void {
   middleware(path.join(__dirname, 'Api.yaml'), app, (_err, mw) => {
     // Enable Express' case-sensitive and strict options
     // (so "/entities", "/Entities", and "/Entities/" are all different)

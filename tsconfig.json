@@ -2,13 +2,13 @@
   "compileOnSave": false,
   "compilerOptions": {
     "module": "commonjs",
-     // TODO update once webpack bug regarding ?? is fixed
-     "target": "es2019",
+    // TODO update once webpack bug regarding ?? is fixed
+    "target": "es2019",
     "lib": ["es2020"],
     "moduleResolution": "node",
     "outDir": "build",
     "sourceMap": true,
-     "strict": true,
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

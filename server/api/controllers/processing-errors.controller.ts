@@ -14,12 +14,12 @@ import { FountainCollection } from '../../common/typealias';
 //TODO @ralfhauser, I don't know the type of errorCollection since I was not able to get a real example of an issue, please narrow down accordingly
 export type ProcessingError = any;
 
-export function hasProcessingIssues(obj: any): obj is { issues: ProcessingError[] } {
-  return obj.hasOwnProperty('issues') && Array.isArray(obj.issues);
+export function hasProcessingIssues(obj: Record<string, unknown>): obj is { issues: ProcessingError[] } {
+  return Object.prototype.hasOwnProperty.call(obj, 'issues') && Array.isArray(obj.issues);
 }
 
 export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): ProcessingError[] {
-  let errorCollection: ProcessingError[] = [];
+  const errorCollection: ProcessingError[] = [];
   if (fountainCollection !== undefined) {
     // returns collection of processing errors from collection
     if (process.env.NODE_ENV !== 'production') {
@@ -30,7 +30,7 @@ export function extractProcessingErrors(fountainCollection: FountainCollection |
         if (hasProcessingIssues(p)) {
           p.issues.forEach((issue) => {
             // create copy
-            let error = _.cloneDeep(issue);
+            const error = _.cloneDeep(issue);
             // append error to collection
             errorCollection.push(error);
           });
