@@ -28,6 +28,15 @@ export class ExpressServer {
     this.app.set('appPath', `${root}client`);
     this.app.use(cors()); // allow cross-origin requests
     this.app.use(helmet()); // helmet helps secure Express apps with appropriate HTTP headers
+    //TODO remove again once swagger does no longer use inline scripts, https://github.com/swagger-api/swagger-ui/issues/3370
+    this.app.use(
+      helmet.contentSecurityPolicy({
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          'script-src': ["'unsafe-inline'"],
+        },
+      })
+    );
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(cookieParser(process.env.SESSION_SECRET)); // sign cookies. not sure what benefit is. See https://github.com/expressjs/cookie-parser
