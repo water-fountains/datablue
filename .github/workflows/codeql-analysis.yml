@@ -19,7 +19,5 @@ jobs:
         uses: github/codeql-action/init@v1
         with:
           languages: 'javascript'
-      - run: npm run ci
-
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
