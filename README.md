@@ -25,7 +25,7 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
     - Create a copy of the environment file `> cp .envTEMPLATE .env`
 4. In the newly copied `.env` file, set the following variable:
     - `GOOGLE_API_KEY=[mykey]` get a Google Maps API key and set it in the place of `[mykey]`. This is optional but required in order to see Google Street View images.
-5. Run it by running `> npm run dev` in the local project directory.
+5. Run it by running ``> npm run dev 2>&1 | tee npm_db_`date +%y%m%d_%H%M%S`.log`` in the local project directory.
 6. Try it: Point your browser to <a href="http://localhost:3000" target="_blank" >http://localhost:3000</a>
 
 *Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed.*

@@ -14,3 +14,4 @@ server/common/build.info.js
 nbproject/*
 server/.DS_Store
 server/api/.DS_Store
+/npm_db_2*.log
