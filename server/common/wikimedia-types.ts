@@ -1,4 +1,3 @@
-import { isArray } from 'lodash';
 import { FountainPropertyCollection, TypedFountainProperty } from './typealias';
 
 //TODO would be nice to have official types, couldn't find some maybe worth contributing back?
@@ -14,6 +13,7 @@ export type MediaWikiSimplifiedEntity = {
   labels: { [lang: string]: string };
   descriptions: { [lang: string]: string };
   claims: { [id: string]: { value: any; qualifiers: { [id: string]: string[] } }[] };
+  sitelinks?: { [lang: string]: string };
 };
 
 export interface ExtMetadata {
@@ -53,7 +53,7 @@ export interface WikiCommonsCategoryCollection {
 export function hasWikiCommonsCategories(
   collection: FountainPropertyCollection<Record<string, unknown>>
 ): collection is FountainPropertyCollection<WikiCommonsCategoryCollection> {
-  return collection.wiki_commons_name?.value != undefined && isArray(collection.wiki_commons_name.value);
+  return collection.wiki_commons_name?.value !== undefined && Array.isArray(collection.wiki_commons_name.value);
 }
 
 export interface Category {

@@ -131,7 +131,7 @@ class WikimediaService {
     //    if (debugAll) {
     //       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd);
     //    }
-    if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
+    if (fountain.properties.id_wikidata?.value !== undefined) {
       dbgIdWd = fountain.properties.id_wikidata.value;
     }
     //TODO @ralfhauser, those variables are all not used, I guess they can be removed

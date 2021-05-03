@@ -244,13 +244,13 @@ class WikidataService {
             const entities = data.entities;
             if (null == entities) {
               l.info('wikidata.service.js fillArtistName: null == entities "' + qid + '" for idWd "' + idWd + '"');
-              return fountain;
+              return null;
             }
             l.info('wikidata.service.js fillArtistName: null != entities "' + qid + '" for idWd "' + idWd + '"');
             eQid = entities[qid];
             if (undefined === eQid) {
               l.info('wikidata.service.js fillArtistName: null == eQid "' + qid + '" for idWd "' + idWd + '"');
-              return fountain;
+              return null;
             }
             l.info(
               'wikidata.service.js fillArtistName: about to wdk.simplify.entity eQid "' +
@@ -261,7 +261,7 @@ class WikidataService {
                 idWd +
                 '"'
             );
-            const simplified = wdk.simplify.entity(eQid, { keepQualifiers: true });
+            const simplified: MediaWikiSimplifiedEntity = wdk.simplify.entity(eQid, { keepQualifiers: true });
             l.info(
               'wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "' +
                 eQid +
@@ -298,19 +298,23 @@ class WikidataService {
               return fountain;
             }
             const langs = Object.keys(entity.labels);
-            let artName = null;
+            let artName: string;
             if (langs.indexOf('en') >= 0) {
               artName = entity.labels.en;
             } else {
               // Or get whatever language shows up first
               artName = entity.labels[langs[0]];
             }
+
             //artNam.value = artName;
             artistName.derived.name = artName;
             // Try to find a useful link
             // Look for Wikipedia entry in different languages
             for (const lang of sharedConstants.LANGS) {
-              if (Object.prototype.hasOwnProperty.call(entity.sitelinks, lang + 'wiki')) {
+              if (
+                entity.sitelinks !== undefined &&
+                Object.prototype.hasOwnProperty.call(entity.sitelinks, lang + 'wiki')
+              ) {
                 artistName.derived.website.url = `https://${lang}.wikipedia.org/wiki/${
                   entity.sitelinks[lang + 'wiki']
                 }`;
