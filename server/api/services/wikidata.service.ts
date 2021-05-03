@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 import wdk from 'wikidata-sdk';
 import sharedConstants from '../../common/shared-constants';
 import { Fountain } from '../../common/typealias';
-import { MediaWikiEntity, MediaWikiEntityCollection } from '../../common/wikimedia-types';
+import { MediaWikiEntityCollection, MediaWikiEntity, MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 
 // Set up caching of http requests
 const http = axios.create({
@@ -83,7 +83,7 @@ class WikidataService {
     return res;
   }
 
-  byIds(qids: string[], locationName: string): Promise<MediaWikiEntityCollection[]> {
+  byIds(qids: string[], locationName: string): Promise<MediaWikiSimplifiedEntity[]> {
     // fetch fountains by their QIDs
     const chunkSize = 50; // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject) => {
@@ -117,18 +117,17 @@ class WikidataService {
                 '"'
             );
             // holder for data of all fountains
-            let dataAll = [];
+            let dataAll: MediaWikiSimplifiedEntity[] = [];
             responses.forEach(r => {
               // holder for data from each chunk
               //TODO should be typed as soon as we update wikidata-sdk to the latest version
-              const data: any = [];
-              for (const key in r.data.c) {
-                const entity = wdk.simplify.entity(r.data.entities[key], {
+              const data: MediaWikiSimplifiedEntity[] = [];
+              for (const key in r.data.entities) {
+                // simplify object structure of each wikidata entity and add it to 'data'
+                const entity: MediaWikiSimplifiedEntity = wdk.simplify.entity(r.data.entities[key], {
                   // keep qualifiers when simplifying (qualifiers are needed for the operator id)
                   keepQualifiers: true,
                 });
-                // simplify object structure of each wikidata entity and add it to 'data'
-                l.info('==================================================\n' + entity.toString());
                 data.push(entity);
               }
               // concatenate the fountains from each chunk into "dataAll"
@@ -142,7 +141,7 @@ class WikidataService {
               l.info('wikidata.service.js byIds: dataAll ' + dataAllSize + ' for loc "' + locationName + '"');
             }
             // return dataAll to
-            //TODO that's a smell, we should not use the resolve of an outer promise
+            //TODO @ralfhauser that's a smell, we should not use the resolve of an outer promise
             resolve(dataAll);
           })
           .catch(e => {

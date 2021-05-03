@@ -17,6 +17,7 @@ import l from '../server/common/logger';
 import _ from 'lodash';
 import { ImageLikeCollection, text2img } from './text2img';
 import { FountainConfig, NamedSources, SCL, SourceConfig, SourceType, Translated } from '../server/common/typealias';
+import { MediaWikiSimplifiedEntity } from '../server/common/wikimedia-types';
 
 /**
  * function that passes data through without modification
@@ -2433,7 +2434,11 @@ export const fountain_property_metadata = fountain_properties;
  * @param {String} source either 'osm' or 'wikidata', depending on which source should be used
  * @param {'String'} property codename of property for which value should be fetched
  */
-export function get_prop(fountainConfig: FountainConfig, source: string, property: string): any {
+export function get_prop(
+  fountainConfig: FountainConfig | MediaWikiSimplifiedEntity,
+  source: string,
+  property: string
+): any {
   return fountain_properties[property].src_config[source].value_translation(
     _.get(fountainConfig, fountain_properties[property].src_config[source].src_path)
   );

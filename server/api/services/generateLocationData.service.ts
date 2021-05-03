@@ -16,7 +16,8 @@ import {
   defaultCollectionEnhancement,
   fillInMissingWikidataFountains,
 } from '../services/processing.service';
-import { FountainCollection, FountainConfig } from '../../common/typealias';
+import { FountainCollection } from '../../common/typealias';
+import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 
 /**
  * This function creates fountain collections
@@ -101,7 +102,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
         });
 
       // get data from Wikidata
-      const wikidataPromise: Promise<FountainConfig[]> = WikidataService.idsByBoundingBox(
+      const wikidataPromise: Promise<MediaWikiSimplifiedEntity[]> = WikidataService.idsByBoundingBox(
         bbox.latMin,
         bbox.lngMin,
         bbox.latMax,
@@ -115,16 +116,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
       Promise.all([osmPromise, wikidataPromise])
         // get any missing wikidata fountains for proximap#212
         .then(r => fillInMissingWikidataFountains(r[0], r[1], locationName))
-        .then(r =>
-          conflate(
-            {
-              osm: r.osm,
-              wikidata: r.wikidata,
-            },
-            locationName,
-            debugAll
-          )
-        )
+        .then(r => conflate(r, locationName, debugAll))
         .then(r => defaultCollectionEnhancement(r, locationName, debugAll))
         .then(r => createUniqueIds(r))
         .then(r => {

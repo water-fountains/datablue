@@ -1,7 +1,7 @@
 import { Feature, FeatureCollection, Point } from 'geojson';
 import { ImageLikeCollection, ImageLikeType } from '../../config/text2img';
 import { PropStatus } from './constants';
-import { Category } from './wikimedia-types';
+import { Category, MediaWikiSimplifiedEntity } from './wikimedia-types';
 
 //TODO @ralfhauser as far as I can see, all features in the FeatureCollection collection has Point as type of `geometry`. Also, geometry is always defined.
 // Do you know if there are exceptions to this rule? `geometry` is defined as different geometry type or null, i.e. it could also not exist. I have the feeling it always is
@@ -23,7 +23,7 @@ export type FountainConfig = SourceConfig<any, string>;
 
 export interface FountainConfigCollection {
   osm: FountainConfig[];
-  wikidata: FountainConfig[];
+  wikidata: MediaWikiSimplifiedEntity[];
 }
 
 //TODO @ralfhauser, not 100% correct, `gallery` does not fit into FountainProperty type. Should it?
