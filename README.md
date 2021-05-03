@@ -53,7 +53,12 @@ npm run compile
 pm2 start build/main.js --name "datablue"
 ```
 Note: In production mode, the endpoint is only available over https if a `privkey.pem` and `cert.pem` is defined and can be read by the process running pm2.
-   
+
+# Deployment
+
+Each merge to `develop` will automatically trigger a deployment via [Github Actions](https://github.com/water-fountains/datablue/runs/2485907077?check_suite_focus=true#step:10:144) to https://api.beta.water-fountains.org where you can verify the current version via the build-info endpoint: https://api.beta.water-fountains.org/api/v1/build-info
+
+Likewise, each merge to `stable` will automatically trigger a deployment to https://api.water-fountains.org.
 
 # Contributing
 
