@@ -342,7 +342,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                       getCatExtract(singleRefresh, cat, catPromises, dbg);
                     }
                   }
-                  Promise.all(catPromises).then(
+                  return Promise.all(catPromises).then(
                     r => {
                       for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
                         //between 6 && 50 imgs are on the gallery-preview
@@ -444,7 +444,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                             '"'
                         );
                       }
-                      Promise.all(imgMetaPromises).then(
+                      return Promise.all(imgMetaPromises).then(
                         r => {
                           if (0 < lazyAdded) {
                             l.info(
@@ -462,6 +462,8 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                                 r.length
                             );
                           }
+                          //TODO @ralfhauser this is a clear smell, we already send the response before we resolve the promise
+                          // it would be better if we return the fountain in a then once the promise completes
                           sendJson(res, fountain, 'byId ' + dbg); //  res.json(fountain);
                           l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
                           return fountain;
@@ -470,6 +472,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                           l.error(
                             `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                           );
+                          return undefined;
                         }
                       );
                     },
@@ -477,11 +480,12 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                       l.error(
                         `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                       );
+                      return undefined;
                     }
                   );
                 } else {
                   l.info('controller.js byId: of ' + city + ' gl < 1  ' + dbg);
-                  Promise.all(imgMetaPromises).then(
+                  return Promise.all(imgMetaPromises).then(
                     r => {
                       if (0 < lazyAdded) {
                         l.info(
@@ -499,6 +503,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                             r.length
                         );
                       }
+                      //TODO @ralfhauser this is a clear smell, we already send the response before we resovle the promise
                       sendJson(res, fountain, 'byId ' + dbg); //  res.json(fountain);
                       l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
                       return fountain;
@@ -507,18 +512,22 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                       l.error(
                         `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
                       );
+                      return undefined;
                     }
                   );
                 }
               } else {
                 l.info('controller.js byId: of ' + city + ' gallery null || null == gal.val  ' + dbg);
+                return undefined;
               }
             } else {
               l.info('controller.js byId: of ' + city + ' no props ' + dbg);
+              return undefined;
             }
           }
+        } else {
+          return undefined;
         }
-        return undefined;
         //      l.info('controller.js byId: end of '+cityS+' '+dbg);
       },
       err => {
