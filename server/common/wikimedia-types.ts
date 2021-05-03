@@ -1,12 +1,20 @@
 import { isArray } from 'lodash';
-import { FountainConfig, FountainPropertyCollection, TypedFountainProperty } from './typealias';
+import { FountainPropertyCollection, TypedFountainProperty } from './typealias';
 
 //TODO would be nice to have official types, couldn't find some maybe worth contributing back?
 
-export interface MediaWikiEntity {
+export type MediaWikiEntity = {
+  pageid: number;
+  labels: { [lang: string]: { language: string; value: string } };
+  descriptions: { [lang: string]: { language: string; value: string } };
+};
+
+export type MediaWikiSimplifiedEntity = {
   title: string;
-  labels: { [lang: string]: any };
-}
+  labels: { [lang: string]: string };
+  descriptions: { [lang: string]: string };
+  claims: { [id: string]: { value: any; qualifiers: { [id: string]: string[] } }[] };
+};
 
 export interface ExtMetadata {
   value: string;
@@ -33,10 +41,8 @@ export interface MediaWikiQuery<T> {
   query: { pages: { [pageid: string]: MediaWikiPage<T> } };
 }
 
-// FountainConfig is the overlapping type of MediaWiki and OSM
-export interface MediaWikiEntityCollection extends FountainConfig {
+export interface MediaWikiEntityCollection {
   entities: { [key: string]: MediaWikiEntity | undefined };
-  c: any;
 }
 
 export interface WikiCommonsCategoryCollection {

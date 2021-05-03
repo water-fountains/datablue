@@ -17,6 +17,7 @@ import {
 } from '../../common/constants';
 import sharedConstants from '../../common/shared-constants';
 import { Fountain, FountainCollection, FountainConfig, FountainConfigCollection } from '../../common/typealias';
+import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 
 export function defaultCollectionEnhancement(
   fountainArr: Fountain[],
@@ -299,7 +300,7 @@ export function fillOutNames(fountainArr: Fountain[], dbg: string): Promise<Foun
 
 export function fillInMissingWikidataFountains(
   osm_fountains: FountainConfig[],
-  wikidata_fountains: FountainConfig[],
+  wikidata_fountains: MediaWikiSimplifiedEntity[],
   dbg: string
 ): Promise<FountainConfigCollection> {
   // Created for #212. This function should run before conflation. It checks if all Wikidata
@@ -346,7 +347,7 @@ export function fillInMissingWikidataFountains(
     );
 
     // Fetch fountains with missing qids and add them to the wikidata_fountains collection
-    WikidataService.byIds(missing_qids, dbg).then((missing_wikidata_fountains: FountainConfig[]) => {
+    WikidataService.byIds(missing_qids, dbg).then((missing_wikidata_fountains: MediaWikiSimplifiedEntity[]) => {
       resolve({
         osm: osm_fountains,
         wikidata: missing_wikidata_fountains.concat(wikidata_fountains),

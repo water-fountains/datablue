@@ -23,9 +23,11 @@ import {
   FountainConfigCollection,
   FountainConfigProperties,
   FountainConfigProperty,
+  NamedSources,
   Source,
   SourceConfig,
 } from '../../common/typealias';
+import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 
 // wikidata property paths: path for accessing the wikidata QID of a fountain, either in the query result of wikidata or the query result from OSM
 const idwd_path_wd = fountain_property_metadata.id_wikidata.src_config.wikidata.src_path;
@@ -224,7 +226,7 @@ function conflateByCoordinates(
 }
 
 function mergeFountainProperties(
-  namedFountainConfig: { osm: FountainConfig | null; wikidata: FountainConfig | null },
+  namedFountainConfig: NamedSources<MediaWikiSimplifiedEntity | null, FountainConfig | null>,
   mergeNotes = '',
   mergeDistance: number | null = null,
   debugAll: boolean,
