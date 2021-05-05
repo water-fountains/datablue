@@ -35,41 +35,35 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
   l.info('processing.service.js starting fillImageGalleries: ' + city + ' debugAll ' + debugAll);
-  return new Promise((resolve, reject) => {
-    const promises: Promise<Fountain>[] = [];
-    let i = 0;
-    const tot = fountainArr.length;
-    let step = 1;
-    if (tot >= 50) {
-      step = 10;
-      if (tot >= 300) {
-        step = 50;
-        if (tot >= 600) {
-          step = 100;
-          if (tot >= 1000) {
-            step = 200;
-            if (tot >= 2000) {
-              step = 500;
-            }
+  const promises: Promise<Fountain>[] = [];
+  let i = 0;
+  const tot = fountainArr.length;
+  let step = 1;
+  if (tot >= 50) {
+    step = 10;
+    if (tot >= 300) {
+      step = 50;
+      if (tot >= 600) {
+        step = 100;
+        if (tot >= 1000) {
+          step = 200;
+          if (tot >= 2000) {
+            step = 500;
           }
         }
       }
     }
-    const allMap = new Map();
-    let dbgAll = debugAll;
-    _.forEach(fountainArr, fountain => {
-      i = i + 1;
-      if (!debugAll) {
-        dbgAll = 0 == i % step;
-      }
-      const dbg = i + '/' + tot;
-      promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, allMap, tot));
-    });
-
-    Promise.all(promises)
-      .then(r => resolve(r))
-      .catch(err => reject(err));
+  }
+  let dbgAll = debugAll;
+  _.forEach(fountainArr, fountain => {
+    i = i + 1;
+    if (!debugAll) {
+      dbgAll = 0 == i % step;
+    }
+    const dbg = i + '/' + tot;
+    promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, tot));
   });
+  return Promise.all(promises);
 }
 
 // created for proximap #129

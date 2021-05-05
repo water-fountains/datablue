@@ -122,8 +122,6 @@ class WikimediaService {
     dbg: string,
     city: string,
     debugAll: boolean,
-    //TODO @ralfhauser, please improve the typing of  c and clrs
-    allMap: Map<string, { i: GalleryValue; c?: any; clrs: Set<string> }>,
     numbOfFntsInCollection: number
   ): Promise<Fountain> {
     //TODO @ralfhauser, changed it from null to '' to satisfy the type string
@@ -131,7 +129,7 @@ class WikimediaService {
     //    if (debugAll) {
     //       l.info('wikimedia.service.js starting fillGallery: '+dbg+' '+city+' '+dbgIdWd);
     //    }
-    if (null != fountain.properties.id_wikidata && null != fountain.properties.id_wikidata.value) {
+    if (fountain.properties.id_wikidata?.value !== undefined) {
       dbgIdWd = fountain.properties.id_wikidata.value;
     }
     //TODO @ralfhauser, those variables are all not used, I guess they can be removed
@@ -236,6 +234,8 @@ class WikimediaService {
             const imgL = imgUrls.length;
             const showDetails = false;
             const maxImgPreFetched = 0; //as long as we don't filter for pre-fetched info, why prefetch ? https://github.com/water-fountains/datablue/issues/41
+            //TODO @ralfhauser, please improve the typing of  c and clrs
+            const allMap: Map<string, { i: GalleryValue; c?: any; clrs: Set<string> }> = new Map();
             for (; k < maxImgPreFetched && k < imgL; k++) {
               //only 5 imgs are on the gallery-preview
               const img = imgUrls[k];
@@ -264,6 +264,7 @@ class WikimediaService {
                 //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                 //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
                 const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
+
                 galValPromises.push(
                   //TODO @ralfhauser getImageInfo returns Promise<void> this statement most likely does not make sense
                   // My guess, galValPromises should have nImg instead, hence I added the `then` after the catch, please check if this fix is correct
@@ -297,7 +298,6 @@ class WikimediaService {
               //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
               //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
               const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
-              //TODO @ralfhauser, this does not make sense at all with the current typings. is galValPromises really supposed to have both promises and
               galValPromises.push(new Promise(resolve => resolve(nImg)));
             }
             if (debugAll) {
@@ -347,7 +347,7 @@ class WikimediaService {
               } catch (err: any) {
                 l.info('wikimedia.service.js fillGallery: map operation failed ' + err.stack);
               }
-              fountain.properties.gallery.value = galVal;
+              fountain.properties.gallery.value = allGalVal;
               fountain.properties.gallery.status = PROP_STATUS_OK;
               fountain.properties.gallery.comments = '';
               fountain.properties.gallery.source = 'wiCommns';

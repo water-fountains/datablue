@@ -33,7 +33,7 @@ import {
 } from '../../common/constants';
 import sharedConstants from './../../common/shared-constants';
 import { Request, Response } from 'express';
-import { getSingleQueryParam } from './utils';
+import { getSingleBooleanQueryParam, getSingleNumberQueryParam, getSingleStringQueryParam } from './utils';
 import { Fountain, FountainCollection, GalleryValue } from '../../common/typealias';
 import { hasWikiCommonsCategories } from '../../common/wikimedia-types';
 import { ImageLike } from '../../../config/text2img';
@@ -90,11 +90,11 @@ export class Controller {
   getSingle(req: Request, res: Response): void {
     // const start = new Date();
     // let what: string;
-    const queryType = getSingleQueryParam(req, 'queryType');
-    const refresh = getSingleQueryParam(req, 'refresh', /* isOptional = */ true);
+    const queryType = getSingleStringQueryParam(req, 'queryType');
+    const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
 
     if (queryType === 'byCoords') {
-      const city = getSingleQueryParam(req, 'city');
+      const city = getSingleStringQueryParam(req, 'city');
       l.info(`controller.js getSingle byCoords: refresh: ${refresh} , city: ` + city);
 
       // byCoords will return the nearest fountain to the given coordinates.
@@ -117,11 +117,12 @@ export class Controller {
   // Function to return all fountain information for a location.
   byLocation(req: Request, res: Response): void {
     const start = new Date();
-    const city = getSingleQueryParam(req, 'city');
+    const city = getSingleStringQueryParam(req, 'city');
+    const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
 
     // if a refresh is requested or if no data is in the cache, then reprocessess the fountains
-    if (req.query.refresh || cityCache.keys().indexOf(city) === -1) {
-      l.info(`controller.js byLocation: refresh: ${req.query.refresh} , city: ` + city);
+    if (refresh || cityCache.keys().indexOf(city) === -1) {
+      l.info(`controller.js byLocation: refresh: ${refresh} , city: ` + city);
       generateLocationData(city)
         .then(fountainCollection => {
           // save new data to storage
@@ -132,7 +133,8 @@ export class Controller {
           cityCache.set<FountainCollection>(city + '_essential', r_essential);
 
           // return either the full or reduced version, depending on the "essential" parameter of the query
-          if (req.query.essential) {
+          const essential = getSingleBooleanQueryParam(req, 'essential', /* isOptional = */ true) ?? false;
+          if (essential) {
             sendJson(res, r_essential, 'r_essential');
           } else {
             sendJson(res, fountainCollection, 'fountainCollection');
@@ -153,7 +155,8 @@ export class Controller {
     }
     // otherwise, get the data from storage
     else {
-      if (req.query.essential) {
+      const essential = getSingleBooleanQueryParam(req, 'essential', /* isOptional = */ true) ?? false;
+      if (essential) {
         sendJson(res, cityCache.get<FountainCollection>(city + '_essential'), 'fromCache essential');
       } else {
         sendJson(res, cityCache.get<FountainCollection>(city), 'fromCache');
@@ -194,7 +197,7 @@ export class Controller {
   getProcessingErrors(req: Request, res: Response): void {
     // returns all processing errors for a given location
     // made for #206
-    const city = getSingleQueryParam(req, 'city');
+    const city = getSingleStringQueryParam(req, 'city');
     const key = city + '_errors';
 
     if (cityCache.keys().indexOf(key) < 0) {
@@ -247,7 +250,7 @@ function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: str
  * Function to respond to request by returning the fountain as defined by the provided identifier
  */
 function byId(req: Request, res: Response, dbg: string): Promise<Fountain | undefined> {
-  const city = getSingleQueryParam(req, 'city');
+  const city = getSingleStringQueryParam(req, 'city');
   let name = 'unkNamById';
   //  l.info('controller.js byId: '+cityS+' '+dbg);
   let fountainCollection = cityCache.get<FountainCollection>(city);
@@ -517,7 +520,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
                   );
                 }
               } else {
-                l.info('controller.js byId: of ' + city + ' gallery null || null == gal.val  ' + dbg);
+                l.info('controller.js byId: of ' + city + ' gallery null || null == gal.value  ' + dbg);
                 return undefined;
               }
             } else {
@@ -551,9 +554,9 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
  * - radius: radius in which to search for fountains
  */
 function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): void {
-  const lat = +getSingleQueryParam(req, 'lat');
-  const lng = +getSingleQueryParam(req, 'lng');
-  const radius = +getSingleQueryParam(req, 'radius');
+  const lat = getSingleNumberQueryParam(req, 'lat');
+  const lng = getSingleNumberQueryParam(req, 'lng');
+  const radius = getSingleNumberQueryParam(req, 'radius');
 
   l.info(
     `controller.js reprocessFountainAtCoords: all fountains near lat:${lat}, lng: ${lng}, radius: ${radius} ` + dbg
@@ -623,7 +626,7 @@ function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): vo
 
     // Update cache with newly processed fountain
     .then(r => {
-      const city = getSingleQueryParam(req, 'city');
+      const city = getSingleStringQueryParam(req, 'city');
       const closest = updateCacheWithFountain(cityCache, r[0], city);
       sendJson(res, closest, 'after updateCacheWithFountain');
     })
