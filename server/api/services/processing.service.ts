@@ -54,7 +54,6 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
       }
     }
   }
-  const allMap = new Map();
   let dbgAll = debugAll;
   _.forEach(fountainArr, fountain => {
     i = i + 1;
@@ -62,7 +61,7 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
       dbgAll = 0 == i % step;
     }
     const dbg = i + '/' + tot;
-    promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, allMap, tot));
+    promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, tot));
   });
   return Promise.all(promises);
 }

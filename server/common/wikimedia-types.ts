@@ -2,19 +2,19 @@ import { FountainPropertyCollection, TypedFountainProperty } from './typealias';
 
 //TODO would be nice to have official types, couldn't find some maybe worth contributing back?
 
-export type MediaWikiEntity = {
+export interface MediaWikiEntity {
   pageid: number;
   labels: { [lang: string]: { language: string; value: string } };
   descriptions: { [lang: string]: { language: string; value: string } };
-};
+}
 
-export type MediaWikiSimplifiedEntity = {
+export interface MediaWikiSimplifiedEntity {
   title: string;
   labels: { [lang: string]: string };
   descriptions: { [lang: string]: string };
   claims: { [id: string]: { value: any; qualifiers: { [id: string]: string[] } }[] };
   sitelinks?: { [lang: string]: string };
-};
+}
 
 export interface ExtMetadata {
   value: string;
