@@ -69,7 +69,6 @@ export interface GalleryValue {
   s: string;
   t: string;
   pgTit?: string;
-  //TODO @ralfhauser, should not every SCPT have a category?
   c?: Category;
   metadata?: ImageInfoMetadataCollection;
   description?: string;
