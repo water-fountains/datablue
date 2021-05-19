@@ -15,3 +15,5 @@ nbproject/*
 server/.DS_Store
 server/api/.DS_Store
 /npm_db_2*.log
+.envrc
+shell.nix
