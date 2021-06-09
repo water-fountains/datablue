@@ -656,16 +656,11 @@ const fountain_properties: FountainPropertiesMeta = {
     essential: true,
     type: 'string',
     descriptions: {
-      en:
-        'Identifier used by OpenStreetMap for the fountain. Fountains can be either nodes or ways, therefore the identifier must start with either "node" or "way".',
-      de:
-        'Kennung, die von OpenStreetMap für den Brunnen verwendet wird. Brunnen können entweder Knoten oder Wege sein, daher muss der Identifikator entweder mit "node" oder "way" beginnen.',
-      fr:
-        'Identifiant utilisé par OpenStreetMap pour la fontaine. Les fontaines peuvent être soit des noeuds, soit des voies, donc l\'identificateur doit commencer par "node" ou "way".',
-      it:
-        'Identificatore utilizzato da OpenStreetMap per la fontana. Le fontane possono essere nodi o vie, quindi l\'identificatore deve iniziare per "node" o "way".',
-      tr:
-        'Tanımlayıcı, OpenStreetMap tarafından çeşmeler için kullanıldı. çeşmeler beze veya yol olabilir, bu yüzden tanımlayıcı "beze" veya "yol" olarak başlamalıdır. ',
+      en: 'Identifier used by OpenStreetMap for the fountain. Fountains can be either nodes or ways, therefore the identifier must start with either "node" or "way".',
+      de: 'Kennung, die von OpenStreetMap für den Brunnen verwendet wird. Brunnen können entweder Knoten oder Wege sein, daher muss der Identifikator entweder mit "node" oder "way" beginnen.',
+      fr: 'Identifiant utilisé par OpenStreetMap pour la fontaine. Les fontaines peuvent être soit des noeuds, soit des voies, donc l\'identificateur doit commencer par "node" ou "way".',
+      it: 'Identificatore utilizzato da OpenStreetMap per la fontana. Le fontane possono essere nodi o vie, quindi l\'identificatore deve iniziare per "node" o "way".',
+      tr: 'Tanımlayıcı, OpenStreetMap tarafından çeşmeler için kullanıldı. çeşmeler beze veya yol olabilir, bu yüzden tanımlayıcı "beze" veya "yol" olarak başlamalıdır. ',
     },
     src_pref: ['osm'],
     src_config: {
@@ -758,16 +753,11 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'ref'],
         },
         src_info: {
-          en:
-            'This tag could also be used for other purposes. We therefore recommend using Wikidata to store this information.',
-          de:
-            'Dieser Tag kann auch für andere Zwecke verwendet werden. Wir empfehlen daher, diese Informationen in Wikidata zu speichern.',
-          fr:
-            "Cette balise peut également être utilisée à d'autres fins. Nous vous recommandons donc d'utiliser Wikidata pour stocker ces informations.",
-          it:
-            'Questo tag può essere utilizzato per altri propositi. Di conseguenza raccomandiamo di usare Wikidata al fine di salvare questa informazione.',
-          tr:
-            'Bu etiket başka amaçlar için de kullanılabilir. Biz bu yüzden bilgi depolamak için Wikidata kullanılmasını öneriyoruz. ',
+          en: 'This tag could also be used for other purposes. We therefore recommend using Wikidata to store this information.',
+          de: 'Dieser Tag kann auch für andere Zwecke verwendet werden. Wir empfehlen daher, diese Informationen in Wikidata zu speichern.',
+          fr: "Cette balise peut également être utilisée à d'autres fins. Nous vous recommandons donc d'utiliser Wikidata pour stocker ces informations.",
+          it: 'Questo tag può essere utilizzato per altri propositi. Di conseguenza raccomandiamo di usare Wikidata al fine di salvare questa informazione.',
+          tr: 'Bu etiket başka amaçlar için de kullanılabilir. Biz bu yüzden bilgi depolamak için Wikidata kullanılmasını öneriyoruz. ',
         },
         value_translation: identity,
       },
@@ -804,11 +794,9 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         src_info: {
           en: 'The Wikidata identifier cannot be modified. It uniquely identifies a Wikidata entity.',
-          de:
-            'Der Wikidata-Identifikator kann nicht geändert werden. Es identifiziert eine Wikidata-Entität eindeutig.',
+          de: 'Der Wikidata-Identifikator kann nicht geändert werden. Es identifiziert eine Wikidata-Entität eindeutig.',
           fr: "L'identifiant Wikidata ne peut pas être modifié. Il identifie de manière unique une entité Wikidata.",
-          it:
-            "L'identificatore di Wikidata non può essere modificato. Esso identifica unicamente un'entità di Wikidata.",
+          it: "L'identificatore di Wikidata non può essere modificato. Esso identifica unicamente un'entità di Wikidata.",
           tr: 'Wikidata kimliği değiştirilemez. Ona has bir şekilde Wikidata varlığında tanımlanır.',
         },
         value_translation: identity,
@@ -971,16 +959,11 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Tanım', 'mimar'],
         },
         extraction_info: {
-          en:
-            'Only the first value returned by Wikidata is kept. If the QID corresponds to that of "anonymous" (Q4233718), it returns null.',
-          de:
-            'Nur der erste Wert, der von Wikidata zurückgegeben wird, bleibt erhalten. Wenn die QID der von "Anonymus" (Q4233718) entspricht, ist der Wert "null".',
-          fr:
-            'Seule la première valeur retournée par Wikidata est conservée. Si le QID correspond à celui de "anonyme" (Q4233718), la valeur retournée est "null".',
-          it:
-            'Solo il primo valore ritornato da wikidata sarà conservato. Se il QID corrisponde a quello di "anonimo" (Q4233718), il valore ritornato è "null".',
-          tr:
-            "Sadece Wikidata'dan geri gelen ilk değer saklandı. Eğer QID \"anonim\" (Q4233718) 'e karşılık verirse' geçersiz döner.",
+          en: 'Only the first value returned by Wikidata is kept. If the QID corresponds to that of "anonymous" (Q4233718), it returns null.',
+          de: 'Nur der erste Wert, der von Wikidata zurückgegeben wird, bleibt erhalten. Wenn die QID der von "Anonymus" (Q4233718) entspricht, ist der Wert "null".',
+          fr: 'Seule la première valeur retournée par Wikidata est conservée. Si le QID correspond à celui de "anonyme" (Q4233718), la valeur retournée est "null".',
+          it: 'Solo il primo valore ritornato da wikidata sarà conservato. Se il QID corrisponde a quello di "anonimo" (Q4233718), il valore ritornato è "null".',
+          tr: "Sadece Wikidata'dan geri gelen ilk değer saklandı. Eğer QID \"anonim\" (Q4233718) 'e karşılık verirse' geçersiz döner.",
         },
         value_translation: values => {
           //just return the first value that is not anonymous.
@@ -1240,16 +1223,11 @@ const fountain_properties: FountainPropertiesMeta = {
     essential: false,
     type: 'string',
     descriptions: {
-      en:
-        'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
-      de:
-        'Name des Hauptbildes, wie in Wikidata dokumentiert. Dies ist nützlich für die Erstellung des Galerie-Objekts, wird aber ansonsten nicht direkt verwendet.',
-      fr:
-        "Nom de l'image principale tel que documenté dans Wikidata. Ceci est utile pour créer l'objet de la galerie, mais n'est pas utilisé directement.",
-      it:
-        "Nome dell'immaigine principale come documentato in Wikidata. Questo è utile per creare l'oggetto della galleria, ma altrimenti non viene usato direttamente.",
-      tr:
-        "Esas görüntünün Wikidata'daki ismi. Bu bir nesne galerisi oluşturmak için gereklidir, aksi takdirde doğrudan kullanılmaz. ",
+      en: 'Name of the featured image as documented in Wikidata. This is useful for creating the gallery object, but otherwise not used directly.',
+      de: 'Name des Hauptbildes, wie in Wikidata dokumentiert. Dies ist nützlich für die Erstellung des Galerie-Objekts, wird aber ansonsten nicht direkt verwendet.',
+      fr: "Nom de l'image principale tel que documenté dans Wikidata. Ceci est utile pour créer l'objet de la galerie, mais n'est pas utilisé directement.",
+      it: "Nome dell'immaigine principale come documentato in Wikidata. Questo è utile per creare l'oggetto della galleria, ma altrimenti non viene usato direttamente.",
+      tr: "Esas görüntünün Wikidata'daki ismi. Bu bir nesne galerisi oluşturmak için gereklidir, aksi takdirde doğrudan kullanılmaz. ",
     },
     src_pref: ['wikidata', 'osm'],
     src_config: {
@@ -1321,14 +1299,10 @@ const fountain_properties: FountainPropertiesMeta = {
     essential: false,
     type: 'coords',
     descriptions: {
-      en:
-        'Geographical coordinates at which the fountain is located, expressed as an array of longitude and latitude (in that order).',
-      de:
-        'Geographische Koordinaten, an denen sich der Brunnen befindet, ausgedrückt als eine Liste von Längen- und Breitengrad (in dieser Reihenfolge).',
-      fr:
-        "Coordonnées géographiques où se trouve la fontaine, exprimées sous la forme d'une liste contenant la longitude et la latitude (dans cet ordre).",
-      it:
-        'Coordinate geografiche dove si trova la fontana, espresse in una lista contenente longitudine e latitudine (in questo ordine).',
+      en: 'Geographical coordinates at which the fountain is located, expressed as an array of longitude and latitude (in that order).',
+      de: 'Geographische Koordinaten, an denen sich der Brunnen befindet, ausgedrückt als eine Liste von Längen- und Breitengrad (in dieser Reihenfolge).',
+      fr: "Coordonnées géographiques où se trouve la fontaine, exprimées sous la forme d'une liste contenant la longitude et la latitude (dans cet ordre).",
+      it: 'Coordinate geografiche dove si trova la fontana, espresse in una lista contenente longitudine e latitudine (in questo ordine).',
       tr: 'Çeşmenin bulunduğu yerin Coğrafya koordinatları bir boylam ve enlem dizisi olarak tanımlanır.',
     },
     src_pref: ['osm', 'wikidata'],
@@ -1344,12 +1318,9 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         src_info: {
           en: 'Geographical coordinates are to be expressed as an array of longitude and latitude (in that order).',
-          de:
-            'Geographische Koordinaten müssen eingetragen werden als eine Liste von Längen- und Breitengrad (in dieser Reihenfolge).',
-          fr:
-            "Les coordonnées géographiques doivent être exprimées sous la forme d'une liste contenant la longitude et la latitude (dans cet ordre).",
-          it:
-            'Le coordinate geografiche devono essere espresse in una lista contenente longitudine e latitudine (in questo ordine).',
+          de: 'Geographische Koordinaten müssen eingetragen werden als eine Liste von Längen- und Breitengrad (in dieser Reihenfolge).',
+          fr: "Les coordonnées géographiques doivent être exprimées sous la forme d'une liste contenant la longitude et la latitude (dans cet ordre).",
+          it: 'Le coordinate geografiche devono essere espresse in una lista contenente longitudine e latitudine (in questo ordine).',
           tr: 'Coğrafya koordinatları bir boylam ve enlem dizisi olarak tanımlanır.',
         },
         extraction_info: {
@@ -1381,12 +1352,9 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         src_info: {
           en: 'Fountain coordinates in OpenStreetMap can be changed by dragging the fountain in the map editor.',
-          de:
-            'Die Fontänenkoordinaten in OpenStreetMap können durch Ziehen des Brunnens im Karteneditor geändert werden.',
-          fr:
-            "Les coordonnées de la fontaine dans OpenStreetMap peuvent être modifiées en faisant glisser la fontaine dans l'éditeur de carte.",
-          it:
-            "Le coordinate della fontana in OpenStreetMap possono essere cambiate trascinando la fontana sull'editor della mappa.",
+          de: 'Die Fontänenkoordinaten in OpenStreetMap können durch Ziehen des Brunnens im Karteneditor geändert werden.',
+          fr: "Les coordonnées de la fontaine dans OpenStreetMap peuvent être modifiées en faisant glisser la fontaine dans l'éditeur de carte.",
+          it: "Le coordinate della fontana in OpenStreetMap possono essere cambiate trascinando la fontana sull'editor della mappa.",
           tr: 'Çeşmenin koordinatları OpenStreetMap içinde çeşmeyi harita içinde sürükleyerek değiştirilebilir.',
         },
         value_translation: identity,
@@ -1513,12 +1481,9 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         src_info: {
           en: 'This property can also be defined as a Sitelink, but the Statement value will be used first',
-          de:
-            'Diese Eigenschaft kann auch als Interwiki-Link definiert werden, aber der Statement Wert wird zuerst verwendet.',
-          fr:
-            'Cette propriété peut aussi être définie comme un Liens de site, mais la valeur du Statement sera utilisée en premier.',
-          it:
-            'Questa proprietà può essere definita come un link a un sito, ma il valore di Statement sarà usato per primo.',
+          de: 'Diese Eigenschaft kann auch als Interwiki-Link definiert werden, aber der Statement Wert wird zuerst verwendet.',
+          fr: 'Cette propriété peut aussi être définie comme un Liens de site, mais la valeur du Statement sera utilisée en premier.',
+          it: 'Questa proprietà può essere definita come un link a un sito, ma il valore di Statement sarà usato per primo.',
           tr: 'Bu özellik aynı zamanda bir Site Bağlantısı olarak tanımlanabilir , ama önce Tanım değeri kullanılır.',
         },
         src_path_extra: ['sitelinks', 'commonswiki'],
@@ -1568,8 +1533,7 @@ const fountain_properties: FountainPropertiesMeta = {
         src_info: {
           en: 'Value is only taken if it contains "Category:".',
           de: 'Wert wird nur genommen wenn es "Category:" beinhaltet.',
-          fr:
-            "La valeur est seulement acceptée si elle contient \"Category:\" pour indiquer qu'il s'agit d'une catégorie.",
+          fr: "La valeur est seulement acceptée si elle contient \"Category:\" pour indiquer qu'il s'agit d'une catégorie.",
           it: 'Il valore è accettato solo se contiene "Category:", per indicare che si tratta di una categoria.',
           tr: 'Değer yalnızca  Category: .',
         },
@@ -1660,14 +1624,10 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'wikipedia'],
         },
         src_info: {
-          en:
-            'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
-          de:
-            'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
-          fr:
-            'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
-          it:
-            'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
+          en: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+          de: 'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
+          fr: 'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
+          it: 'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
           tr: 'Wikipedia sayfasının ismi yerel dil koduyla oluşturulmalıdır. Örneğin: "tr:Bergama suyunun jeti"',
         },
         extraction_info: {
@@ -1731,14 +1691,10 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'wikipedia'],
         },
         src_info: {
-          en:
-            'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
-          de:
-            'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
-          fr:
-            'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
-          it:
-            'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
+          en: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+          de: 'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
+          fr: 'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
+          it: 'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
           tr: 'Wikipedia sayfasının ismi yerel dil koduyla oluşturulmalıdır. Örneğin: "tr: Bergama suyunun jeti" ',
         },
         extraction_info: {
@@ -1802,14 +1758,10 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'wikipedia'],
         },
         src_info: {
-          en:
-            'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
-          de:
-            'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
-          fr:
-            'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
-          it:
-            'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
+          en: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "fr:Jet d\'eau de Genève"',
+          de: 'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " fr:Jet d\'eau de Genève"',
+          fr: 'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "fr:Jet d\'eau de Genève"',
+          it: 'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "fr:Jet d\'eau de Genève"',
           tr: 'Wikipedia sayfasının ismi yerel dil koduyla oluşturulmalıdır. Örneğin: "tr: Bergama suyunun jeti" ',
         },
         extraction_info: {
@@ -1873,14 +1825,10 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'wikipedia'],
         },
         src_info: {
-          en:
-            'The name of the wikipedia page must be prefixed with the language locale code. Example: "it:Jet d\'eau de Genève"',
-          de:
-            'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " it:Jet d\'eau de Genève"',
-          fr:
-            'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "it:Jet d\'eau de Genève"',
-          it:
-            'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "it:Jet d\'eau de Genève"',
+          en: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "it:Jet d\'eau de Genève"',
+          de: 'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " it:Jet d\'eau de Genève"',
+          fr: 'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "it:Jet d\'eau de Genève"',
+          it: 'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "it:Jet d\'eau de Genève"',
           tr: 'Wikipedia sayfasının ismi yerel dil koduyla oluşturulmalıdır. Örneğin: "tr:Bergama suyunun jeti" ',
         },
         extraction_info: {
@@ -1944,14 +1892,10 @@ const fountain_properties: FountainPropertiesMeta = {
           tr: ['Özellik', 'wikipedia'],
         },
         src_info: {
-          en:
-            'The name of the wikipedia page must be prefixed with the language locale code. Example: "it:Jet d\'eau de Genève"',
-          de:
-            'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " it:Jet d\'eau de Genève"',
-          fr:
-            'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "it:Jet d\'eau de Genève"',
-          it:
-            'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "it:Jet d\'eau de Genève"',
+          en: 'The name of the wikipedia page must be prefixed with the language locale code. Example: "it:Jet d\'eau de Genève"',
+          de: 'Der Name der Wikipedia-Seite muss mit dem Sprachumgebungscode vorangestellt werden. Beispiel: " it:Jet d\'eau de Genève"',
+          fr: 'Le nom de la page wikipedia doit être préfixé avec le code de la langue locale. Exemple : "it:Jet d\'eau de Genève"',
+          it: 'Il nome della pagina Wikipedia deve essere prefissato con il nome del linguaggio locale. Esempio: "it:Jet d\'eau de Genève"',
           tr: 'Wikipedia sayfasının ismi yerel dil koduyla oluşturulmalıdır. Örneğin: "tr:Bergama suyunun jeti" ',
         },
         extraction_info: {
@@ -2092,16 +2036,11 @@ const fountain_properties: FountainPropertiesMeta = {
     src_config: {
       osm: {
         src_info: {
-          en:
-            'If information is lacking, potability is inferred if the element has "man_made=water_tap" or "amenity=watering_place"  or "amenity=water_point" tags.',
-          de:
-            'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=water_tap" oder "amenity=watering_place" oder "amenity=water_point" versehen ist.',
-          fr:
-            'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=water_tap" ou "amenity=watering_place" ou "amenity=water_point".',
-          it:
-            'Se l\'informazione è mancante, la potabilità viene inferita se l\'elemento ha i tag "man_made=water_tap" o "amenity=watering_place" o "amenity=water_point".',
-          tr:
-            'Eğer "man_made = water_tap" veya "amenity = watering_place" veya "amenity = water_point" ise çeşme suyu içilemez.',
+          en: 'If information is lacking, potability is inferred if the element has "man_made=water_tap" or "amenity=watering_place"  or "amenity=water_point" tags.',
+          de: 'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=water_tap" oder "amenity=watering_place" oder "amenity=water_point" versehen ist.',
+          fr: 'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=water_tap" ou "amenity=watering_place" ou "amenity=water_point".',
+          it: 'Se l\'informazione è mancante, la potabilità viene inferita se l\'elemento ha i tag "man_made=water_tap" o "amenity=watering_place" o "amenity=water_point".',
+          tr: 'Eğer "man_made = water_tap" veya "amenity = watering_place" veya "amenity = water_point" ise çeşme suyu içilemez.',
         },
         src_path: ['properties', 'bottle'],
         src_instructions: {
@@ -2170,16 +2109,11 @@ const fountain_properties: FountainPropertiesMeta = {
     src_config: {
       osm: {
         src_info: {
-          en:
-            'If information is lacking, potability is inferred if the element has "man_made=drinking_fountain" or "amenity=drinking_water"  or "amenity=water_point" tags.',
-          de:
-            'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=drinking_fountain" oder "amenity=drinking_water" oder "amenity=water_point" versehen ist.',
-          fr:
-            'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=drinking_fountain" ou "amenity=drinking_water" ou "amenity=water_point".',
-          it:
-            'Se l\'informazione è mancante, la potabilità viene inferita se l\'elemento ha i tag "man_made=drinking_fountain" o "amenity=drinking_water" o "amenity=water_point".',
-          tr:
-            'Eğer "man_made = drinking_fountain" veya "amenity = drinking_water" veya "amenity = water_point" ise çeşme suyu içilebilir.',
+          en: 'If information is lacking, potability is inferred if the element has "man_made=drinking_fountain" or "amenity=drinking_water"  or "amenity=water_point" tags.',
+          de: 'Fehlende Informationen führen zur Trinkbarkeit, wenn das Element mit den Tags "man_made=drinking_fountain" oder "amenity=drinking_water" oder "amenity=water_point" versehen ist.',
+          fr: 'Si l\'information manque, la potabilité est déduite si l\'élément a des balises "man_made=drinking_fountain" ou "amenity=drinking_water" ou "amenity=water_point".',
+          it: 'Se l\'informazione è mancante, la potabilità viene inferita se l\'elemento ha i tag "man_made=drinking_fountain" o "amenity=drinking_water" o "amenity=water_point".',
+          tr: 'Eğer "man_made = drinking_fountain" veya "amenity = drinking_water" veya "amenity = water_point" ise çeşme suyu içilebilir.',
         },
         src_path: ['properties', 'drinking_water'],
         src_instructions: {
@@ -2299,12 +2233,9 @@ const fountain_properties: FountainPropertiesMeta = {
         },
         extraction_info: {
           en: 'Statement values are checked to see if any are "swimming pool" (Q1501) or "swimming place" (Q12004466)',
-          de:
-            'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q12004466) handelt.',
-          fr:
-            'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q12004466).',
-          it:
-            'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q12004466).',
+          de: 'Die Aussagewerte werden überprüft, um festzustellen, ob es sich um "Schwimmbecken" (Q1501) oder "Badeanlage" (Q12004466) handelt.',
+          fr: 'Les valeurs des relevés sont vérifiées pour voir s\'il s\'agit de "piscine" (Q1501) ou de "lieu de baignade" (Q12004466).',
+          it: 'I valori della dichiarazione sono verificati per vedere se si tratta di "piscina" (Q1501) o di "luogo di balneazione" (Q12004466).',
           tr: 'Okunan değerler çeşmenin "havuz" (Q1501) veya "yüzme yeri" (Q12004466) olduğunu gösterir.',
         },
         value_translation: parents => {
