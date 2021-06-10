@@ -22,7 +22,7 @@ function getSingleQueryParam<T>(req: Request, paramName: string, isOptional: boo
   const v = req.query[paramName];
   // looks like we sometimes get numbers or booleans and not string even though query[x] does not include it in its type signature
   // since we cannot che
-  if (typeof v === type) return (v as unknown) as T;
+  if (typeof v === type) return v as unknown as T;
   else if (v === undefined && isOptional) return undefined;
   else throw Error(`${paramName} is not a single parameter, was ${JSON.stringify(v)} ${typeof v}`);
 }
