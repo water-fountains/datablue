@@ -45,7 +45,7 @@
     "source-map-support": "^0.5.19",
     "swagger-express-middleware": "^4.0.2",
     "utf8": "^3.0.0",
-    "wikidata-sdk": "^5.16.2"
+    "wikidata-sdk": "^7.13.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
