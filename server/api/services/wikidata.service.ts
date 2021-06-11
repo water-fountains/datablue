@@ -529,7 +529,7 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
         }
 
         try {
-          const simplifiedResults = wdk.simplifySparqlResults(res.data);
+          const simplifiedResults = wdk.simplify.sparqlResults(res.data, { minimize: true });
           l.info(
             'wikidata.service.js doSparqlRequest: ' +
               dbg +
