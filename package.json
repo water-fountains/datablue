@@ -21,8 +21,8 @@
     "dev": "node build.js && backpack dev",
     "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect",
-    "format": "prettier --write 'server/**/*.{ts,scss,json,html,yml}' && prettier --write '.github/**/*.yml' && prettier --write '*.{ts,scss,json,yml}'",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --fix --cache",
+    "format": "prettier --write 'server/**/*.{ts,scss,css,html,json,yml}' && prettier --write '.github/**/*.yml' && prettier --write '*.{js,ts,css,scss,json,yml}'",
+    "lint": "eslint '*/**/*.{js,ts}' --fix --cache",
     "pr": "npm run format && npm run lint"
   },
   "dependencies": {
@@ -64,7 +64,6 @@
     "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-file-progress": "^1.1.1",
-    "eslint-plugin-prettier": "^3.4.0",
     "prettier": "^2.3.1",
     "shelljs": "^0.8.4",
     "ts-loader": "^8.3.0",
