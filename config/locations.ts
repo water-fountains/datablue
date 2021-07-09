@@ -12,21 +12,9 @@ import { Translated } from '../server/common/typealias';
  *   ~/git/proximap$ npm run sync_datablue for=locations
  *
  */
-export interface BoundingBox {
-  latMin: number;
-  lngMin: number;
-  latMax: number;
-  lngMax: number;
-}
 
-export interface IssueApi {
-  operator: string | null;
-  //TODO @ralfhauser, is always null at definition site, do we still use this information somehwere?
-  qid: null;
-  thumbnail_url: string;
-  url_template: string | null;
-}
-
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface Location {
   name: string;
   description: Translated<string>;
@@ -36,7 +24,26 @@ export interface Location {
   issue_api: IssueApi;
 }
 
-export const locations: { [loc: string]: Location | undefined } = {
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export interface BoundingBox {
+  latMin: number;
+  lngMin: number;
+  latMax: number;
+  lngMax: number;
+}
+
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export interface IssueApi {
+  operator: string | null;
+  //TODO @ralfhauser, is always null at definition site, do we still use this information somehwere?
+  qid: null;
+  thumbnail_url: string;
+  url_template: string | null;
+}
+
+const internalLocationsCollection = {
   'ch-zh': {
     name: 'Zurich',
     description: {
@@ -503,13 +510,19 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
   },
 };
 
+//TODO we could use this type instead of string
+export type City = keyof typeof internalLocationsCollection;
+
+export type LocationsCollection = Record<City, Location>;
+// we don't expose just the internal structure as we also want to be sure that it follows the spec.
+// However, we allow City union to grow dynamically
+export const locations: LocationsCollection = internalLocationsCollection;
+
 export function mapLocations<R>(f: (loc: Location) => R): R[] {
   const arr: R[] = [];
   for (const loc in locations) {
     const l = locations[loc];
-    if (l !== undefined) {
-      arr.push(f(l));
-    }
+    arr.push(f(l));
   }
   return arr;
 }
