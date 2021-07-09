@@ -22,7 +22,8 @@
     "predebug": "node git.version.js",
     "debug": "node build.js && backpack dev --inspect",
     "format": "prettier --write 'server/**/*.{ts,scss,json,html,yml}' && prettier --write '.github/**/*.yml' && prettier --write '*.{ts,scss,json,yml}'",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --fix --cache"
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --fix --cache",
+    "pr": "npm run format && npm run lint"
   },
   "dependencies": {
     "axios": "^0.21.1",
