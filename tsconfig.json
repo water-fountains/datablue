@@ -8,13 +8,16 @@
     "moduleResolution": "node",
     "outDir": "build",
     "sourceMap": true,
+    "declaration": false,
+
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    //TODO needs more effort but it would be better if we don't have to use this
-    "noImplicitAny": false
+    //TODO needs more effort but it would be better if this is true
+    "noImplicitAny": false,
+
+    "esModuleInterop": true
   }
 }
