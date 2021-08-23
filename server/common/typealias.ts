@@ -1,13 +1,13 @@
-import { Feature, FeatureCollection, Point } from 'geojson';
+import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
 import { ImageLikeCollection, ImageLikeType } from '../../config/text2img';
 import { PropStatus } from './constants';
 import { Category, MediaWikiSimplifiedEntity } from './wikimedia-types';
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
-//TODO @ralfhauser as far as I can see, all features in the FeatureCollection collection has Point as type of `geometry`. Also, geometry is always defined.
+//TODO @ralfhauser as far as I can see, geometry is always defined.
 // Do you know if there are exceptions to this rule? `geometry` is defined as different geometry type or null, i.e. it could also not exist. I have the feeling it always is
-type FountainGeometry = Point;
+type DefaultFountainGeometry = Point;
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
@@ -22,10 +22,15 @@ export interface TypedFountainProperty<T> {
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
-export type Fountain<P = Record<string, unknown>> = Feature<FountainGeometry, FountainPropertyCollection<P>>;
+export type Fountain<G extends Geometry = DefaultFountainGeometry, P = Record<string, unknown>> = Feature<
+  G,
+  FountainPropertyCollection<P>
+>;
 
-export type FountainCollection = FeatureCollection<
-  FountainGeometry,
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export type FountainCollection<G extends Geometry = DefaultFountainGeometry> = FeatureCollection<
+  G,
   FountainPropertyCollection<Record<string, unknown>>
 >;
 

@@ -6,6 +6,8 @@
  */
 import { Fountain } from '../../common/typealias';
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface Image {
   big: string;
   medium: string;
