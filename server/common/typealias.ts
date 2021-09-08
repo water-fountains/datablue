@@ -46,6 +46,8 @@ export interface FountainConfigProperties {
   [id: string]: FountainConfigProperty;
 }
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface Source {
   //TODO @ralfhauser looks suspicious/buggy to me, shouldn't we know the status in all cases?
   status: PropStatus | null;
@@ -55,6 +57,8 @@ export interface Source {
   comments: string[];
 }
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface FountainConfigProperty {
   id: string;
   value: any;
@@ -125,6 +129,8 @@ export interface SourceConfig<V, RE> {
   };
 }
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 //TODO @ralfhauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
 // this currently occurs if metadata.src_config['osm'] or metadata.src_config['wikidata'] returns null in conflate.data.service.ts
 export type SourceType = 'osm' | 'wikidata' | '';
