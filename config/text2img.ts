@@ -1,6 +1,8 @@
 import l from '../server/common/logger';
 import { Category } from '../server/common/wikimedia-types';
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export type ImageLikeType =
   | 'wm'
   | 'ext-fullImgUrl'
@@ -9,9 +11,13 @@ export type ImageLikeType =
   | 'ext-flickr' //TODO @ralfhauser initially only defined for ImageLike and not for ImageLikeCollection but since we assign type to type in wikimedia.service.ts we need this as well.
   | 'ext'; //TODO @ralfhauser  initially only defined for ImageLikeCollection, same problem as for ext-flicker. Maybe only one of them is correct?
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 //TODO @ralfhauser is wd maybe a typo? see wikimedia.service line 490
 export type ImageLikeSrc = 'osm' | 'wm' | 'wd';
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface ImageLike {
   //TODO @ralfhauser, IMO we should rename this to type
   typ: ImageLikeType;
@@ -20,6 +26,8 @@ export interface ImageLike {
   //TODO @ralfhauser cat is not always given, bug or correct behaviour?
   cat?: Category;
 }
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export interface ImageLikeCollection {
   type: ImageLikeType;
   src: ImageLikeSrc;

@@ -15,6 +15,8 @@ export const PROP_STATUS_NOT_AVAILABLE = 'PROP_STATUS_NOT_AVAILABLE';
 export const MAX_IMG_SHOWN_IN_GALLERY = 50;
 export const LAZY_ARTIST_NAME_LOADING_i41db = true;
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export type PropStatus =
   | 'PROP_STATUS_OK'
   | 'PROP_STATUS_INFO'
