@@ -36,10 +36,7 @@ export type FountainCollection<G extends Geometry = DefaultFountainGeometry> = F
 
 export type FountainConfig = SourceConfig<any, string>;
 
-export interface FountainConfigCollection {
-  osm: FountainConfig[];
-  wikidata: MediaWikiSimplifiedEntity[];
-}
+export type FountainConfigCollection = NamedSources<MediaWikiSimplifiedEntity[], FountainConfig[]>;
 
 //TODO @ralfhauser, not 100% correct, `gallery` does not fit into FountainProperty type. Should it?
 export interface FountainConfigProperties {
@@ -67,10 +64,7 @@ export interface FountainConfigProperty {
   source: SourceType;
   type: string;
   issues: [];
-  sources: {
-    osm: Source;
-    wikidata: Source;
-  };
+  sources: NamedSources<Source, Source>;
 }
 
 //TODO @ralfhauser find better name
