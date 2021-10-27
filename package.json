@@ -43,7 +43,7 @@
     "nocache": "^3.0.0",
     "node-cache": "^4.2.1",
     "query-overpass": "^1.5.5",
-    "source-map-support": "^0.5.19",
+    "source-map-support": "^0.5.20",
     "swagger-express-middleware": "^4.0.2",
     "utf8": "^3.0.0",
     "wikidata-sdk": "^7.13.0"
