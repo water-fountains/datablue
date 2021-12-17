@@ -127,4 +127,12 @@ export interface SourceConfig<V, RE> {
 // if you change something here, then you need to change it in proximap as well
 //TODO @ralfhauser looks suspicious/buggy to me, IMO we always know that it is either osm or wikidata, shall I change/fix this?
 // this currently occurs if metadata.src_config['osm'] or metadata.src_config['wikidata'] returns null in conflate.data.service.ts
-export type SourceType = 'osm' | 'wikidata' | '';
+export type SourceType = keyof NamedSources<unknown, unknown> | '';
+
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in datablue as well
+export type Database = SourceType;
+
+export function isDatabase(d: string): d is Database {
+  return d === 'osm' || d === 'wikidata';
+}

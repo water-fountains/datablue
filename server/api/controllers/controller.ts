@@ -34,7 +34,7 @@ import {
 import sharedConstants from './../../common/shared-constants';
 import { Request, Response } from 'express';
 import { getSingleBooleanQueryParam, getSingleNumberQueryParam, getSingleStringQueryParam } from './utils';
-import { Fountain, FountainCollection, GalleryValue } from '../../common/typealias';
+import { Fountain, FountainCollection, GalleryValue, isDatabase } from '../../common/typealias';
 import { hasWikiCommonsCategories } from '../../common/wikimedia-types';
 import { ImageLike } from '../../../config/text2img';
 
@@ -251,6 +251,11 @@ function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: str
  */
 function byId(req: Request, res: Response, dbg: string): Promise<Fountain | undefined> {
   const city = getSingleStringQueryParam(req, 'city');
+  const database = getSingleStringQueryParam(req, 'database');
+  if (!isDatabase(database)) {
+    return new Promise((_, reject) => reject('unsupported database given: ' + database));
+  }
+
   let name = 'unkNamById';
   //  l.info('controller.js byId: '+cityS+' '+dbg);
   let fountainCollection = cityCache.get<FountainCollection>(city);
@@ -270,7 +275,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
         }
         if (fountainCollection !== undefined) {
           const fountain = fountainCollection.features.find(
-            f => f.properties['id_' + req.query.database]?.value === req.query.idval
+            f => f.properties['id_' + database]?.value === req.query.idval
           );
           const imgMetaPromises: Promise<any>[] = [];
           let lazyAdded = 0;
