@@ -114,11 +114,7 @@ function replaceFountain(
 
 function isMatch(f1: Fountain, f2: Fountain): boolean {
   // returns true if match, otherwise returns distance
-  const ids = ['id_wikidata', 'id_operator', 'id_osm'];
-  for (const id_name of ids) {
-    if (f1.properties && f2.properties && f1.properties[id_name].value === f2.properties[id_name].value) {
-      return true;
-    }
-  }
-  return false;
+  return ['id_wikidata', 'id_osm'].some(idName => {
+    f1.properties && f2.properties && f1.properties[idName].value === f2.properties[idName].value;
+  });
 }

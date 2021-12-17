@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   version: 1.0.0
   title: datablue
@@ -18,7 +18,6 @@ produces:
   - application/json
   - text/html
 
-
 definitions:
   ExampleBody:
     type: object
@@ -33,25 +32,25 @@ definitions:
 paths:
   /metadata/fountain_properties:
     get:
-      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information."
+      description: 'Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information.'
       responses:
         200:
           description: Returns property metadata.
 
   /metadata/locations:
     get:
-      description: "Fetch general metadata for locations, including bounds and official operator information."
+      description: 'Fetch general metadata for locations, including bounds and official operator information.'
       responses:
         200:
           description: Returns location metadata.
 
   /metadata/shared-constants:
     get:
-      description: "Fetch shared consants between Datablue and Proximap."
+      description: 'Fetch shared consants between Datablue and Proximap.'
       responses:
         200:
           description: Returns shared constants.
-          
+
   /fountain:
     get:
       description: Fetch detailed fountain information based on coordinates or identifier
@@ -66,7 +65,7 @@ paths:
         - name: database
           in: query
           type: string
-          enum: [datablue, operator, wikidata, osm]
+          enum: [wikidata, osm]
           example: wikidata
           description: database for which the provided identifier is valid
         - name: city
@@ -153,7 +152,7 @@ paths:
       responses:
         200:
           description: Returns  the build information.
-      
+
   /spec:
     get:
       tags:
