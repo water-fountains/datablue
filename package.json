@@ -41,7 +41,7 @@
     "js-md5": "^0.7.3",
     "lodash": "^4.17.21",
     "nocache": "^3.0.1",
-    "node-cache": "^4.2.1",
+    "node-cache": "^5.1.2",
     "query-overpass": "^1.5.5",
     "source-map-support": "^0.5.20",
     "swagger-express-middleware": "^4.0.2",
