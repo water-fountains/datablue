@@ -5,35 +5,24 @@
  * and the profit contribution agreement available at https://www.my-d.org/ProfitContributionAgreement
  */
 
-import OsmService from '../services/osm.service';
 import WikidataService from '../services/wikidata.service';
 import l from '../../common/logger';
 import generateLocationData from '../services/generateLocationData.service';
 import { locations } from '../../../config/locations';
 import { fountain_property_metadata } from '../../../config/fountain.properties';
 import NodeCache from 'node-cache';
-import { conflate } from '../services/conflate.data.service';
-import applyImpliedPropertiesOsm from '../services/applyImplied.service';
-import {
-  essenceOf,
-  defaultCollectionEnhancement,
-  fillInMissingWikidataFountains,
-  fillWikipediaSummary,
-} from '../services/processing.service';
-import { updateCacheWithFountain } from '../services/database.service';
+import { essenceOf, fillWikipediaSummary } from '../services/processing.service';
 import { extractProcessingErrors } from './processing-errors.controller';
 import { getImageInfo, getImgsOfCat } from '../services/wikimedia.service';
 import { getCatExtract, getImgClaims } from '../services/claims.wm';
 import { isBlacklisted } from '../services/categories.wm';
-import haversine from 'haversine';
-import _ from 'lodash';
 import {
   MAX_IMG_SHOWN_IN_GALLERY,
   LAZY_ARTIST_NAME_LOADING_i41db, //,CACHE_FOR_HRS_i45db
 } from '../../common/constants';
 import sharedConstants from './../../common/shared-constants';
 import { Request, Response } from 'express';
-import { getSingleBooleanQueryParam, getSingleNumberQueryParam, getSingleStringQueryParam } from './utils';
+import { getSingleBooleanQueryParam, getSingleStringQueryParam } from './utils';
 import { Fountain, FountainCollection, GalleryValue, isDatabase } from '../../common/typealias';
 import { hasWikiCommonsCategories } from '../../common/wikimedia-types';
 import { ImageLike } from '../../../config/text2img';
@@ -88,30 +77,15 @@ export class Controller {
   // Function to return detailed fountain information
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req: Request, res: Response): void {
-    // const start = new Date();
-    // let what: string;
     const queryType = getSingleStringQueryParam(req, 'queryType');
     const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
 
-    if (queryType === 'byCoords') {
-      const city = getSingleStringQueryParam(req, 'city');
-      l.info(`controller.js getSingle byCoords: refresh: ${refresh} , city: ` + city);
-
-      // byCoords will return the nearest fountain to the given coordinates.
-      // The databases are queried and fountains are reprocessed for this
-      reprocessFountainAtCoords(req, res, city);
-      // what = 'reprocessFountainAtCoords';
-    } else if (queryType === 'byId') {
-      l.info(`controller.js getSingle by: refresh: ${refresh}`);
-      // byId will look into the fountain cache and return the fountain with the given identifier
-      byId(req, res, req.query.idval?.toString() ?? '');
-      // what = 'byId';
+    if (queryType === 'byId') {
+      l.info(`controller.js getSingle byId: refresh: ${refresh}`);
+      byId(req, res);
     } else {
-      res.status(400).send('only byCoords and byId supported');
+      res.status(400).send('only byId supported');
     }
-    // const end = new Date();
-    // const elapse = (end - start)/1000;
-    //l.info('controller.js getSingle: '+what+' finished after '+elapse.toFixed(1)+' secs');
   }
 
   // Function to return all fountain information for a location.
@@ -120,7 +94,7 @@ export class Controller {
     const city = getSingleStringQueryParam(req, 'city');
     const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
 
-    // if a refresh is requested or if no data is in the cache, then reprocessess the fountains
+    // if a refresh is requested or if no data is in the cache, then reprocesses the fountains
     if (refresh || cityCache.keys().indexOf(city) === -1) {
       l.info(`controller.js byLocation: refresh: ${refresh} , city: ` + city);
       generateLocationData(city)
@@ -249,12 +223,14 @@ function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: str
 /**
  * Function to respond to request by returning the fountain as defined by the provided identifier
  */
-function byId(req: Request, res: Response, dbg: string): Promise<Fountain | undefined> {
+function byId(req: Request, res: Response): Promise<Fountain | undefined> {
   const city = getSingleStringQueryParam(req, 'city');
   const database = getSingleStringQueryParam(req, 'database');
   if (!isDatabase(database)) {
     return new Promise((_, reject) => reject('unsupported database given: ' + database));
   }
+  const idval = getSingleStringQueryParam(req, 'idval');
+  const dbg = idval;
 
   let name = 'unkNamById';
   //  l.info('controller.js byId: '+cityS+' '+dbg);
@@ -274,9 +250,7 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
           fountainCollection = cityCache.get<FountainCollection>(city);
         }
         if (fountainCollection !== undefined) {
-          const fountain = fountainCollection.features.find(
-            f => f.properties['id_' + database]?.value === req.query.idval
-          );
+          const fountain = fountainCollection.features.find(f => f.properties['id_' + database]?.value === idval);
           const imgMetaPromises: Promise<any>[] = [];
           let lazyAdded = 0;
           const gl = -1;
@@ -558,88 +532,89 @@ function byId(req: Request, res: Response, dbg: string): Promise<Fountain | unde
  * - lng: longitude of search location
  * - radius: radius in which to search for fountains
  */
-function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): void {
-  const lat = getSingleNumberQueryParam(req, 'lat');
-  const lng = getSingleNumberQueryParam(req, 'lng');
-  const radius = getSingleNumberQueryParam(req, 'radius');
+//TODO #150 re-use part of the logic for id refresh
+// function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): void {
+//   const lat = getSingleNumberQueryParam(req, 'lat');
+//   const lng = getSingleNumberQueryParam(req, 'lng');
+//   const radius = getSingleNumberQueryParam(req, 'radius');
 
-  l.info(
-    `controller.js reprocessFountainAtCoords: all fountains near lat:${lat}, lng: ${lng}, radius: ${radius} ` + dbg
-  );
+//   l.info(
+//     `controller.js reprocessFountainAtCoords: all fountains near lat:${lat}, lng: ${lng}, radius: ${radius} ` + dbg
+//   );
 
-  // OSM promise
-  const osmPromise = OsmService
-    // Get data from OSM within given radius
-    .byCenter(lat, lng, radius)
-    // Process OSM data to apply implied properties
-    .then(r => applyImpliedPropertiesOsm(r))
-    .catch(e => {
-      l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `);
-      // TODO @ralfhauser, this is an ugly side effect, this does nost stop the program but implies return void
-      // hence I changed it because we already catch errors in Promise.all
-      // res.status(500).send(e.stack);
-      throw e;
-    });
+//   // OSM promise
+//   const osmPromise = OsmService
+//     // Get data from OSM within given radius
+//     .byCenter(lat, lng, radius)
+//     // Process OSM data to apply implied properties
+//     .then(r => applyImpliedPropertiesOsm(r))
+//     .catch(e => {
+//       l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `);
+//       // TODO @ralfhauser, this is an ugly side effect, this does nost stop the program but implies return void
+//       // hence I changed it because we already catch errors in Promise.all
+//       // res.status(500).send(e.stack);
+//       throw e;
+//     });
 
-  const wikidataPromise = WikidataService
-    // Fetch all wikidata items within radius
-    .idsByCenter(lat, lng, radius, dbg)
-    // Fetch detailed information for fountains based on wikidata ids
-    .then(r => WikidataService.byIds(r, dbg))
-    .catch(e => {
-      l.error(`Error collecting Wikidata data: ${e}`);
-      // TODO @ralfhauser, same same as above
-      // res.status(500).send(e.stack);
-      throw e;
-    });
-  const debugAll = true;
-  // When both OSM and Wikidata data have been collected, continue with joint processing
-  Promise.all([osmPromise, wikidataPromise])
+//   const wikidataPromise = WikidataService
+//     // Fetch all wikidata items within radius
+//     .idsByCenter(lat, lng, radius, dbg)
+//     // Fetch detailed information for fountains based on wikidata ids
+//     .then(r => WikidataService.byIds(r, dbg))
+//     .catch(e => {
+//       l.error(`Error collecting Wikidata data: ${e}`);
+//       // TODO @ralfhauser, same same as above
+//       // res.status(500).send(e.stack);
+//       throw e;
+//     });
+//   const debugAll = true;
+//   // When both OSM and Wikidata data have been collected, continue with joint processing
+//   Promise.all([osmPromise, wikidataPromise])
 
-    // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
-    .then(r => fillInMissingWikidataFountains(r[0], r[1], dbg))
+//     // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
+//     .then(r => fillInMissingWikidataFountains(r[0], r[1], dbg))
 
-    // Conflate osm and wikidata fountains together
-    .then(r =>
-      conflate(
-        {
-          osm: r.osm,
-          wikidata: r.wikidata,
-        },
-        dbg,
-        debugAll
-      )
-    )
+//     // Conflate osm and wikidata fountains together
+//     .then(r =>
+//       conflate(
+//         {
+//           osm: r.osm,
+//           wikidata: r.wikidata,
+//         },
+//         dbg,
+//         debugAll
+//       )
+//     )
 
-    // return only the fountain that is closest to the coordinates of the query
-    .then(r => {
-      const distances = _.map(r, f => {
-        // compute distance to center for each fountain
-        return haversine(f.geometry.coordinates, [lng, lat], {
-          unit: 'meter',
-          format: '[lon,lat]',
-        });
-      });
-      // return closest
-      const closest = r[_.indexOf(distances, _.min(distances))];
-      return [closest];
-    })
+//     // return only the fountain that is closest to the coordinates of the query
+//     .then(r => {
+//       const distances = _.map(r, f => {
+//         // compute distance to center for each fountain
+//         return haversine(f.geometry.coordinates, [lng, lat], {
+//           unit: 'meter',
+//           format: '[lon,lat]',
+//         });
+//       });
+//       // return closest
+//       const closest = r[_.indexOf(distances, _.min(distances))];
+//       return [closest];
+//     })
 
-    // fetch more information about fountains (Artist information, gallery, etc.)
-    //TOOD @ralfhauser, the last parameter for debugAll was missing undefined is falsy hence I used false
-    .then(r => defaultCollectionEnhancement(r, dbg, false))
+//     // fetch more information about fountains (Artist information, gallery, etc.)
+//     //TOOD @ralfhauser, the last parameter for debugAll was missing undefined is falsy hence I used false
+//     .then(r => defaultCollectionEnhancement(r, dbg, false))
 
-    // Update cache with newly processed fountain
-    .then(r => {
-      const city = getSingleStringQueryParam(req, 'city');
-      const closest = updateCacheWithFountain(cityCache, r[0], city);
-      sendJson(res, closest, 'after updateCacheWithFountain');
-    })
-    .catch(e => {
-      l.error(`Error collecting data: ${e.stack}`);
-      res.status(500).send(e.stack);
-    });
-}
+//     // Update cache with newly processed fountain
+//     .then(r => {
+//       const city = getSingleStringQueryParam(req, 'city');
+//       const closest = updateCacheWithFountain(cityCache, r[0], city);
+//       sendJson(res, closest, 'after updateCacheWithFountain');
+//     })
+//     .catch(e => {
+//       l.error(`Error collecting data: ${e.stack}`);
+//       res.status(500).send(e.stack);
+//     });
+// }
 
 export function generateLocationDataAndCache(key: string, cityCache: NodeCache): Promise<FountainCollection | void> {
   // trigger a reprocessing of the location's data, based on the key.

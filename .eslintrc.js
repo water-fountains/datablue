@@ -6,7 +6,7 @@ module.exports = {
     es2020: true,
   },
 
-  plugins: ['@typescript-eslint', 'file-progress'],
+  plugins: ['@typescript-eslint', 'unused-imports', 'file-progress'],
 
   // global rules for all file types
   rules: {
@@ -39,9 +39,15 @@ module.exports = {
       ],
 
       rules: {
+        'no-unused-vars': 'off', // same as "@typescript-eslint/no-unused-vars": "off",
+        'unused-imports/no-unused-imports': 'error',
+        'unused-imports/no-unused-vars': [
+          'warn',
+          { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
+        ],
         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-        '@typescript-eslint/explicit-module-boundary-types': 'error',
 
+        '@typescript-eslint/explicit-module-boundary-types': 'error',
         '@typescript-eslint/array-type': 'error',
         '@typescript-eslint/ban-tslint-comment': 'error',
         '@typescript-eslint/consistent-type-definitions': 'error',
