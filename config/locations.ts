@@ -513,15 +513,23 @@ Therefore responsible citizens have mapped out all fountains of the festival hos
 //TODO we could use this type instead of string
 export type City = keyof typeof internalLocationsCollection;
 
+export const cities: City[] = Object.keys(internalLocationsCollection).filter(
+  city => city !== 'default' && (city !== 'test' || process.env.NODE_ENV !== 'production')
+) as City[];
+
+export function isCity(s: string): s is City {
+  return cities.includes(s as City);
+}
+
 export type LocationsCollection = Record<City, Location>;
 // we don't expose just the internal structure as we also want to be sure that it follows the spec.
 // However, we allow City union to grow dynamically
-export const locations: LocationsCollection = internalLocationsCollection;
+export const locationsCollection: LocationsCollection = internalLocationsCollection;
 
 export function mapLocations<R>(f: (loc: Location) => R): R[] {
   const arr: R[] = [];
-  for (const loc in locations) {
-    const l = locations[loc];
+  for (const loc in locationsCollection) {
+    const l = locationsCollection[loc];
     arr.push(f(l));
   }
   return arr;

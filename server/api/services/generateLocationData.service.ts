@@ -6,7 +6,7 @@
  */
 
 import l from '../../common/logger';
-import { locations } from '../../../config/locations';
+import { City, locationsCollection } from '../../../config/locations';
 import OsmService from '../services/osm.service';
 import WikidataService from '../services/wikidata.service';
 import { conflate } from '../services/conflate.data.service';
@@ -23,7 +23,7 @@ import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
  * This function creates fountain collections
  * @param {string} locationName - the code name of the location for which fountains should be processed
  */
-function generateLocationData(locationName: string): Promise<FountainCollection> {
+function generateCityData(locationName: City): Promise<FountainCollection> {
   const start = new Date();
   l.info(`generateLocationData.service.js: processing all fountains from "${locationName}" `);
 
@@ -34,9 +34,7 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
     };
 
     // get bounding box of location
-    const location = Object.prototype.hasOwnProperty.call(locations, locationName)
-      ? locations[locationName]
-      : undefined;
+    const location = locationsCollection[locationName];
     if (location == undefined) {
       logAndRejectError(`location not found in config: ${locationName}`);
     } else {
@@ -145,4 +143,4 @@ function generateLocationData(locationName: string): Promise<FountainCollection>
   });
 }
 
-export default generateLocationData;
+export default generateCityData;

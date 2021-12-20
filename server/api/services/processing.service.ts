@@ -167,6 +167,7 @@ export function fillWikipediaSummaries(fountainArr: Fountain[], dbg: string): Pr
 
 export function createUniqueIds(fountainArr: Fountain[]): Promise<Fountain[]> {
   // takes a collection of fountains and returns the same collection, enhanced with unique and as persistent as possible ids
+  //TODO @ralf.hauser I don't know what this id is used for but this implementation does definitely not generate unique ids
   return new Promise(resolve => {
     let i_n = 0;
     fountainArr.forEach(f => {

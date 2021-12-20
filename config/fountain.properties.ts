@@ -11,7 +11,7 @@
  */
 
 import { PropStatus, PROP_STATUS_OK, PROP_STATUS_WARNING } from '../server/common/constants';
-import { locations, mapLocations } from './locations';
+import { locationsCollection, mapLocations } from './locations';
 import { isBlacklisted } from '../server/api/services/categories.wm';
 import l from '../server/common/logger';
 import _ from 'lodash';
@@ -735,7 +735,7 @@ const fountain_properties: FountainPropertiesMeta = {
           // loop through all catalog codes to find the right one
           for (const code of catCodes) {
             // return value only if qualifier matches the operator id
-            if (_.map(locations, 'operator_fountain_catalog_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
+            if (_.map(locationsCollection, 'operator_fountain_catalog_qid').indexOf(code.qualifiers['P972'][0]) >= 0) {
               return code.value;
             }
           }
