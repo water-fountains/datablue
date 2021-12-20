@@ -11,7 +11,8 @@
     "declaration": false,
 
     "strict": true,
-    "noUnusedLocals": true,
+    // checked by eslint
+    //"noUnusedLocals": true
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,

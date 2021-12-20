@@ -78,11 +78,11 @@ export class Controller {
   // When requesting detailed information for a single fountain, there are two types of queries
   getSingle(req: Request, res: Response): void {
     const queryType = getSingleStringQueryParam(req, 'queryType');
-    const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
+    const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true) ?? false;
 
     if (queryType === 'byId') {
       l.info(`controller.js getSingle byId: refresh: ${refresh}`);
-      byId(req, res);
+      byId(req, res, refresh);
     } else {
       res.status(400).send('only byId supported');
     }
@@ -223,7 +223,7 @@ function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: str
 /**
  * Function to respond to request by returning the fountain as defined by the provided identifier
  */
-function byId(req: Request, res: Response): Promise<Fountain | undefined> {
+function byId(req: Request, res: Response, forceRefresh: boolean): Promise<Fountain | undefined> {
   const city = getSingleStringQueryParam(req, 'city');
   const database = getSingleStringQueryParam(req, 'database');
   if (!isDatabase(database)) {
@@ -238,7 +238,7 @@ function byId(req: Request, res: Response): Promise<Fountain | undefined> {
 
   //	  l.info('controller.js byId in promise: '+cityS+' '+dbg);
   const cityPromises: Promise<FountainCollection | void>[] = [];
-  if (fountainCollection === undefined) {
+  if (forceRefresh || fountainCollection === undefined) {
     l.info('controller.js byId: ' + city + ' not found in cache ' + dbg + ' - start city lazy load');
     const genLocPrms = generateLocationDataAndCache(city, cityCache);
     cityPromises.push(genLocPrms);
@@ -246,7 +246,7 @@ function byId(req: Request, res: Response): Promise<Fountain | undefined> {
   return Promise.all(cityPromises)
     .then(
       () => {
-        if (fountainCollection === undefined) {
+        if (forceRefresh || fountainCollection === undefined) {
           fountainCollection = cityCache.get<FountainCollection>(city);
         }
         if (fountainCollection !== undefined) {

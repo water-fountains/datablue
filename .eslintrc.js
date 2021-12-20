@@ -39,14 +39,12 @@ module.exports = {
       ],
 
       rules: {
-        'no-unused-vars': 'off', // same as "@typescript-eslint/no-unused-vars": "off",
+        '@typescript-eslint/no-unused-vars': 'off',
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
-          'warn',
+          'error',
           { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
         ],
-        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-
         '@typescript-eslint/explicit-module-boundary-types': 'error',
         '@typescript-eslint/array-type': 'error',
         '@typescript-eslint/ban-tslint-comment': 'error',
