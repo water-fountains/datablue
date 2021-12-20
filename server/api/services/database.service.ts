@@ -10,40 +10,42 @@ import { essenceOf } from './processing.service';
 // import {CACHE_FOR_HRS_i45db} from "../../common/constants";
 const CACHE_FOR_HRS_i45db = 1;
 import l from '../../common/logger';
-import { generateLocationDataAndCache } from '../controllers/controller';
+import { generateCityDataAndAddToCache } from '../controllers/controller';
 import _ from 'lodash';
 import haversine from 'haversine';
 import NodeCache from 'node-cache';
 import {} from 'geojson';
 import { Fountain, FountainCollection } from '../../common/typealias';
+import { City } from '../../../config/locations';
 
-export function updateCacheWithFountain(cache: NodeCache, fountain: Fountain, cityName: string): Fountain {
+export function updateCacheWithFountain(cache: NodeCache, fountain: Fountain, city: City): Fountain {
   // updates cache and returns fountain with datablue id
   // get city data from cache
-  let fountains = cache.get<FountainCollection>(cityName);
+  let fountains = cache.get<FountainCollection>(city);
   const cacheTimeInSecs = 60 * 60 * CACHE_FOR_HRS_i45db;
-  if (!fountains && !cityName.includes('_essential') && !cityName.includes('_errors')) {
+  if (!fountains && !city.includes('_essential') && !city.includes('_errors')) {
     l.info(
-      `updateCacheWithFountain server-side city data disappeared (server restart?) - cache recreation for ${cityName}`
+      `updateCacheWithFountain server-side city data disappeared (server restart?) - cache recreation for ${city}`
     );
-    generateLocationDataAndCache(cityName, cache);
-    fountains = cache.get(cityName);
+    generateCityDataAndAddToCache(city, cache);
+    //TODO @ralf.hauser, this is buggy as generateCityDataAndAddToCache returns a promise and most likely did not finish at this point
+    fountains = cache.get(city);
   }
   if (fountains) {
     // replace fountain
-    [fountains, fountain] = replaceFountain(fountains, fountain, cityName);
+    [fountains, fountain] = replaceFountain(fountains, fountain, city);
     // send to cache
     //TODO consider whether really to fully extend the cache-time for the whole city just because one fountain was refreshed
     // a remaining city-cache-time could be calculated with getTtl(cityname)
-    cache.set(cityName, fountains, cacheTimeInSecs);
+    cache.set(city, fountains, cacheTimeInSecs);
     // create a reduced version of the data as well
     const r_essential = essenceOf(fountains);
-    cache.set(cityName + '_essential', r_essential, cacheTimeInSecs);
+    cache.set(city + '_essential', r_essential, cacheTimeInSecs);
     return fountain;
   }
   l.info(
     'database.services.js updateCacheWithFountain: no fountains were in cache of city ' +
-      cityName +
+      city +
       ' tried to work on ' +
       fountain
   );

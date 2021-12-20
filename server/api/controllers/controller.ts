@@ -7,8 +7,8 @@
 
 import WikidataService from '../services/wikidata.service';
 import l from '../../common/logger';
-import generateLocationData from '../services/generateLocationData.service';
-import { locations } from '../../../config/locations';
+import generateCityData from '../services/generateLocationData.service';
+import { cities, City, isCity, locationsCollection } from '../../../config/locations';
 import { fountain_property_metadata } from '../../../config/fountain.properties';
 import NodeCache from 'node-cache';
 import { essenceOf, fillWikipediaSummary } from '../services/processing.service';
@@ -47,7 +47,7 @@ cityCache.on('expired', key => {
   // check if cache item key is neither the summary nor the list of errors. These will be updated automatically when the detailed city data are updated.
   if (!key.includes('_essential') && !key.includes('_errors')) {
     l.info(`controller.js cityCache.on('expired',...): Automatic cache refresh of ${key}`);
-    generateLocationDataAndCache(key, cityCache);
+    generateCityDataAndAddToCache(key, cityCache);
   }
 });
 
@@ -55,20 +55,16 @@ export class Controller {
   constructor() {
     // In production mode, process all fountains when starting the server so that the data are ready for the first requests
     if (process.env.NODE_ENV === 'production') {
-      Object.keys(locations).forEach(locationCode => {
-        l.info(`controller.js Generating data for ${locationCode}`);
-        generateLocationData(locationCode).then(fountainCollection => {
+      cities.forEach(city => {
+        l.info(`controller.js Generating data for ${city}`);
+        generateCityData(city).then(fountainCollection => {
           // save new data to storage
           //TODO @ralfhauser, the old comment states  // expire after two hours but CACHE_FOR_HRS_i45db is currently 48, which means after two days
-          cityCache.set<FountainCollection>(
-            locationCode,
-            fountainCollection,
-            60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db
-          );
+          cityCache.set<FountainCollection>(city, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db);
           // create a reduced version of the data as well
-          cityCache.set<FountainCollection>(locationCode + '_essential', essenceOf(fountainCollection));
+          cityCache.set<FountainCollection>(city + '_essential', essenceOf(fountainCollection));
           // also create list of processing errors (for proximap#206)
-          cityCache.set<any[]>(locationCode + '_errors', extractProcessingErrors(fountainCollection));
+          cityCache.set<any[]>(city + '_errors', extractProcessingErrors(fountainCollection));
         });
       });
     }
@@ -92,12 +88,15 @@ export class Controller {
   byLocation(req: Request, res: Response): void {
     const start = new Date();
     const city = getSingleStringQueryParam(req, 'city');
+    if (!isCity(city)) {
+      throw Error('unsupported city given: ' + city);
+    }
     const refresh = getSingleBooleanQueryParam(req, 'refresh', /* isOptional = */ true);
 
-    // if a refresh is requested or if no data is in the cache, then reprocesses the fountains
+    // if a refresh is requested or if no data is in the cache, then reprocess the fountains
     if (refresh || cityCache.keys().indexOf(city) === -1) {
       l.info(`controller.js byLocation: refresh: ${refresh} , city: ` + city);
-      generateLocationData(city)
+      generateCityData(city)
         .then(fountainCollection => {
           // save new data to storage
           cityCache.set<FountainCollection>(city, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db);
@@ -156,7 +155,7 @@ export class Controller {
    */
   getLocationMetadata(_req: Request, res: Response): void {
     // let gak = locations.gak;
-    sendJson(res, locations, 'getLocationMetadata'); //res.json(locations);
+    sendJson(res, locationsCollection, 'getLocationMetadata'); //res.json(locations);
     l.info('controller.js: getLocationMetadata sent');
   }
 
@@ -225,6 +224,9 @@ function sendJson(resp: Response, obj: Record<string, any> | undefined, dbg: str
  */
 function byId(req: Request, res: Response, forceRefresh: boolean): Promise<Fountain | undefined> {
   const city = getSingleStringQueryParam(req, 'city');
+  if (!isCity(city)) {
+    return new Promise((_, reject) => reject('unsupported city given: ' + city));
+  }
   const database = getSingleStringQueryParam(req, 'database');
   if (!isDatabase(database)) {
     return new Promise((_, reject) => reject('unsupported database given: ' + database));
@@ -240,7 +242,7 @@ function byId(req: Request, res: Response, forceRefresh: boolean): Promise<Fount
   const cityPromises: Promise<FountainCollection | void>[] = [];
   if (forceRefresh || fountainCollection === undefined) {
     l.info('controller.js byId: ' + city + ' not found in cache ' + dbg + ' - start city lazy load');
-    const genLocPrms = generateLocationDataAndCache(city, cityCache);
+    const genLocPrms = generateCityDataAndAddToCache(city, cityCache);
     cityPromises.push(genLocPrms);
   }
   return Promise.all(cityPromises)
@@ -525,112 +527,21 @@ function byId(req: Request, res: Response, forceRefresh: boolean): Promise<Fount
     });
 }
 
-/**
- * Function to reprocess data near provided coordinates and update cache with fountain.
- * The req.query object should have the following properties:
- * - lat: latitude of search location
- * - lng: longitude of search location
- * - radius: radius in which to search for fountains
- */
-//TODO #150 re-use part of the logic for id refresh
-// function reprocessFountainAtCoords(req: Request, res: Response, dbg: string): void {
-//   const lat = getSingleNumberQueryParam(req, 'lat');
-//   const lng = getSingleNumberQueryParam(req, 'lng');
-//   const radius = getSingleNumberQueryParam(req, 'radius');
-
-//   l.info(
-//     `controller.js reprocessFountainAtCoords: all fountains near lat:${lat}, lng: ${lng}, radius: ${radius} ` + dbg
-//   );
-
-//   // OSM promise
-//   const osmPromise = OsmService
-//     // Get data from OSM within given radius
-//     .byCenter(lat, lng, radius)
-//     // Process OSM data to apply implied properties
-//     .then(r => applyImpliedPropertiesOsm(r))
-//     .catch(e => {
-//       l.error(`controller.js reprocessFountainAtCoords: Error collecting OSM data: ${JSON.stringify(e)} `);
-//       // TODO @ralfhauser, this is an ugly side effect, this does nost stop the program but implies return void
-//       // hence I changed it because we already catch errors in Promise.all
-//       // res.status(500).send(e.stack);
-//       throw e;
-//     });
-
-//   const wikidataPromise = WikidataService
-//     // Fetch all wikidata items within radius
-//     .idsByCenter(lat, lng, radius, dbg)
-//     // Fetch detailed information for fountains based on wikidata ids
-//     .then(r => WikidataService.byIds(r, dbg))
-//     .catch(e => {
-//       l.error(`Error collecting Wikidata data: ${e}`);
-//       // TODO @ralfhauser, same same as above
-//       // res.status(500).send(e.stack);
-//       throw e;
-//     });
-//   const debugAll = true;
-//   // When both OSM and Wikidata data have been collected, continue with joint processing
-//   Promise.all([osmPromise, wikidataPromise])
-
-//     // Get any missing wikidata fountains for #212 (fountains not fetched from Wikidata because not listed as fountains, but referenced by fountains of OSM)
-//     .then(r => fillInMissingWikidataFountains(r[0], r[1], dbg))
-
-//     // Conflate osm and wikidata fountains together
-//     .then(r =>
-//       conflate(
-//         {
-//           osm: r.osm,
-//           wikidata: r.wikidata,
-//         },
-//         dbg,
-//         debugAll
-//       )
-//     )
-
-//     // return only the fountain that is closest to the coordinates of the query
-//     .then(r => {
-//       const distances = _.map(r, f => {
-//         // compute distance to center for each fountain
-//         return haversine(f.geometry.coordinates, [lng, lat], {
-//           unit: 'meter',
-//           format: '[lon,lat]',
-//         });
-//       });
-//       // return closest
-//       const closest = r[_.indexOf(distances, _.min(distances))];
-//       return [closest];
-//     })
-
-//     // fetch more information about fountains (Artist information, gallery, etc.)
-//     //TOOD @ralfhauser, the last parameter for debugAll was missing undefined is falsy hence I used false
-//     .then(r => defaultCollectionEnhancement(r, dbg, false))
-
-//     // Update cache with newly processed fountain
-//     .then(r => {
-//       const city = getSingleStringQueryParam(req, 'city');
-//       const closest = updateCacheWithFountain(cityCache, r[0], city);
-//       sendJson(res, closest, 'after updateCacheWithFountain');
-//     })
-//     .catch(e => {
-//       l.error(`Error collecting data: ${e.stack}`);
-//       res.status(500).send(e.stack);
-//     });
-// }
-
-export function generateLocationDataAndCache(key: string, cityCache: NodeCache): Promise<FountainCollection | void> {
+export function generateCityDataAndAddToCache(city: City, cityCache: NodeCache): Promise<FountainCollection | void> {
   // trigger a reprocessing of the location's data, based on the key.
-  const genLocPrms = generateLocationData(key)
+  const genLocPrms = generateCityData(city)
     .then(fountainCollection => {
       // save newly generated fountainCollection to the cache
-      let ftns = -1;
-      if (null != fountainCollection && null != fountainCollection.features) {
-        ftns = fountainCollection.features.length;
+      let numberOfFountains = -1;
+      if (fountainCollection?.features != null) {
+        numberOfFountains = fountainCollection.features.length;
       }
       //TODO @ralfhauser, the old comment states  // expire after two hours but CACHE_FOR_HRS_i45db is currently 48, which means after two days
-      cityCache.set(key, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db); // expire after two hours
+      cityCache.set(city, fountainCollection, 60 * 60 * sharedConstants.CACHE_FOR_HRS_i45db); // expire after two hours
 
       // create a reduced version of the data as well
       const essence = essenceOf(fountainCollection);
-      cityCache.set(key + '_essential', essence);
+      cityCache.set(city + '_essential', essence);
       let ess = -1;
       if (null != essence && null != essence.features) {
         ess = essence.features.length;
@@ -638,7 +549,7 @@ export function generateLocationDataAndCache(key: string, cityCache: NodeCache):
 
       // also create list of processing errors (for proximap#206)
       const processingErrors = extractProcessingErrors(fountainCollection);
-      cityCache.set(key + '_errors', processingErrors);
+      cityCache.set(city + '_errors', processingErrors);
       //TODO @ralfhauser, processingErrors is never null but an array, which also means processingErrors.features never exists and hence this will always be false
       // let prcErr = -1;
       // if (null != processingErrors && null != processingErrors.features) {
@@ -646,9 +557,9 @@ export function generateLocationDataAndCache(key: string, cityCache: NodeCache):
       // }
       const prcErr = processingErrors.length;
       l.info(
-        `generateLocationDataAndCache setting cache of ${key} ` +
+        `generateLocationDataAndCache setting cache of ${city} ` +
           ' ftns: ' +
-          ftns +
+          numberOfFountains +
           ' ess: ' +
           ess +
           ' prcErr: ' +
