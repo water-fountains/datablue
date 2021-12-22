@@ -94,14 +94,14 @@ paths:
         - name: sw
           in: query
           type: string
-          pattern: \d+(.\d+)?,\d+(\.d+)?
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
           example: 47.3229261255644,8.45960259979614
           required: true
           description: lat,lng of the south west location of the bounding box
         - name: ne
           in: query
           type: string
-          pattern: \d+(.\d+)?,\d+(\.d+)?
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
           example: 47.431119712250506,8.61940272745742
           required: true
           description: lat,lng of the north east location of the bounding box
@@ -129,14 +129,14 @@ paths:
         - name: sw
           in: query
           type: string
-          pattern: \d+(.\d+)?,\d+(\.d+)?
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
           example: 47.3229261255644,8.45960259979614
           required: true
           description: lat,lng of the south west location of the bounding box
         - name: ne
           in: query
           type: string
-          pattern: \d+(.\d+)?,\d+(\.d+)?
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
           example: 47.431119712250506,8.61940272745742
           required: true
           description: lat,lng of the north east location of the bounding box
