@@ -31,10 +31,10 @@ export function defaultCollectionEnhancement(
   //      .then(r => fillOperatorInfo(r,dbg))
 }
 
-export function fillImageGalleries(fountainArr: Fountain[], city: string, debugAll: boolean): Promise<Fountain[]> {
+export function fillImageGalleries(fountainArr: Fountain[], dbg: string, debugAll: boolean): Promise<Fountain[]> {
   // takes a collection of fountains and returns the same collection,
   // enhanced with image galleries when available or default images
-  l.info('processing.service.js starting fillImageGalleries: ' + city + ' debugAll ' + debugAll);
+  l.info('processing.service.js starting fillImageGalleries: ' + dbg + ' debugAll ' + debugAll);
   const promises: Promise<Fountain>[] = [];
   let i = 0;
   const tot = fountainArr.length;
@@ -61,7 +61,7 @@ export function fillImageGalleries(fountainArr: Fountain[], city: string, debugA
       dbgAll = 0 == i % step;
     }
     const dbg = i + '/' + tot;
-    promises.push(WikimediaService.fillGallery(fountain, dbg, city, dbgAll, tot));
+    promises.push(WikimediaService.fillGallery(fountain, dbg, dbgAll, tot));
   });
   return Promise.all(promises);
 }
@@ -183,16 +183,7 @@ export function createUniqueIds(fountainArr: Fountain[]): Promise<Fountain[]> {
 
 export function essenceOf(fountainCollection: FountainCollection): FountainCollection {
   // returns a version of the fountain data with only the essential data
-  const newCollection: FountainCollection = {
-    type: 'FeatureCollection',
-    features: [],
-  };
-
-  //TODO @ralfhauser, properties do not exist on the GeoJSON standard for FeatureCollection, in other words, this is a hack.
-  (newCollection as any).properties = {
-    // Add last scan time info for https://github.com/water-fountains/proximap/issues/188
-    last_scan: new Date(),
-  };
+  const newCollection = FountainCollection([], fountainCollection.last_scan);
 
   // Get list of property names that are marked as essential in the metadata
   const essentialPropNames: string[] = _.map(fountain_property_metadata, (p, p_name) => {

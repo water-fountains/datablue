@@ -14,6 +14,7 @@
 export default {
   //TODO proximap#394 reactivate serbian again, see also TODO in proximap
   LANGS: ['en', 'de', 'fr', 'it', 'tr' /* 'sr' */],
-  CACHE_FOR_HRS_i45db: 48,
+  CITY_TTL_IN_HOURS: 2 * 24,
+  BOUNDING_BOX_TTL_IN_HOURS: 7 * 24,
   gak: `${process.env.GOOGLE_API_KEY}`,
 };

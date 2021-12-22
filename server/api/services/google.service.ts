@@ -19,10 +19,12 @@ export interface Image {
 
 export function getStaticStreetView(fountain: Fountain): Promise<Image> {
   return new Promise(resolve => {
+    const lat = fountain.geometry.coordinates[1];
+    const lng = fountain.geometry.coordinates[0];
     resolve({
-      big: `//maps.googleapis.com/maps/api/streetview?size=1200x600&location=${fountain.geometry.coordinates[1]},${fountain.geometry.coordinates[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
-      medium: `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${fountain.geometry.coordinates[1]},${fountain.geometry.coordinates[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
-      small: `//maps.googleapis.com/maps/api/streetview?size=120x100&location=${fountain.geometry.coordinates[1]},${fountain.geometry.coordinates[0]}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
+      big: `//maps.googleapis.com/maps/api/streetview?size=1200x600&location=${lat},${lng}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
+      medium: `//maps.googleapis.com/maps/api/streetview?size=600x300&location=${lat},${lng}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
+      small: `//maps.googleapis.com/maps/api/streetview?size=120x100&location=${lat},${lng}&fov=120&key=${process.env.GOOGLE_API_KEY}`,
       description: 'Google Street View and contributors',
       source_name: 'Google Street View',
       source_url: '//google.com',

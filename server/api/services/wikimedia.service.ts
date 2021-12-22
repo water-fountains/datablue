@@ -46,7 +46,6 @@ class WikimediaService {
   private getImgsFromCats(
     fProps: FountainPropertyCollection<WikiCommonsCategoryCollection>,
     dbg: string,
-    city: string,
     dbgIdWd: string,
     name: string,
     imgNoInfoPomises: Promise<ImageLike[]>[],
@@ -62,8 +61,6 @@ class WikimediaService {
             catNames.length +
             ' commons categories defined "' +
             dbg +
-            ' ' +
-            city +
             ' ' +
             dbgIdWd +
             ' "' +
@@ -86,8 +83,6 @@ class WikimediaService {
             '" "' +
             dbg +
             ' ' +
-            city +
-            ' ' +
             dbgIdWd +
             ' "' +
             name +
@@ -102,8 +97,6 @@ class WikimediaService {
             ' commons categories defined "' +
             dbg +
             ' ' +
-            city +
-            ' ' +
             dbgIdWd +
             ' "' +
             name +
@@ -111,19 +104,13 @@ class WikimediaService {
         );
       }
       //		  lastCatName = catName;
-      const imgNoInfoPomise = getImgsOfCat(cat, dbg, city, imgUrlSet, imgUrls, dbgIdWd, fProps, debugAll);
+      const imgNoInfoPomise = getImgsOfCat(cat, dbg, imgUrlSet, imgUrls, dbgIdWd, fProps, debugAll);
       //TODO we might prioritize categories with small number of images to have greater variety of images?
       imgNoInfoPomises.push(imgNoInfoPomise);
     }
   }
 
-  fillGallery(
-    fountain: Fountain,
-    dbg: string,
-    city: string,
-    debugAll: boolean,
-    numbOfFntsInCollection: number
-  ): Promise<Fountain> {
+  fillGallery(fountain: Fountain, dbg: string, debugAll: boolean, numbOfFntsInCollection: number): Promise<Fountain> {
     //TODO @ralfhauser, changed it from null to '' to satisfy the type string
     let dbgIdWd = '';
     //    if (debugAll) {
@@ -180,20 +167,18 @@ class WikimediaService {
               ' featured img) "' +
               dbg +
               ' ' +
-              city +
-              ' ' +
               dbgIdWd
           );
         }
         //TODO @ralfhauser, changed it from boolean to empty array to satisfy types, In the end the array of imgNoInfoPomises is ignored anways, so I guess it does not matter
         imgNoInfoPomises.push(new Promise(resolve => resolve([])));
       } else {
-        this.getImgsFromCats(fProps, dbg, city, dbgIdWd, name, imgNoInfoPomises, imgUrlSet, imgUrls, debugAll);
+        this.getImgsFromCats(fProps, dbg, dbgIdWd, name, imgNoInfoPomises, imgUrlSet, imgUrls, debugAll);
       }
     } else {
       // if not, resolve with empty
       if (process.env.NODE_ENV !== 'production' && debugAll) {
-        l.info('wikimedia.service.js: no commons category defined "' + dbg + ' ' + city + ' ' + dbgIdWd);
+        l.info('wikimedia.service.js: no commons category defined "' + dbg + ' ' + dbgIdWd);
       }
       //TODO @ralfhauser, changed it from boolean to empty array to satisfy types, In the end the array of imgNoInfoPomises is ignored anways, so I guess it does not matter
       imgNoInfoPomises.push(new Promise(resolve => resolve([])));
@@ -204,16 +189,7 @@ class WikimediaService {
           const totImgFound = imgUrlSet.size;
           if (0 < totImgFound) {
             if (debugAll) {
-              l.info(
-                'wikimedia.service.js: fillGallery imgUrlSet.size ' +
-                  totImgFound +
-                  ' "' +
-                  dbg +
-                  ' ' +
-                  city +
-                  ' ' +
-                  dbgIdWd
-              );
+              l.info('wikimedia.service.js: fillGallery imgUrlSet.size ' + totImgFound + ' "' + dbg + ' ' + dbgIdWd);
             }
             if (MAX_IMG_SHOWN_IN_GALLERY < totImgFound) {
               l.info(
@@ -223,8 +199,6 @@ class WikimediaService {
                   totImgFound +
                   ' "' +
                   dbg +
-                  '" ' +
-                  city +
                   ' ' +
                   dbgIdWd
               );
@@ -252,8 +226,6 @@ class WikimediaService {
                     '" already in other fountain(s) "' +
                     dbg +
                     ' ' +
-                    city +
-                    ' ' +
                     dbgIdWd
                 );
                 for (const clr of callers) {
@@ -268,7 +240,7 @@ class WikimediaService {
                 galValPromises.push(
                   //TODO @ralfhauser getImageInfo returns Promise<void> this statement most likely does not make sense
                   // My guess, galValPromises should have nImg instead, hence I added the `then` after the catch, please check if this fix is correct
-                  getImageInfo(nImg, k + '/' + imgL + ' "' + dbg + '" ' + city + ' ' + dbgIdWd, showDetails, fProps)
+                  getImageInfo(nImg, k + '/' + imgL + ' "' + dbg + '" ' + dbgIdWd, showDetails, fProps)
                     .catch(giiErr => {
                       //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                       l.info(
@@ -276,8 +248,6 @@ class WikimediaService {
                           img.value +
                           '" ' +
                           dbg +
-                          ' ' +
-                          city +
                           ' ' +
                           dbgIdWd +
                           ' cat "' +
@@ -307,22 +277,13 @@ class WikimediaService {
                   ' ' +
                   dbg +
                   ' ' +
-                  city +
-                  ' ' +
                   dbgIdWd
               );
             }
             return Promise.all(galValPromises).then(r => {
               if (debugAll) {
                 l.info(
-                  'wikimedia.service.js: fillGallery galValPromises.r.length ' +
-                    r.length +
-                    ' ' +
-                    dbg +
-                    ' ' +
-                    city +
-                    ' ' +
-                    dbgIdWd
+                  'wikimedia.service.js: fillGallery galValPromises.r.length ' + r.length + ' ' + dbg + ' ' + dbgIdWd
                 );
               }
               const allGalVal = galVal.concat(r);
@@ -357,7 +318,7 @@ class WikimediaService {
           } else {
             //could check the qualifiers as per https://github.com/water-fountains/proximap/issues/294
             if (debugAll) {
-              l.info('wikimedia.service.js: fillGallery ' + dbgIdWd + ' has no img ' + city + ' ' + dbg);
+              l.info('wikimedia.service.js: fillGallery ' + dbgIdWd + ' has no img ' + dbg);
             }
             return fountain;
           }
@@ -728,7 +689,6 @@ export function getImageInfo(
 export function getImgsOfCat(
   cat: Category,
   dbg: string,
-  city: string,
   imgUrlSet: Set<string>,
   imgUrls: ImageLike[],
   dbgIdWd: string,
@@ -762,8 +722,6 @@ export function getImgsOfCat(
               imgsPerCat +
               ') images ' +
               dbg +
-              ' ' +
-              city +
               ' ' +
               dbgIdWd
           );
@@ -811,8 +769,6 @@ export function getImgsOfCat(
             imgsPerCat +
             ') images ' +
             dbg +
-            ' ' +
-            city +
             ' ' +
             dbgIdWd
         );

@@ -11,8 +11,10 @@ import { cacheAdapterEnhancer } from 'axios-extensions';
 import * as _ from 'lodash';
 import wdk from 'wikidata-sdk';
 import sharedConstants from '../../common/shared-constants';
-import { Fountain } from '../../common/typealias';
+import { BoundingBox, Fountain } from '../../common/typealias';
 import { MediaWikiEntityCollection, MediaWikiEntity, MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
+import { City } from '../../../config/locations';
+import { LNG_LAT_STRING_PRECISION } from './locationCache';
 
 // Set up caching of http requests
 const http = axios.create({
@@ -27,7 +29,7 @@ const http = axios.create({
 });
 
 class WikidataService {
-  idsByCenter(lat: number, lng: number, radius = 10, locationName: string): Promise<string[]> {
+  idsByCenter(lat: number, lng: number, radius = 10, city: City): Promise<string[]> {
     // fetch fountain from OSM by coordinates, within radius in meters
     const sparql = `
         SELECT ?place
@@ -49,17 +51,15 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-    const res = doSparqlRequest(sparql, locationName, 'idsByCenter');
+    const res = doSparqlRequest(sparql, 'idsByCenter for city ' + city);
     return res;
   }
 
-  idsByBoundingBox(
-    latMin: number,
-    lngMin: number,
-    latMax: number,
-    lngMax: number,
-    locationName: string
-  ): Promise<string[]> {
+  idsByBoundingBox(bounds: BoundingBox): Promise<string[]> {
+    const minLng = bounds.min.lng.toFixed(LNG_LAT_STRING_PRECISION);
+    const minLat = bounds.min.lat.toFixed(LNG_LAT_STRING_PRECISION);
+    const maxLng = bounds.max.lng.toFixed(LNG_LAT_STRING_PRECISION);
+    const maxLat = bounds.max.lat.toFixed(LNG_LAT_STRING_PRECISION);
     const sparql = `
         SELECT ?place
         WHERE
@@ -67,8 +67,8 @@ class WikidataService {
           SERVICE wikibase:box {
             # this service allows points within a box to be queried (https://en.wikibooks.org/wiki/SPARQL/SERVICE_-_around_and_box) 
             ?place wdt:P625 ?location .
-            bd:serviceParam wikibase:cornerWest "Point(${lngMin} ${latMin})"^^geo:wktLiteral.
-            bd:serviceParam wikibase:cornerEast "Point(${lngMax} ${latMax})"^^geo:wktLiteral.
+            bd:serviceParam wikibase:cornerSouthWest "Point(${minLng} ${minLat})"^^geo:wktLiteral.
+            bd:serviceParam wikibase:cornerNorthEast "Point(${maxLng} ${maxLat})"^^geo:wktLiteral.
           } .
           
           # The results of the spatial query are limited to instances or subclasses of water well (Q43483) or fountain (Q483453)
@@ -76,14 +76,14 @@ class WikidataService {
           
           # the wikibase:label service allows the label to be returned easily. The list of languages provided are fallbacks: if no English label is available, use German etc.
           SERVICE wikibase:label {
-            bd:serviceParam wikibase:language "en,de,fr,it,tr" .
+            bd:serviceParam wikibase:language "${sharedConstants.LANGS.join(',')}" .
           }
         }`;
-    const res = doSparqlRequest(sparql, locationName, 'idsByBoundingBox');
+    const res = doSparqlRequest(sparql, 'idsByBoundingBox for ' + JSON.stringify(bounds));
     return res;
   }
 
-  byIds(qids: string[], locationName: string): Promise<MediaWikiSimplifiedEntity[]> {
+  byIds(qids: string[], dbg: string): Promise<MediaWikiSimplifiedEntity[]> {
     // fetch fountains by their QIDs
     const chunkSize = 50; // how many fountains should be fetched at a time (so as to not overload the server)
     return new Promise((resolve, reject) => {
@@ -93,7 +93,7 @@ class WikidataService {
         chunk(qids, chunkSize).forEach(qidChunk => {
           chunkCount++;
           if (chunkSize * chunkCount > qids.length) {
-            l.info('wikidata.service.js byIds: chunk ' + chunkCount + ' for ' + locationName);
+            l.info('wikidata.service.js byIds: chunk ' + chunkCount + ' for ' + dbg);
           }
           // create sparql url
           const url = wdk.getEntities({
@@ -108,19 +108,13 @@ class WikidataService {
         Promise.all(httpPromises)
           .then(responses => {
             l.info(
-              'wikidata.service.js byIds: ' +
-                chunkCount +
-                ' chunks of ' +
-                chunkSize +
-                ' prepared for loc "' +
-                locationName +
-                '"'
+              'wikidata.service.js byIds: ' + chunkCount + ' chunks of ' + chunkSize + ' prepared for loc "' + dbg + '"'
             );
             // holder for data of all fountains
             let dataAll: MediaWikiSimplifiedEntity[] = [];
             responses.forEach(r => {
               // holder for data from each chunk
-              //TODO should be typed as soon as we update wikidata-sdk to the latest version
+              //TODO @ralf.hauser should be typed as soon as we update wikidata-sdk to the latest version
               const data: MediaWikiSimplifiedEntity[] = [];
               for (const key in r.data.entities) {
                 // simplify object structure of each wikidata entity and add it to 'data'
@@ -138,19 +132,19 @@ class WikidataService {
               if (null != dataAll) {
                 dataAllSize = dataAll.length;
               }
-              l.info('wikidata.service.js byIds: dataAll ' + dataAllSize + ' for loc "' + locationName + '"');
+              l.info('wikidata.service.js byIds: dataAll ' + dataAllSize + ' for loc "' + dbg + '"');
             }
             // return dataAll to
             //TODO @ralfhauser that's a smell, we should not use the resolve of an outer promise
             resolve(dataAll);
           })
           .catch(e => {
-            l.error('wikidata.service.js byIds: catch e ' + e.stack + ' for loc "' + locationName + '"');
+            l.error('wikidata.service.js byIds: catch e ' + e.stack + ' for loc "' + dbg + '"');
             //TODO that's a smell, we should not use the reject of an outer promise
             reject(e);
           });
       } catch (error: any) {
-        l.error('wikidata.service.js byIds: catch error ' + error.stack + ' for loc "' + locationName + '"');
+        l.error('wikidata.service.js byIds: catch error ' + error.stack + ' for loc "' + dbg + '"');
         reject(error);
       }
 
@@ -198,7 +192,6 @@ class WikidataService {
       const latMin = undefined;
       const lngMax = undefined;
       const latMax = undefined;
-      const locationName = 'undefined';
 
       const newQueryMiro = false;
       if (newQueryMiro) {
@@ -221,7 +214,7 @@ class WikidataService {
             bd:serviceParam wikibase:language "en,de,fr,it,tr" .
           }
         }`;
-        const res = doSparqlRequest(sparql, locationName, 'fillArtistName');
+        const res = doSparqlRequest(sparql, 'fillArtistName');
         l.info('wikidata.service.js fillArtistName: new Miro response ' + res + ' "' + idWd + '"');
       }
 
@@ -507,7 +500,7 @@ function chunk<T>(arr: T[], len: number): T[][] {
   return chunks;
 }
 
-function doSparqlRequest(sparql: string, location: string, dbg: string): Promise<string[]> {
+function doSparqlRequest(sparql: string, dbg: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
     // create url from SPARQL
     const url = wdk.sparqlQuery(sparql);
@@ -521,7 +514,7 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
           const error = new Error(
             `wikidata.service.ts doSparqlRequest Request to Wikidata Failed. Status Code: ${res.status}. Status Message: ${res.statusText}. Url: ${url}`
           );
-          l.error('wikidata.service.js doSparqlRequest: ' + dbg + ',  location ' + location + ' ' + error.message);
+          l.error('wikidata.service.js doSparqlRequest: ' + dbg + ' ' + error.message);
           // consume response data to free up memory
           // TODO @ralfhauser, resume does not exist
           // res.resume();
@@ -533,33 +526,21 @@ function doSparqlRequest(sparql: string, location: string, dbg: string): Promise
           l.info(
             'wikidata.service.js doSparqlRequest: ' +
               dbg +
-              ',  location ' +
-              location +
               ' ' + //+simplifiedResults+' '
               simplifiedResults.length +
-              ' ids found for ' +
-              location
+              ' ids found'
           );
           resolve(simplifiedResults);
         } catch (e: any) {
           l.error(
-            'wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.' +
-              e.stack +
-              ' ' +
-              dbg +
-              ',  location ' +
-              location
+            'wikidata.service.js doSparqlRequest: Error occurred simplifying wikidata results.' + e.stack + ' ' + dbg
           );
           reject(e);
         }
       })
       .catch(error => {
         l.error(
-          `'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}` +
-            ' ' +
-            dbg +
-            ',  location ' +
-            location
+          `'wikidata.service.js doSparqlRequest: Request to Wikidata Failed. Url: ${url}` + ' ' + dbg + '\n' + error
         );
         reject(error);
       });
