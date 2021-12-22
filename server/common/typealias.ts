@@ -1,4 +1,4 @@
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { Feature, FeatureCollection, Geometry, Point, Position } from 'geojson';
 import { UncheckedBoundingBox } from '../../config/locations';
 import { ImageLikeCollection, ImageLikeType } from '../../config/text2img';
 import { isNumeric } from '../api/controllers/utils';
@@ -165,6 +165,14 @@ export function parseLngLat(lngLatAsString: string): LngLat {
   } else {
     illegalState('could not parse to LngLat, given string: ' + lngLatAsString);
   }
+}
+export function positionToLngLat(position: Position): LngLat {
+  const lng = position[0];
+  const lat = position[1];
+  if (lng === undefined || lat === undefined) {
+    illegalState('position.length was less than 2', position);
+  }
+  return LngLat(lng, lat);
 }
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap

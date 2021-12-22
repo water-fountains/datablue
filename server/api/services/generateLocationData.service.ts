@@ -17,7 +17,7 @@ import {
   essenceOf,
   fillInMissingWikidataFountains,
 } from '../services/processing.service';
-import { BoundingBox, Database, Fountain, FountainCollection, LngLat } from '../../common/typealias';
+import { BoundingBox, Database, Fountain, FountainCollection, LngLat, positionToLngLat } from '../../common/typealias';
 import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 import sharedConstants from '../../common/shared-constants';
 import { extractProcessingErrors, ProcessingError } from '../controllers/processing-errors.controller';
@@ -157,9 +157,7 @@ async function fetchFountainsFromServerAndUpdateCache(
   const fountains = await fetchFountainsByBoundingBox(boundingBox, dbg, debugAll);
 
   const groupedByTile = fountains.groupBy(fountain =>
-    tileToLocationCacheKey(
-      getTileOfLocation(LngLat(fountain.geometry.coordinates[0], fountain.geometry.coordinates[1]))
-    )
+    tileToLocationCacheKey(getTileOfLocation(positionToLngLat(fountain.geometry.coordinates)))
   );
 
   const collections = tiles.map(tile => {
