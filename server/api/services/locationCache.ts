@@ -30,7 +30,7 @@ function getCachedFountainCollection(tile: Tile, suffix: string): CacheEntry<Fou
 }
 
 export function getCachedProcessingErrors(tile: Tile): CacheEntry<ProcessingError> | undefined {
-  return locationCache.get<CacheEntry<FountainCollection>>(tileToLocationCacheKey(tile));
+  return locationCache.get<CacheEntry<ProcessingError>>(tileToLocationCacheKey(tile) + PROCESSING_ERRORS_SUFFIX);
 }
 
 export function cacheFullFountainCollection(tile: Tile, fountainCollection: FountainCollection, ttl: number): void {
@@ -100,9 +100,9 @@ export function tileToLocationCacheKey(tile: Tile): string {
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
-// 0.01 lat is ~1km
-const TILE_SIZE = 0.01;
-const ROUND_FACTOR = 100;
+// 0.01 lat is ~5km
+const TILE_SIZE = 0.05;
+const ROUND_FACTOR = 20; // 1/0.05;
 export const LNG_LAT_STRING_PRECISON = 2;
 function roundToTilePrecision(n: number): number {
   return Math.floor(n * ROUND_FACTOR) / ROUND_FACTOR;

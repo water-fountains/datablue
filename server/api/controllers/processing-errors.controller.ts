@@ -10,12 +10,13 @@
 import _ from 'lodash';
 import { l } from '../../common/logger';
 import { FountainCollection } from '../../common/typealias';
+import '../../common/importAllExtensions';
 
 //TODO @ralfhauser, I don't know the type of errorCollection since I was not able to get a real example of an issue, please narrow down accordingly
 export type ProcessingError = any;
 
 export function hasProcessingIssues(obj: Record<string, unknown>): obj is { issues: ProcessingError[] } {
-  return Object.prototype.hasOwnProperty.call(obj, 'issues') && Array.isArray(obj.issues);
+  return Object.prototype.hasOwnProperty.call(obj, 'issues') && Array.isArray(obj.issues) && obj.issues.nonEmpty();
 }
 
 export function extractProcessingErrors(fountainCollection: FountainCollection | undefined): ProcessingError[] {

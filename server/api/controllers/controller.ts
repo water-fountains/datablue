@@ -17,8 +17,10 @@ import {
   getFountainFromCacheIfNotForceRefreshOrFetch,
   getByBoundingBoxFromCacheIfNotForceRefreshOrPopulate,
   populateCacheWithCities as populateLocationCacheWithCities,
+  getProcessingErrorsByBoundingBox,
 } from '../services/generateLocationData.service';
 import { illegalState } from '../../common/illegalState';
+import { tileToLocationCacheKey } from '../services/locationCache';
 
 export class Controller {
   constructor() {
@@ -60,14 +62,19 @@ export class Controller {
 
   async getByBounds(req: Request, res: Response, next: ErrorHandler): Promise<void> {
     handlingErrors(next, () => {
-      const southWest = parseLngLat(getSingleStringQueryParam(req, 'sw'));
-      const northEast = parseLngLat(getSingleStringQueryParam(req, 'ne'));
-      const boundingBox = BoundingBox(southWest, northEast);
+      const boundingBox = this.getBoundingBoxFromQueryParam(req);
       const essential = getSingleBooleanQueryParam(req, 'essential');
       const refresh = getSingleBooleanQueryParam(req, 'refresh');
 
       return this.byBoundingBox(res, boundingBox, essential, refresh);
     });
+  }
+
+  private getBoundingBoxFromQueryParam(req: Request): BoundingBox {
+    const southWest = parseLngLat(getSingleStringQueryParam(req, 'sw'));
+    const northEast = parseLngLat(getSingleStringQueryParam(req, 'ne'));
+    const boundingBox = BoundingBox(southWest, northEast);
+    return boundingBox;
   }
 
   private async byBoundingBox(
@@ -112,29 +119,11 @@ export class Controller {
   /**
    * Function to extract processing errors from detailed list of fountains
    */
-  async getProcessingErrors(_req: Request, res: Response): Promise<void> {
-    //TODO #148 return processing errors for given boundingBox
-    sendJson(res, [], 'not yet implemented');
-    // returns all processing errors for a given location
-    // made for #206
-    // const city = getSingleStringQueryParam(req, 'city');
-    // const key = city + '_errors';
-
-    // if (locationCache.keys().indexOf(key) < 0) {
-    //   // if data not in cache, create error list
-    //   locationCache.set<any[]>(key, extractProcessingErrors(locationCache.get<FountainCollection>(city)));
-    // }
-    // locationCache.get(key, (err, value) => {
-    //   if (!err) {
-    //     sendJson(res, value, 'cityCache.get ' + key);
-    //     l.info('controller.js: getProcessingErrors !err sent');
-    //   } else {
-    //     const errMsg = 'Error with cache: ' + err;
-    //     l.info('controller.js: getProcessingErrors ' + errMsg);
-    //     res.statusMessage = errMsg;
-    //     res.status(500).send(err.stack);
-    //   }
-    // });
+  getProcessingErrors(req: Request, res: Response): void {
+    // returns all processing errors for a given location made for #206
+    const boundingBox = this.getBoundingBoxFromQueryParam(req);
+    const errors = getProcessingErrorsByBoundingBox(boundingBox);
+    sendJson(res, errors ?? [], tileToLocationCacheKey(boundingBox));
   }
 }
 export const controller = new Controller();

@@ -20,7 +20,7 @@ import {
 import { BoundingBox, Database, Fountain, FountainCollection, LngLat } from '../../common/typealias';
 import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 import sharedConstants from '../../common/shared-constants';
-import { extractProcessingErrors } from '../controllers/processing-errors.controller';
+import { extractProcessingErrors, ProcessingError } from '../controllers/processing-errors.controller';
 import { illegalState } from '../../common/illegalState';
 import '../../common/importAllExtensions';
 import {
@@ -30,6 +30,7 @@ import {
   getBoundingBoxOfTiles,
   getCachedEssentialFountainCollection,
   getCachedFullFountainCollection,
+  getCachedProcessingErrors,
   getTileOfLocation,
   locationCacheKeyToTile,
   splitInTiles,
@@ -100,7 +101,13 @@ export async function getByBoundingBoxFromCacheIfNotForceRefreshOrPopulate(
       '\nend:   ' +
       end.toISOString()
   );
+  //TODO @ralf.hauser, derive lastScan from the cached collections (what date to use?) otherwise it will result in a
+  // different e-tag and client needs to refetch data even though it is still the same
   return FountainCollection(allFountains, /* lastScan= */ start);
+}
+export function getProcessingErrorsByBoundingBox(boundingBox: BoundingBox): ProcessingError[] {
+  const arr = splitInTiles(boundingBox).map(tile => getCachedProcessingErrors(tile));
+  return arr.reduce((acc, v) => (v !== undefined ? acc.concat(v.value) : acc), /*initial=*/ []);
 }
 
 async function byTilesFromCacheIfNotForceRefreshOrPopulate(
@@ -155,8 +162,9 @@ async function fetchFountainsFromServerAndUpdateCache(
     )
   );
 
-  const collections = Array.from(groupedByTile.entries()).map(([cacheKey, fountains]) => {
-    const tile = locationCacheKeyToTile(cacheKey);
+  const collections = tiles.map(tile => {
+    const cacheKey = tileToLocationCacheKey(tile);
+    const fountains = groupedByTile.get(cacheKey) ?? [];
     let fountainCollection: FountainCollection | undefined = FountainCollection(fountains);
     updateCacheWithFountains(tile, fountainCollection, ttlInHours);
     fountainCollection = (
