@@ -16,9 +16,18 @@ import {
   defaultCollectionEnhancement,
   essenceOf,
   fillInMissingWikidataFountains,
+  fillWikipediaSummary,
 } from '../services/processing.service';
-import { BoundingBox, Database, Fountain, FountainCollection, LngLat, positionToLngLat } from '../../common/typealias';
-import { MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
+import {
+  BoundingBox,
+  Database,
+  Fountain,
+  FountainCollection,
+  GalleryValue,
+  LngLat,
+  positionToLngLat,
+} from '../../common/typealias';
+import { hasWikiCommonsCategories, MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 import sharedConstants from '../../common/shared-constants';
 import { extractProcessingErrors, ProcessingError } from '../controllers/processing-errors.controller';
 import { illegalState } from '../../common/illegalState';
@@ -32,12 +41,16 @@ import {
   getCachedFullFountainCollection,
   getCachedProcessingErrors,
   getTileOfLocation,
-  locationCacheKeyToTile,
   splitInTiles,
   Tile,
   tileToLocationCacheKey,
 } from './locationCache';
 import { sleep } from '../../common/sleep';
+import { LAZY_ARTIST_NAME_LOADING_i41db, MAX_IMG_SHOWN_IN_GALLERY } from '../../common/constants';
+import { ImageLike } from '../../../config/text2img';
+import { isBlacklisted } from './categories.wm';
+import { getImageInfo, getImgsOfCat } from './wikimedia.service';
+import { getCatExtract, getImgClaims } from './claims.wm';
 
 //TODO @ralf.hauser reconsider this functionality. If a user queries a city in the same time then it is more likely
 //that we run into a throttling timeout. Maybe only load the default city?
@@ -80,7 +93,7 @@ export async function getByBoundingBoxFromCacheIfNotForceRefreshOrPopulate(
   const start = new Date();
   const tiles = splitInTiles(boundingBox);
   l.info('processing ' + tiles.length + ' tiles');
-  const allFountains = await byTilesFromCacheIfNotForceRefreshOrPopulate(
+  const collection = await byTilesFromCacheIfNotForceRefreshOrPopulate(
     forceRefresh,
     tiles,
     essential,
@@ -95,15 +108,13 @@ export async function getByBoundingBoxFromCacheIfNotForceRefreshOrPopulate(
     'generateLocationData.service.js: after ' +
       elapse.toFixed(1) +
       ' secs successfully processed all (size ' +
-      allFountains.length +
+      collection.features.length +
       `) fountains from ${dbg} \nstart: ` +
       start.toISOString() +
       '\nend:   ' +
       end.toISOString()
   );
-  //TODO @ralf.hauser, derive lastScan from the cached collections (what date to use?) otherwise it will result in a
-  // different e-tag and client needs to refetch data even though it is still the same
-  return FountainCollection(allFountains, /* lastScan= */ start);
+  return collection;
 }
 export function getProcessingErrorsByBoundingBox(boundingBox: BoundingBox): ProcessingError[] {
   const arr = splitInTiles(boundingBox).map(tile => getCachedProcessingErrors(tile));
@@ -117,32 +128,50 @@ async function byTilesFromCacheIfNotForceRefreshOrPopulate(
   dbg: string,
   debugAll: boolean,
   ttlInHours: number | undefined = undefined
-): Promise<Fountain[]> {
-  //TODO @ralf.hauser, we could optimise this a bit in case only bounding boxes at the border are not cached yet
-  const maybeFountains = forceRefresh
-    ? undefined // don't even search in cache in case of forceRefresh
-    : tiles.reduce((acc, tile) => {
-        if (acc === undefined) {
-          // previous was not in cache, no need to search further
-          return undefined;
-        } else {
-          const cacheEntry = essential
-            ? getCachedEssentialFountainCollection(tile)
-            : getCachedFullFountainCollection(tile);
-          if (cacheEntry !== undefined) {
-            return acc.concat(cacheEntry.value.features);
-          } else {
-            return undefined;
-          }
-        }
-      }, /* initial= */ [] as Fountain[] | undefined);
+): Promise<FountainCollection> {
+  type AccType = [Fountain[], Date] | undefined;
 
-  if (maybeFountains !== undefined) {
+  //TODO @ralf.hauser, we could optimise this a bit in case only bounding boxes at the border are not cached yet
+  const maybeArr = forceRefresh
+    ? undefined // don't even search in cache in case of forceRefresh
+    : tiles.reduce(
+        (acc, tile) => {
+          if (acc === undefined) {
+            // previous was not in cache, no need to search further
+            return undefined;
+          } else {
+            const cacheEntry = essential
+              ? getCachedEssentialFountainCollection(tile)
+              : getCachedFullFountainCollection(tile);
+            if (cacheEntry !== undefined) {
+              const [fountains, currentLastScan] = acc;
+              const lastScan = cacheEntry.value.last_scan;
+              const olderLastScan = lastScan && lastScan < currentLastScan ? lastScan : currentLastScan;
+              return [fountains.concat(cacheEntry.value.features), olderLastScan] as AccType;
+            } else {
+              return undefined;
+            }
+          }
+        },
+        /* initial= */ [[], new Date()] as AccType
+      );
+
+  if (maybeArr !== undefined) {
+    const [fountains, lastScan] = maybeArr;
     l.info('all tiles in cache');
     // all in cache, return immediately
-    return Promise.resolve(maybeFountains);
+    return Promise.resolve(FountainCollection(fountains, lastScan));
   } else {
-    return fetchFountainsFromServerAndUpdateCache(tiles, essential, dbg, debugAll, ttlInHours);
+    const lastScan = new Date();
+    const fountains = await fetchFountainsFromServerAndUpdateCache(
+      tiles,
+      essential,
+      dbg,
+      debugAll,
+      ttlInHours,
+      lastScan
+    );
+    return FountainCollection(fountains, lastScan);
   }
 }
 
@@ -151,7 +180,8 @@ async function fetchFountainsFromServerAndUpdateCache(
   essential: boolean,
   dbg: string,
   debugAll: boolean,
-  ttlInHours: number | undefined
+  ttlInHours: number | undefined,
+  lastScan: Date
 ): Promise<Fountain[]> {
   const boundingBox = getBoundingBoxOfTiles(tiles);
   const fountains = await fetchFountainsByBoundingBox(boundingBox, dbg, debugAll);
@@ -163,7 +193,7 @@ async function fetchFountainsFromServerAndUpdateCache(
   const collections = tiles.map(tile => {
     const cacheKey = tileToLocationCacheKey(tile);
     const fountains = groupedByTile.get(cacheKey) ?? [];
-    let fountainCollection: FountainCollection | undefined = FountainCollection(fountains);
+    let fountainCollection: FountainCollection | undefined = FountainCollection(fountains, lastScan);
     updateCacheWithFountains(tile, fountainCollection, ttlInHours);
     fountainCollection = (
       essential ? getCachedEssentialFountainCollection(tile) : getCachedFullFountainCollection(tile)
@@ -253,301 +283,204 @@ export async function getFountainFromCacheIfNotForceRefreshOrFetch(
   loc: LngLat
 ): Promise<Fountain | undefined> {
   const tile = getTileOfLocation(loc);
-  const fountains = await byTilesFromCacheIfNotForceRefreshOrPopulate(
+  const collection = await byTilesFromCacheIfNotForceRefreshOrPopulate(
     forceRefresh,
     [tile],
     /* essential = */ false,
     'database: ' + database + ' idval: ' + idval,
     /* debugAll =*/ false
   );
-  return fountains.find(f => f.properties['id_' + database]?.value === idval);
+  const fountain = collection.features.find(f => f.properties['id_' + database]?.value === idval);
+  // TODO @ralf.hauser IMO it would make sense to distinguish this also in typing
+  const enrichedFountain = fountain ? enrichFountain(fountain, idval) : undefined;
+  if (enrichedFountain === undefined) {
+    l.info(`byId: loc ${loc.lat},${loc.lng} not in cache after loading, id/loc mismatch?`);
+  }
+  return enrichedFountain;
+}
 
-  // let name = 'unkNamById';
+//TODO @ralf.hauser this function is still very very smelly. I through now an error instead of not responding at all
+function enrichFountain(fountain: Fountain, dbg: string): Promise<Fountain> {
+  const imgMetaPromises: Promise<any>[] = [];
+  let lazyAdded = 0;
+  let gl = -1;
+  const props = fountain.properties;
+  if (null == props) illegalState('properties of fountain where undefined', fountain);
 
-  // const cityPromises: Promise<FountainCollection | void>[] = [];
-  // if (forceRefresh || fountains === undefined) {
-  //   //TODO #150 don't load all city data but only the specific fountain?
-  //   const genLocPrms = generateCityDataAndAddToCache(city, locationCache);
-  //   cityPromises.push(genLocPrms);
-  // }
-  // return Promise.all(cityPromises)
-  //   .then(
-  //     () => {
-  //       if (forceRefresh || fountains === undefined) {
-  //         fountains = locationCache.get<FountainCollection>(city);
-  //       }
-  //       if (fountains !== undefined) {
-  //         const fountain = fountains.features.find(f => f.properties['id_' + database]?.value === idval);
-  //         const imgMetaPromises: Promise<any>[] = [];
-  //         let lazyAdded = 0;
-  //         const gl = -1;
-  //         if (fountain === undefined) {
-  //           l.info('controller.js byId: of ' + city + ' not found in cache ' + dbg);
-  //           return undefined;
-  //         } else {
-  //           const props = fountain.properties;
-  //           //    	  l.info('controller.js byId fountain: '+cityS+' '+dbg);
-  //           if (null != props) {
-  //             name = props.name.value;
-  //             if (LAZY_ARTIST_NAME_LOADING_i41db) {
-  //               imgMetaPromises.push(WikidataService.fillArtistName(fountain, dbg));
-  //             }
-  //             imgMetaPromises.push(WikidataService.fillOperatorInfo(fountain, dbg));
-  //             fillWikipediaSummary(fountain, dbg, 1, imgMetaPromises);
-  //             const gallery = props.gallery;
-  //             //  		  l.info('controller.js byId props: '+cityS+' '+dbg);
-  //             if (null != gallery && null != gallery.value) {
-  //               //  			  l.info('controller.js byId gl: '+cityS+' '+dbg);
-  //               if (0 < gallery.value.length) {
-  //                 //  				  l.info('controller.js byId: of '+cityS+' found gal of size '+gl+' "'+name+'" '+dbg);
-  //                 let i = 0;
-  //                 let lzAtt = '';
-  //                 const showDetails = true;
-  //                 const singleRefresh = true;
-  //                 const imgUrlSet = new Set<string>();
-  //                 const catPromises: Promise<ImageLike[]>[] = [];
-  //                 let numberOfCategories = -1;
-  //                 let numberOfCategoriesLazyAdded = 0;
-  //                 const imgUrlsLazyByCategory: ImageLike[] = [];
-  //                 // TODO @ralfhauser, this condition does not make sense, if value.length < 0 means basically if it is empty and if it is empty, then numberOfCategories will always be 0 and the for-loop will do nothing
-  //                 if (hasWikiCommonsCategories(props) && 0 < props.wiki_commons_name.value.length) {
-  //                   numberOfCategories = props.wiki_commons_name.value.length;
-  //                   let j = 0;
-  //                   for (const cat of props.wiki_commons_name.value) {
-  //                     j++;
-  //                     if (null == cat) {
-  //                       l.info(i + '-' + j + ' controller.js: null == commons category "' + cat + '" "' + dbg);
-  //                       continue;
-  //                     }
-  //                     if (null == cat.c) {
-  //                       l.info(i + '-' + j + ' controller.js: null == commons cat.c "' + cat + '" "' + dbg);
-  //                       continue;
-  //                     }
-  //                     if (isBlacklisted(cat.c)) {
-  //                       l.info(i + '-' + j + ' controller.js: commons category blacklisted  "' + cat + '" "' + dbg);
-  //                       continue;
-  //                     }
-  //                     const add = 0 > cat.l;
-  //                     if (add) {
-  //                       numberOfCategoriesLazyAdded++;
-  //                       if (0 == imgUrlSet.size) {
-  //                         for (const img of gallery.value) {
-  //                           imgUrlSet.add(img.pgTit);
-  //                         }
-  //                       }
-  //                       const catPromise = getImgsOfCat(
-  //                         cat,
-  //                         dbg,
-  //                         city,
-  //                         imgUrlSet,
-  //                         imgUrlsLazyByCategory,
-  //                         'dbgIdWd',
-  //                         props,
-  //                         true
-  //                       );
-  //                       //TODO we might prioritize categories with small number of images to have greater variety of images?
-  //                       catPromises.push(catPromise);
-  //                     }
-  //                     getCatExtract(singleRefresh, cat, catPromises, dbg);
-  //                   }
-  //                 }
-  //                 return Promise.all(catPromises).then(
-  //                   r => {
-  //                     for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
-  //                       //between 6 && 50 imgs are on the gallery-preview
-  //                       const img = imgUrlsLazyByCategory[k];
-  //                       //TODO @ralfhauser, val does not exist on GalleryValue but value, changed it
-  //                       const nImg: GalleryValue = {
-  //                         s: img.src,
-  //                         pgTit: img.value,
-  //                         c: img.cat,
-  //                         t: img.typ,
-  //                       };
-  //                       gallery.value.push(nImg);
-  //                     }
-  //                     if (0 < imgUrlsLazyByCategory.length) {
-  //                       l.info(
-  //                         'controller.js byId lazy img by lazy cat added: attempted ' +
-  //                           imgUrlsLazyByCategory.length +
-  //                           ' in ' +
-  //                           numberOfCategoriesLazyAdded +
-  //                           '/' +
-  //                           numberOfCategories +
-  //                           ' cats, tot ' +
-  //                           gl +
-  //                           ' of ' +
-  //                           city +
-  //                           ' ' +
-  //                           dbg +
-  //                           ' "' +
-  //                           name +
-  //                           '" ' +
-  //                           r.length
-  //                       );
-  //                     }
-  //                     for (const img of gallery.value) {
-  //                       const imMetaDat = img.metadata;
-  //                       if (null == imMetaDat && 'wm' == img.t) {
-  //                         lzAtt += i + ',';
-  //                         l.info(
-  //                           'controller.js byId lazy getImageInfo: ' +
-  //                             city +
-  //                             ' ' +
-  //                             i +
-  //                             '/' +
-  //                             gl +
-  //                             ' "' +
-  //                             img.pgTit +
-  //                             '" "' +
-  //                             name +
-  //                             '" ' +
-  //                             dbg
-  //                         );
-  //                         imgMetaPromises.push(
-  //                           getImageInfo(
-  //                             img,
-  //                             i + '/' + gl + ' ' + dbg + ' ' + name + ' ' + city,
-  //                             showDetails,
-  //                             props
-  //                           ).catch(giiErr => {
-  //                             //TODO @ralfhauser, dbgIdWd does not exist
-  //                             const dbgIdWd = undefined;
-  //                             l.info(
-  //                               'wikimedia.service.js: fillGallery getImageInfo failed for "' +
-  //                                 img.pgTit +
-  //                                 '" ' +
-  //                                 dbg +
-  //                                 ' ' +
-  //                                 city +
-  //                                 ' ' +
-  //                                 dbgIdWd +
-  //                                 ' "' +
-  //                                 name +
-  //                                 '"' +
-  //                                 '\n' +
-  //                                 giiErr.stack
-  //                             );
-  //                           })
-  //                         );
-  //                         lazyAdded++;
-  //                       } else {
-  //                         //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg);
-  //                       }
-  //                       getImgClaims(singleRefresh, img, imgMetaPromises, i + ': ' + dbg);
-  //                       i++;
-  //                     }
-  //                     if (0 < lazyAdded) {
-  //                       l.info(
-  //                         'controller.js byId lazy img metadata loading: attempted ' +
-  //                           lazyAdded +
-  //                           '/' +
-  //                           gl +
-  //                           ' (' +
-  //                           lzAtt +
-  //                           ') of ' +
-  //                           city +
-  //                           ' ' +
-  //                           dbg +
-  //                           ' "' +
-  //                           name +
-  //                           '"'
-  //                       );
-  //                     }
-  //                     return Promise.all(imgMetaPromises).then(
-  //                       r => {
-  //                         if (0 < lazyAdded) {
-  //                           l.info(
-  //                             'controller.js byId lazy img metadata loading after promise: attempted ' +
-  //                               lazyAdded +
-  //                               ' tot ' +
-  //                               gl +
-  //                               ' of ' +
-  //                               city +
-  //                               ' ' +
-  //                               dbg +
-  //                               ' "' +
-  //                               name +
-  //                               '" ' +
-  //                               r.length
-  //                           );
-  //                         }
-  //                         //TODO @ralfhauser this is a clear smell, we already send the response before we resolve the promise
-  //                         // it would be better if we return the fountain in a then once the promise completes
-  //                         sendJson(res, fountain, 'byId ' + dbg); //  res.json(fountain);
-  //                         l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
-  //                         return fountain;
-  //                       },
-  //                       err => {
-  //                         l.error(
-  //                           `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
-  //                         );
-  //                         return undefined;
-  //                       }
-  //                     );
-  //                   },
-  //                   err => {
-  //                     l.error(
-  //                       `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
-  //                     );
-  //                     return undefined;
-  //                   }
-  //                 );
-  //               } else {
-  //                 l.info('controller.js byId: of ' + city + ' gl < 1  ' + dbg);
-  //                 return Promise.all(imgMetaPromises).then(
-  //                   r => {
-  //                     if (0 < lazyAdded) {
-  //                       l.info(
-  //                         'controller.js byId lazy img metadata loading after promise: attempted ' +
-  //                           lazyAdded +
-  //                           ' tot ' +
-  //                           gl +
-  //                           ' of ' +
-  //                           city +
-  //                           ' ' +
-  //                           dbg +
-  //                           ' "' +
-  //                           name +
-  //                           '" ' +
-  //                           r.length
-  //                       );
-  //                     }
-  //                     //TODO @ralfhauser this is a clear smell, we already send the response before we resovle the promise
-  //                     sendJson(res, fountain, 'byId ' + dbg); //  res.json(fountain);
-  //                     l.info('controller.js byId: of ' + city + ' res.json ' + dbg + ' "' + name + '"');
-  //                     return fountain;
-  //                   },
-  //                   err => {
-  //                     l.error(
-  //                       `controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '" ' + city
-  //                     );
-  //                     return undefined;
-  //                   }
-  //                 );
-  //               }
-  //             } else {
-  //               l.info('controller.js byId: of ' + city + ' gallery null || null == gal.value  ' + dbg);
-  //               return undefined;
-  //             }
-  //           } else {
-  //             l.info('controller.js byId: of ' + city + ' no props ' + dbg);
-  //             return undefined;
-  //           }
-  //         }
-  //       } else {
-  //         return undefined;
-  //       }
-  //       //      l.info('controller.js byId: end of '+cityS+' '+dbg);
-  //     },
-  //     err => {
-  //       l.error(`controller.js byId: Failed on genLocPrms: ${err.stack} .` + dbg + ' ' + city);
-  //       return undefined;
-  //     }
-  //   )
-  //   .catch(e => {
-  //     //TODO @ralfhauser, this error will never occurr because we already defined an error case two lines above
-  //     l.error(`controller.js byId: Error finding fountain in preprocessed data: ${e} , city: ` + city + ' ' + dbg);
-  //     l.error(e.stack);
-  //     return undefined;
-  //   });
+  const name = props.name.value;
+  if (LAZY_ARTIST_NAME_LOADING_i41db) {
+    imgMetaPromises.push(WikidataService.fillArtistName(fountain, dbg));
+  }
+  imgMetaPromises.push(WikidataService.fillOperatorInfo(fountain, dbg));
+  fillWikipediaSummary(fountain, dbg, 1, imgMetaPromises);
+
+  const gallery = props.gallery;
+  const galleryArr = gallery?.value;
+  if (!Array.isArray(galleryArr)) {
+    illegalState('controller.js byId: gallery null || null == gal.value || !isArray ' + dbg);
+  }
+
+  if (galleryArr.isEmpty()) {
+    gl = galleryArr.length;
+    let i = 0;
+    let lzAtt = '';
+    const showDetails = true;
+    const singleRefresh = true;
+    const imgUrlSet = new Set<string>();
+    const catPromises: Promise<ImageLike[]>[] = [];
+    let numberOfCategories = -1;
+    let numberOfCategoriesLazyAdded = 0;
+    const imgUrlsLazyByCategory: ImageLike[] = [];
+    // TODO @ralfhauser, this condition does not make sense, if value.length < 0 means basically if it is empty and if it is empty, then numberOfCategories will always be 0 and the for-loop will do nothing
+    if (hasWikiCommonsCategories(props) && 0 < props.wiki_commons_name.value.length) {
+      numberOfCategories = props.wiki_commons_name.value.length;
+      let j = 0;
+      for (const cat of props.wiki_commons_name.value) {
+        j++;
+        if (null == cat) {
+          l.info(i + '-' + j + ' controller.js: null == commons category "' + cat + '" "' + dbg);
+          continue;
+        }
+        if (null == cat.c) {
+          l.info(i + '-' + j + ' controller.js: null == commons cat.c "' + cat + '" "' + dbg);
+          continue;
+        }
+        if (isBlacklisted(cat.c)) {
+          l.info(i + '-' + j + ' controller.js: commons category blacklisted  "' + cat + '" "' + dbg);
+          continue;
+        }
+        const add = 0 > cat.l;
+        if (add) {
+          numberOfCategoriesLazyAdded++;
+          if (0 == imgUrlSet.size) {
+            for (const img of gallery.value) {
+              imgUrlSet.add(img.pgTit);
+            }
+          }
+          const catPromise = getImgsOfCat(cat, dbg, imgUrlSet, imgUrlsLazyByCategory, 'dbgIdWd', props, true);
+          //TODO we might prioritize categories with small number of images to have greater variety of images?
+          catPromises.push(catPromise);
+        }
+        getCatExtract(singleRefresh, cat, catPromises, dbg);
+      }
+    }
+    return Promise.all(catPromises).then(
+      r => {
+        for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
+          //between 6 && 50 imgs are on the gallery-preview
+          const img = imgUrlsLazyByCategory[k];
+          //TODO @ralfhauser, val does not exist on GalleryValue but value, changed it
+          const nImg: GalleryValue = {
+            s: img.src,
+            pgTit: img.value,
+            c: img.cat,
+            t: img.typ,
+          };
+          gallery.value.push(nImg);
+        }
+        if (0 < imgUrlsLazyByCategory.length) {
+          l.info(
+            'controller.js byId lazy img by lazy cat added: attempted ' +
+              imgUrlsLazyByCategory.length +
+              ' in ' +
+              numberOfCategoriesLazyAdded +
+              '/' +
+              numberOfCategories +
+              ' cats, tot ' +
+              gl +
+              ' ' +
+              dbg +
+              ' "' +
+              name +
+              '" ' +
+              r.length
+          );
+        }
+        for (const img of gallery.value) {
+          const imMetaDat = img.metadata;
+          if (null == imMetaDat && 'wm' == img.t) {
+            lzAtt += i + ',';
+            l.info(
+              'controller.js byId lazy getImageInfo: ' + i + '/' + gl + ' "' + img.pgTit + '" "' + name + '" ' + dbg
+            );
+            imgMetaPromises.push(
+              getImageInfo(img, i + '/' + gl + ' ' + dbg + ' ' + name, showDetails, props).catch(giiErr => {
+                //TODO @ralfhauser, dbgIdWd does not exist
+                const dbgIdWd = undefined;
+                l.info(
+                  'wikimedia.service.js: fillGallery getImageInfo failed for "' +
+                    img.pgTit +
+                    '" ' +
+                    dbg +
+                    ' ' +
+                    dbgIdWd +
+                    ' "' +
+                    name +
+                    '"' +
+                    '\n' +
+                    giiErr.stack
+                );
+              })
+            );
+            lazyAdded++;
+          } else {
+            //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg);
+          }
+          getImgClaims(singleRefresh, img, imgMetaPromises, i + ': ' + dbg);
+          i++;
+        }
+        if (0 < lazyAdded) {
+          l.info(
+            'controller.js byId lazy img metadata loading: attempted ' +
+              lazyAdded +
+              '/' +
+              gl +
+              ' (' +
+              lzAtt +
+              ') ' +
+              dbg +
+              ' "' +
+              name +
+              '"'
+          );
+        }
+        return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
+      },
+      err => {
+        l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '"');
+        throw err;
+      }
+    );
+  } else {
+    l.info('controller.js byId: gl > 0  ' + dbg);
+    return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
+  }
+}
+
+function waitForImgMetaPromises(
+  fountain: Fountain,
+  lazyAdded: number,
+  imgMetaPromises: Promise<any>[],
+  dbg: string
+): Promise<Fountain> {
+  return Promise.all(imgMetaPromises).then(
+    r => {
+      if (0 < lazyAdded) {
+        l.info(
+          'controller.js byId lazy img metadata loading after promise: attempted ' +
+            lazyAdded +
+            ' tot ' +
+            dbg +
+            '" ' +
+            r.length
+        );
+      }
+      l.info('controller.js byId: res.json ' + dbg);
+      return fountain;
+    },
+    err => {
+      l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg);
+      throw err;
+    }
+  );
 }

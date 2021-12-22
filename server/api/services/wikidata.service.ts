@@ -14,7 +14,7 @@ import sharedConstants from '../../common/shared-constants';
 import { BoundingBox, Fountain } from '../../common/typealias';
 import { MediaWikiEntityCollection, MediaWikiEntity, MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 import { City } from '../../../config/locations';
-import { LNG_LAT_STRING_PRECISON } from './locationCache';
+import { LNG_LAT_STRING_PRECISION } from './locationCache';
 
 // Set up caching of http requests
 const http = axios.create({
@@ -56,10 +56,10 @@ class WikidataService {
   }
 
   idsByBoundingBox(bounds: BoundingBox): Promise<string[]> {
-    const minLng = bounds.min.lng.toFixed(LNG_LAT_STRING_PRECISON);
-    const minLat = bounds.min.lat.toFixed(LNG_LAT_STRING_PRECISON);
-    const maxLng = bounds.max.lng.toFixed(LNG_LAT_STRING_PRECISON);
-    const maxLat = bounds.max.lat.toFixed(LNG_LAT_STRING_PRECISON);
+    const minLng = bounds.min.lng.toFixed(LNG_LAT_STRING_PRECISION);
+    const minLat = bounds.min.lat.toFixed(LNG_LAT_STRING_PRECISION);
+    const maxLng = bounds.max.lng.toFixed(LNG_LAT_STRING_PRECISION);
+    const maxLat = bounds.max.lat.toFixed(LNG_LAT_STRING_PRECISION);
     const sparql = `
         SELECT ?place
         WHERE

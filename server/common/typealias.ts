@@ -35,9 +35,9 @@ export type Fountain<G extends Geometry = DefaultFountainGeometry, P = Record<st
 export type FountainCollection<G extends Geometry = DefaultFountainGeometry> = FeatureCollection<
   G,
   FountainPropertyCollection<Record<string, unknown>>
-> & { last_scan?: Date };
+> & { last_scan: Date };
 
-export function FountainCollection(fountains: Fountain[], lastScan: Date = new Date()): FountainCollection {
+export function FountainCollection(fountains: Fountain[], lastScan: Date): FountainCollection {
   return { type: 'FeatureCollection', features: fountains, last_scan: lastScan };
 }
 

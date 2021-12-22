@@ -92,18 +92,18 @@ export function locationCacheKeyToTile(key: string): Tile {
 
 export function tileToLocationCacheKey(tile: Tile): string {
   return (
-    `${tile.min.lat.toFixed(LNG_LAT_STRING_PRECISON)},${tile.min.lng.toFixed(LNG_LAT_STRING_PRECISON)}` +
+    `${tile.min.lat.toFixed(LNG_LAT_STRING_PRECISION)},${tile.min.lng.toFixed(LNG_LAT_STRING_PRECISION)}` +
     ':' +
-    `${tile.max.lat.toFixed(LNG_LAT_STRING_PRECISON)},${tile.max.lng.toFixed(LNG_LAT_STRING_PRECISON)}`
+    `${tile.max.lat.toFixed(LNG_LAT_STRING_PRECISION)},${tile.max.lng.toFixed(LNG_LAT_STRING_PRECISION)}`
   );
 }
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
-// 0.01 lat is ~5km
+// 0.05 lat is ~5km
 const TILE_SIZE = 0.05;
 const ROUND_FACTOR = 20; // 1/0.05;
-export const LNG_LAT_STRING_PRECISON = 2;
+export const LNG_LAT_STRING_PRECISION = 2;
 function roundToTilePrecision(n: number): number {
   return Math.floor(n * ROUND_FACTOR) / ROUND_FACTOR;
 }
