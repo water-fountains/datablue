@@ -116,7 +116,9 @@ function typeCheckAndConvertParam<T>(
   } else if (typeCheck(param)) {
     return typeConversion(param);
   } else {
-    throw Error(`${paramName} was of a wrong type, expected ${type} was ${JSON.stringify(param)} ${typeof param}`);
+    throw Error(
+      `${paramName} was of a wrong type, expected ${type} was ${JSON.stringify(param)} with type ${typeof param}`
+    );
   }
 }
 

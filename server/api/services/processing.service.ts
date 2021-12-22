@@ -183,16 +183,7 @@ export function createUniqueIds(fountainArr: Fountain[]): Promise<Fountain[]> {
 
 export function essenceOf(fountainCollection: FountainCollection): FountainCollection {
   // returns a version of the fountain data with only the essential data
-  const newCollection: FountainCollection = {
-    type: 'FeatureCollection',
-    features: [],
-  };
-
-  //TODO @ralfhauser, properties do not exist on the GeoJSON standard for FeatureCollection, in other words, this is a hack.
-  (newCollection as any).properties = {
-    // Add last scan time info for https://github.com/water-fountains/proximap/issues/188
-    last_scan: new Date(),
-  };
+  const newCollection = FountainCollection([]);
 
   // Get list of property names that are marked as essential in the metadata
   const essentialPropNames: string[] = _.map(fountain_property_metadata, (p, p_name) => {

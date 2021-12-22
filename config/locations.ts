@@ -1,4 +1,4 @@
-import { Translated } from '../server/common/typealias';
+import { BoundingBox, Translated, uncheckedBoundingBoxToChecked } from '../server/common/typealias';
 
 /*
  * @license
@@ -19,14 +19,16 @@ export interface Location {
   name: string;
   description: Translated<string>;
   description_more: Translated<string>;
-  bounding_box: BoundingBox;
+  bounding_box: UncheckedBoundingBox;
+  //TODO @ralf.hauser not used as it seems, remove?
   operator_fountain_catalog_qid: string;
+  //TODO @ralf.hauser not used as it seems, remove?
   issue_api: IssueApi;
 }
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
 // if you change something here, then you need to change it in proximap as well
-export interface BoundingBox {
+export interface UncheckedBoundingBox {
   latMin: number;
   lngMin: number;
   latMax: number;
@@ -521,7 +523,23 @@ export function isCity(s: string): s is City {
   return cities.includes(s as City);
 }
 
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export function getCityBoundingBox(city: City): BoundingBox {
+  const uncheckedBoundingBox = locationsCollection[city].bounding_box;
+  try {
+    return uncheckedBoundingBoxToChecked(uncheckedBoundingBox);
+  } catch (e: any) {
+    const newErr = new Error('Could not get city bounding box for ' + city);
+    newErr.stack += '\nCaused by: ' + e.stack;
+    throw newErr;
+  }
+}
+
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
 export type LocationsCollection = Record<City, Location>;
+
 // we don't expose just the internal structure as we also want to be sure that it follows the spec.
 // However, we allow City union to grow dynamically
 export const locationsCollection: LocationsCollection = internalLocationsCollection;

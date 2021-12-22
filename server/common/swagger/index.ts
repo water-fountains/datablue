@@ -32,7 +32,6 @@ export function swaggerify(app: Express, routerProvider: (app: Express) => Route
         cookie: {
           secret: process.env.SESSION_SECRET,
         },
-        // Don't allow JSON content over 100kb (default is 1mb)
         json: {
           limit: process.env.REQUEST_LIMIT,
         },

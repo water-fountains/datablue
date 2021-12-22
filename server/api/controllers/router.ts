@@ -12,10 +12,10 @@ import { buildInfoController } from './build-info.controller';
 // This file maps API routes to functions
 export const Router = express
   .Router()
-  .get('/fountain/', controller.getSingle)
-  .get('/fountains/', controller.byLocation)
-  .get('/metadata/fountain_properties/', controller.getPropertyMetadata)
-  .get('/metadata/locations/', controller.getLocationMetadata)
-  .get('/metadata/shared-constants/', controller.getSharedConstants)
-  .get('/processing-errors/', controller.getProcessingErrors)
+  .get('/fountain', controller.getSingle.bind(controller))
+  .get('/fountains', controller.getByBounds.bind(controller))
+  .get('/metadata/fountain_properties', controller.getPropertyMetadata.bind(controller))
+  .get('/metadata/locations', controller.getLocationMetadata.bind(controller))
+  .get('/metadata/shared-constants', controller.getSharedConstants.bind(controller))
+  .get('/processing-errors', controller.getProcessingErrors.bind(controller))
   .get('/build-info', buildInfoController);

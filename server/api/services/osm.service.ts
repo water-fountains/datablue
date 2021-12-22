@@ -7,8 +7,8 @@
 
 import l from '../../common/logger';
 import osm_fountain_config from '../../../config/fountains.sources.osm';
-import { FountainConfig } from '../../common/typealias';
-//TODO we could use overpas-ts thought I am not sure how well it is maintained and up-to-date
+import { BoundingBox, FountainConfig } from '../../common/typealias';
+//TODO @ralf.hauser we could use overpas-ts thought I am not sure how well it is maintained and up-to-date
 import query_overpass from 'query-overpass';
 
 interface OsmFountainConfigCollection {
@@ -44,11 +44,9 @@ class OsmService {
     });
   }
 
-  byBoundingBox(latMin: number, lngMin: number, latMax: number, lngMax: number): Promise<FountainConfig[]> {
-    // fetch fountain from OSM by coordinates
+  byBoundingBox(boundingBox: BoundingBox): Promise<FountainConfig[]> {
     return new Promise((resolve, reject) => {
-      const query = queryBuilderBox(latMin, lngMin, latMax, lngMax);
-      // l.info(query);
+      const query = queryBuilderBoundingBox(boundingBox);
       query_overpass(
         query,
         (error: any, data: OsmFountainConfigCollection) => {
@@ -85,13 +83,16 @@ function queryBuilderCenter(lat: number, lng: number, radius = 10): string {
   `;
 }
 
-function queryBuilderBox(latMin: number, lngMin: number, latMax: number, lngMax: number): string {
+function queryBuilderBoundingBox(boundingBox: BoundingBox): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
   return `
     (${['node', 'way']
       .map(e =>
         osm_fountain_config.sub_sources
-          .map(item => `${e}[${item.tag.name}=${item.tag.value}](${latMin},${lngMin},${latMax},${lngMax});`)
+          .map(
+            item =>
+              `${e}[${item.tag.name}=${item.tag.value}](${boundingBox.min.lat},${boundingBox.min.lng},${boundingBox.max.lat},${boundingBox.max.lng});`
+          )
           .join('')
       )
       .join('')}

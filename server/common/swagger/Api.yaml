@@ -68,12 +68,12 @@ paths:
           example: wikidata
           required: true
           description: database for which the provided identifier is valid
-        - name: city
+        - name: loc
           in: query
           type: string
-          example: ch-zh
+          example: 47.3646083,8.5380421
           required: true
-          description: code of city for which fountains are to be served
+          description: lat,lng of fountain, necessary in order that we can load
         - name: idval
           in: query
           type: string
@@ -91,12 +91,20 @@ paths:
     get:
       description: Fetch fountains within bounding box
       parameters:
-        - name: city
+        - name: sw
           in: query
           type: string
-          example: ch-zh
+          pattern: \d+(.\d+)?,\d+(\.d+)?
+          example: 47.3229261255644,8.45960259979614
           required: true
-          description: code of location for which fountains are to be served
+          description: lat,lng of the south west location of the bounding box
+        - name: ne
+          in: query
+          type: string
+          pattern: \d+(.\d+)?,\d+(\.d+)?
+          example: 47.431119712250506,8.61940272745742
+          required: true
+          description: lat,lng of the north east location of the bounding box
         - name: refresh
           in: query
           type: boolean

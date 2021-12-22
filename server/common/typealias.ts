@@ -1,6 +1,9 @@
 import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { UncheckedBoundingBox } from '../../config/locations';
 import { ImageLikeCollection, ImageLikeType } from '../../config/text2img';
+import { isNumeric } from '../api/controllers/utils';
 import { PropStatus } from './constants';
+import { illegalState } from './illegalState';
 import { Category, MediaWikiSimplifiedEntity } from './wikimedia-types';
 
 // TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
@@ -32,7 +35,11 @@ export type Fountain<G extends Geometry = DefaultFountainGeometry, P = Record<st
 export type FountainCollection<G extends Geometry = DefaultFountainGeometry> = FeatureCollection<
   G,
   FountainPropertyCollection<Record<string, unknown>>
->;
+> & { last_scan?: Date };
+
+export function FountainCollection(fountains: Fountain[], lastScan: Date = new Date()): FountainCollection {
+  return { type: 'FeatureCollection', features: fountains, last_scan: lastScan };
+}
 
 export type FountainConfig = SourceConfig<any, string>;
 
@@ -135,4 +142,46 @@ export type Database = SourceType;
 
 export function isDatabase(d: string): d is Database {
   return d === 'osm' || d === 'wikidata';
+}
+
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export interface LngLat {
+  lng: number;
+  lat: number;
+}
+export function LngLat(lng: number, lat: number): LngLat {
+  if (lng < -180 || lng > 180) illegalState('lng out of range [-180, 180]', lng);
+  if (lat < -90 || lat > 90) illegalState('lat out of range [-180, 180]', lat);
+
+  return { lng: lng, lat: lat };
+}
+export function parseLngLat(lngLatAsString: string): LngLat {
+  const lngLatArr = lngLatAsString.split(',');
+  if (lngLatArr.length >= 2 && isNumeric(lngLatArr[0]) && isNumeric(lngLatArr[1])) {
+    const lat = Number(lngLatArr[0]);
+    const lng = Number(lngLatArr[1]);
+    return LngLat(lng, lat);
+  } else {
+    illegalState('could not parse to LngLat, given string: ' + lngLatAsString);
+  }
+}
+
+// TODO it would make more sense to move common types to an own library which is consumed by both, datablue and proximap
+// if you change something here, then you need to change it in proximap as well
+export interface BoundingBox {
+  min: LngLat;
+  max: LngLat;
+}
+export function BoundingBox(min: LngLat, max: LngLat): BoundingBox {
+  if (min.lng >= max.lng) illegalState('min lng greater or equal max lng.', 'min', min, 'max', max);
+  if (min.lat >= max.lat) illegalState('min lat greater or equal to max lat', 'min', min, 'max', max);
+
+  return { min: min, max: max };
+}
+export function uncheckedBoundingBoxToChecked(uncheckedBoundingBox: UncheckedBoundingBox): BoundingBox {
+  return BoundingBox(
+    LngLat(uncheckedBoundingBox.lngMin, uncheckedBoundingBox.latMin),
+    LngLat(uncheckedBoundingBox.lngMax, uncheckedBoundingBox.latMax)
+  );
 }
