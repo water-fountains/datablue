@@ -323,139 +323,139 @@ function enrichFountain(fountain: Fountain, dbg: string): Promise<Fountain> {
 
   gl = galleryArr.length;
   //if (galleryArr.isEmpty()) {
-    let i = 0;
-    let lzAtt = '';
-    const showDetails = true;
-    const singleRefresh = true;
-    const imgUrlSet = new Set<string>();
-    const catPromises: Promise<ImageLike[]>[] = [];
-    let numberOfCategories = -1;
-    let numberOfCategoriesLazyAdded = 0;
-    const imgUrlsLazyByCategory: ImageLike[] = [];
-    // TODO @ralfhauser, this condition does not make sense, if value.length < 0 means basically if it is empty and if it is empty, then numberOfCategories will always be 0 and the for-loop will do nothing
-    if (hasWikiCommonsCategories(props) && 0 < props.wiki_commons_name.value.length) {
-      numberOfCategories = props.wiki_commons_name.value.length;
-      let j = 0;
-      for (const cat of props.wiki_commons_name.value) {
-        j++;
-        if (null == cat) {
-          l.info(i + '-' + j + ' controller.js: null == commons category "' + cat + '" "' + dbg);
-          continue;
-        }
-        if (null == cat.c) {
-          l.info(i + '-' + j + ' controller.js: null == commons cat.c "' + cat + '" "' + dbg);
-          continue;
-        }
-        if (isBlacklisted(cat.c)) {
-          l.info(i + '-' + j + ' controller.js: commons category blacklisted  "' + cat + '" "' + dbg);
-          continue;
-        }
-        const add = 0 > cat.l;
-        if (add) {
-          numberOfCategoriesLazyAdded++;
-          if (0 == imgUrlSet.size) {
-            for (const img of gallery.value) {
-              imgUrlSet.add(img.pgTit);
-            }
-          }
-          const catPromise = getImgsOfCat(cat, dbg, imgUrlSet, imgUrlsLazyByCategory, 'dbgIdWd', props, true);
-          //TODO we might prioritize categories with small number of images to have greater variety of images?
-          catPromises.push(catPromise);
-        }
-        getCatExtract(singleRefresh, cat, catPromises, dbg);
+  let i = 0;
+  let lzAtt = '';
+  const showDetails = true;
+  const singleRefresh = true;
+  const imgUrlSet = new Set<string>();
+  const catPromises: Promise<ImageLike[]>[] = [];
+  let numberOfCategories = -1;
+  let numberOfCategoriesLazyAdded = 0;
+  const imgUrlsLazyByCategory: ImageLike[] = [];
+  // TODO @ralfhauser, this condition does not make sense, if value.length < 0 means basically if it is empty and if it is empty, then numberOfCategories will always be 0 and the for-loop will do nothing
+  if (hasWikiCommonsCategories(props) && 0 < props.wiki_commons_name.value.length) {
+    numberOfCategories = props.wiki_commons_name.value.length;
+    let j = 0;
+    for (const cat of props.wiki_commons_name.value) {
+      j++;
+      if (null == cat) {
+        l.info(i + '-' + j + ' controller.js: null == commons category "' + cat + '" "' + dbg);
+        continue;
       }
+      if (null == cat.c) {
+        l.info(i + '-' + j + ' controller.js: null == commons cat.c "' + cat + '" "' + dbg);
+        continue;
+      }
+      if (isBlacklisted(cat.c)) {
+        l.info(i + '-' + j + ' controller.js: commons category blacklisted  "' + cat + '" "' + dbg);
+        continue;
+      }
+      const add = 0 > cat.l;
+      if (add) {
+        numberOfCategoriesLazyAdded++;
+        if (0 == imgUrlSet.size) {
+          for (const img of gallery.value) {
+            imgUrlSet.add(img.pgTit);
+          }
+        }
+        const catPromise = getImgsOfCat(cat, dbg, imgUrlSet, imgUrlsLazyByCategory, 'dbgIdWd', props, true);
+        //TODO we might prioritize categories with small number of images to have greater variety of images?
+        catPromises.push(catPromise);
+      }
+      getCatExtract(singleRefresh, cat, catPromises, dbg);
     }
-    return Promise.all(catPromises).then(
-      r => {
-        for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
-          //between 6 && 50 imgs are on the gallery-preview
-          const img = imgUrlsLazyByCategory[k];
-          //TODO @ralfhauser, val does not exist on GalleryValue but value, changed it
-          const nImg: GalleryValue = {
-            s: img.src,
-            pgTit: img.value,
-            c: img.cat,
-            t: img.typ,
-          };
-          gallery.value.push(nImg);
-        }
-        if (0 < imgUrlsLazyByCategory.length) {
-          l.info(
-            'controller.js byId lazy img by lazy cat added: attempted ' +
-              imgUrlsLazyByCategory.length +
-              ' in ' +
-              numberOfCategoriesLazyAdded +
-              '/' +
-              numberOfCategories +
-              ' cats, tot ' +
-              gl +
-              ' ' +
-              dbg +
-              ' "' +
-              name +
-              '" ' +
-              r.length
-          );
-        }
-        for (const img of gallery.value) {
-          const imMetaDat = img.metadata;
-          if (null == imMetaDat && 'wm' == img.t) {
-            lzAtt += i + ',';
-            l.info(
-              'controller.js byId lazy getImageInfo: ' + i + '/' + gl + ' "' + img.pgTit + '" "' + name + '" ' + dbg
-            );
-            imgMetaPromises.push(
-              getImageInfo(img, i + '/' + gl + ' ' + dbg + ' ' + name, showDetails, props).catch(giiErr => {
-                //TODO @ralfhauser, dbgIdWd does not exist
-                const dbgIdWd = undefined;
-                l.info(
-                  'wikimedia.service.js: fillGallery getImageInfo failed for "' +
-                    img.pgTit +
-                    '" ' +
-                    dbg +
-                    ' ' +
-                    dbgIdWd +
-                    ' "' +
-                    name +
-                    '"' +
-                    '\n' +
-                    giiErr.stack
-                );
-              })
-            );
-            lazyAdded++;
-          } else {
-            //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg);
-          }
-          getImgClaims(singleRefresh, img, imgMetaPromises, i + ': ' + dbg);
-          i++;
-        }
-        if (0 < lazyAdded) {
-          l.info(
-            'controller.js byId lazy img metadata loading: attempted ' +
-              lazyAdded +
-              '/' +
-              gl +
-              ' (' +
-              lzAtt +
-              ') ' +
-              dbg +
-              ' "' +
-              name +
-              '"'
-          );
-        }
-        return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
-      },
-      err => {
-        l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '"');
-        throw err;
+  }
+  return Promise.all(catPromises).then(
+    r => {
+      for (let k = 0; k < imgUrlsLazyByCategory.length && k < MAX_IMG_SHOWN_IN_GALLERY; k++) {
+        //between 6 && 50 imgs are on the gallery-preview
+        const img = imgUrlsLazyByCategory[k];
+        //TODO @ralfhauser, val does not exist on GalleryValue but value, changed it
+        const nImg: GalleryValue = {
+          s: img.src,
+          pgTit: img.value,
+          c: img.cat,
+          t: img.typ,
+        };
+        gallery.value.push(nImg);
       }
-    );
-//  } else {
-//    l.info('controller.js byId: gl > 0 - '+ gl+' ' + dbg);
-//    return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
-//  }
+      if (0 < imgUrlsLazyByCategory.length) {
+        l.info(
+          'controller.js byId lazy img by lazy cat added: attempted ' +
+            imgUrlsLazyByCategory.length +
+            ' in ' +
+            numberOfCategoriesLazyAdded +
+            '/' +
+            numberOfCategories +
+            ' cats, tot ' +
+            gl +
+            ' ' +
+            dbg +
+            ' "' +
+            name +
+            '" ' +
+            r.length
+        );
+      }
+      for (const img of gallery.value) {
+        const imMetaDat = img.metadata;
+        if (null == imMetaDat && 'wm' == img.t) {
+          lzAtt += i + ',';
+          l.info(
+            'controller.js byId lazy getImageInfo: ' + i + '/' + gl + ' "' + img.pgTit + '" "' + name + '" ' + dbg
+          );
+          imgMetaPromises.push(
+            getImageInfo(img, i + '/' + gl + ' ' + dbg + ' ' + name, showDetails, props).catch(giiErr => {
+              //TODO @ralfhauser, dbgIdWd does not exist
+              const dbgIdWd = undefined;
+              l.info(
+                'wikimedia.service.js: fillGallery getImageInfo failed for "' +
+                  img.pgTit +
+                  '" ' +
+                  dbg +
+                  ' ' +
+                  dbgIdWd +
+                  ' "' +
+                  name +
+                  '"' +
+                  '\n' +
+                  giiErr.stack
+              );
+            })
+          );
+          lazyAdded++;
+        } else {
+          //  							  l.info('controller.js byId: of '+cityS+' found imMetaDat '+i+' in gal of size '+gl+' "'+name+'" '+dbg);
+        }
+        getImgClaims(singleRefresh, img, imgMetaPromises, i + ': ' + dbg);
+        i++;
+      }
+      if (0 < lazyAdded) {
+        l.info(
+          'controller.js byId lazy img metadata loading: attempted ' +
+            lazyAdded +
+            '/' +
+            gl +
+            ' (' +
+            lzAtt +
+            ') ' +
+            dbg +
+            ' "' +
+            name +
+            '"'
+        );
+      }
+      return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
+    },
+    err => {
+      l.error(`controller.js: Failed on imgMetaPromises: ${err.stack} .` + dbg + ' "' + name + '"');
+      throw err;
+    }
+  );
+  //  } else {
+  //    l.info('controller.js byId: gl > 0 - '+ gl+' ' + dbg);
+  //    return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
+  //  }
 }
 
 function waitForImgMetaPromises(
