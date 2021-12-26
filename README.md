@@ -33,7 +33,7 @@ View the data processing concept [here](https://www.lucidchart.com/invitations/a
 
 _Note: when you update your local project with `git pull`, make sure you run `npm install` again to update any packages that were changed._
 
-With the chrome browser, you can step through the code by placing `chrome:inspect` in the address bar.
+With the chrome browser, you can step through the code by placing `chrome:inspect` in the address bar (provided you `npm run debug`).
 
 210425: on debian, I had the problem: https://github.com/nodejs/node/issues/26887 despite chrome being on v 87.0.4280.88 (Official Build) (64-bit) and node on v14.15.4
 
