@@ -236,7 +236,11 @@ class WikimediaService {
                 //TODO @ralfhauser, img.val does not exist, changed it to img.value, please check if this is correct
                 //TODO @ralfhauser, are description and metadata optional values? They are not defined here. Moreover, not every ImageLike has a Category which means this needs to be optional for SCTPT as well
                 const nImg: GalleryValue = { s: img.src, pgTit: img.value, c: img.cat, t: img.typ };
-
+                l.info('wikimedia.service.js: fillGallery imgFromMap === undefined "' +
+                          dbg +
+                          ' ' +
+                          dbgIdWd
+                      );
                 galValPromises.push(
                   //TODO @ralfhauser getImageInfo returns Promise<void> this statement most likely does not make sense
                   // My guess, galValPromises should have nImg instead, hence I added the `then` after the catch, please check if this fix is correct
@@ -360,7 +364,7 @@ class WikimediaService {
   }
 }
 
-function makeMetadata(data: ImageInfoExtMetadataCollection): ImageInfoMetadataCollection {
+function makeMetadata(data: ImageInfoExtMetadataCollection, dbg: string): ImageInfoMetadataCollection {
   const template = [
     {
       sourceName: 'ImageDescription',
@@ -392,6 +396,8 @@ function makeMetadata(data: ImageInfoExtMetadataCollection): ImageInfoMetadataCo
     },
   ];
   const metadata = {};
+  l.info('wikimedia.service.js: makeMetadata  "' +
+            dbg + '" ');
   _.forEach(template, pair => {
     if (Object.prototype.hasOwnProperty.call(data.extmetadata, pair.sourceName)) {
       metadata[pair.outputName] = data.extmetadata[pair.sourceName].value;
@@ -562,7 +568,7 @@ export function getImageInfo(
       let i = 0;
       let n = 0;
       if (Object.prototype.hasOwnProperty.call(data, 'imageinfo')) {
-        img.metadata = makeMetadata(data.imageinfo[0]);
+        img.metadata = makeMetadata(data.imageinfo[0], dbg);
         const imgMeta = img.metadata;
         if (imgMeta.wikimedia_categories && 0 < imgMeta.wikimedia_categories.trim().length) {
           const categories = imgMeta.wikimedia_categories.trim().split('|');

@@ -299,13 +299,14 @@ export async function getFountainFromCacheIfNotForceRefreshOrFetch(
   return enrichedFountain;
 }
 
-//TODO @ralf.hauser this function is still very very smelly. I through now an error instead of not responding at all
+//TODO @ralf.hauser this function is still very very smelly. I throw now an error instead of not responding at all
 function enrichFountain(fountain: Fountain, dbg: string): Promise<Fountain> {
   const imgMetaPromises: Promise<any>[] = [];
   let lazyAdded = 0;
   let gl = -1;
+  if (null == fountain) illegalState('enrichFountain: fountain undefined', fountain);
   const props = fountain.properties;
-  if (null == props) illegalState('properties of fountain where undefined', fountain);
+  if (null == props) illegalState('enrichFountain: properties of fountain where undefined', fountain);
 
   const name = props.name.value;
   if (LAZY_ARTIST_NAME_LOADING_i41db) {
@@ -320,8 +321,8 @@ function enrichFountain(fountain: Fountain, dbg: string): Promise<Fountain> {
     illegalState('controller.js byId: gallery null || null == gal.value || !isArray ' + dbg);
   }
 
-  if (galleryArr.isEmpty()) {
-    gl = galleryArr.length;
+  gl = galleryArr.length;
+  //if (galleryArr.isEmpty()) {
     let i = 0;
     let lzAtt = '';
     const showDetails = true;
@@ -451,10 +452,10 @@ function enrichFountain(fountain: Fountain, dbg: string): Promise<Fountain> {
         throw err;
       }
     );
-  } else {
-    l.info('controller.js byId: gl > 0  ' + dbg);
-    return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
-  }
+//  } else {
+//    l.info('controller.js byId: gl > 0 - '+ gl+' ' + dbg);
+//    return waitForImgMetaPromises(fountain, lazyAdded, imgMetaPromises, gl + ' ' + dbg + ' "' + name + '"');
+//  }
 }
 
 function waitForImgMetaPromises(
