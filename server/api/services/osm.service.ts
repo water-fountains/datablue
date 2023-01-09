@@ -63,7 +63,7 @@ class OsmService {
             resolve(data.features);
           }
         },
-        { flatProperties: true }
+        { flatProperties: true, overpassUrl: 'https://lz4.overpass-api.de/api/interpreter' }
       );
     });
   }
