@@ -21,6 +21,13 @@ const wdk = WBK({
   sparqlEndpoint: 'https://query.wikidata.org/sparql'
 });
 
+const axiosConfig = () => ({
+  headers: {
+    "User-Agent": "datablue/water-fountains.org (contact: water-fountains@my-d.org)",
+    "Accept": "application/json",
+  },
+});
+
 // Set up caching of http requests
 const http = axios.create({
   headers: { 'Cache-Control': 'no-cache' },
@@ -108,12 +115,7 @@ class WikidataService {
             props: [],
           });
           // get data
-          httpPromises.push(http.get<MediaWikiEntityCollection>(url, {
-            headers: {
-              "User-Agent": "datablue/water-fountains.org (contact: water-fountains@my-d.org)",
-              "Accept": "application/json",
-            }
-          }));
+          httpPromises.push(http.get<MediaWikiEntityCollection>(url, axiosConfig()));
           l.info('pushed url ' + url);
         });
         // wait for http requests for all chunks to resolve
@@ -432,7 +434,7 @@ class WikidataService {
       // get data
       return (
         http
-          .get(url)
+          .get(url, axiosConfig())
           // parse into an easier to read format
           .then(r => {
             if (null == r || null == r.data || null == r.data.entities) {
@@ -526,7 +528,7 @@ function doSparqlRequest(sparql: string, dbg: string): Promise<string[]> {
     // get data
     //TODO type with correct wikidata-sdk type
     axios
-      .get(url)
+      .get(url, axiosConfig())
       .then(res => {
         if (res.status !== 200) {
           const error = new Error(
