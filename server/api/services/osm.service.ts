@@ -39,7 +39,7 @@ class OsmService {
             resolve(data.features);
           }
         },
-        { flatProperties: true, overpassUrl: 'https://lz4.overpass-api.de/api/interpreter'  }
+        { flatProperties: true, overpassUrl: 'https://lz4.overpass-api.de/api/interpreter' }
       );
     });
   }
@@ -73,10 +73,9 @@ class OsmService {
  * see https://www.npmjs.com/package/query-overpass?activeTab=readme
  */
 interface QueryPassError {
-    message: string;
-    statusCode: number;
+  message: string;
+  statusCode: number;
 }
-
 
 function queryBuilderCenter(lat: number, lng: number, radius = 10): string {
   // The querybuilder uses the sub_sources defined in osm_fountain_config to know which tags should be queried
