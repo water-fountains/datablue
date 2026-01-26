@@ -29,6 +29,14 @@ import {
 
 const api = axios.create({});
 
+const axiosConfig = (timeout: number) => ({
+  headers: {
+    "User-Agent": "datablue/water-fountains.org (contact: water-fountains@my-d.org)",
+    "Accept": "application/json",
+  },
+  timeout: timeout
+});
+
 class WikimediaService {
   private getName(fountain: Fountain) {
     const props = fountain.properties;
@@ -559,7 +567,7 @@ export function getImageInfo(
   const timeout = timeoutSecs * 1000;
   //      l.info('wikimedia.service.js: getImageInfo '+dbg+' '+url);
   const iiPr = api
-    .get<MediaWikiQuery<MediaWikiImageInfoCollection<ImageInfoExtMetadataCollection>>>(url, { timeout: timeout })
+    .get<MediaWikiQuery<MediaWikiImageInfoCollection<ImageInfoExtMetadataCollection>>>(url, axiosConfig(timeout))
     .then(response => {
       const keys = Object.keys(response.data.query.pages);
       const key = keys[0];
@@ -711,7 +719,7 @@ export function getImgsOfCat(
   // make array of image promises
   const imgValsCumul: ImageLike[] = [];
   const imgNoInfoPomise = api
-    .get(url, { timeout: 1000 })
+    .get(url, axiosConfig(1000))
     .then(r => {
       const rDat = r.data;
       if (null == rDat.error) {
