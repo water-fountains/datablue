@@ -9,12 +9,24 @@ import l from '../../common/logger';
 import axios, { AxiosPromise } from 'axios';
 import { cacheAdapterEnhancer } from 'axios-extensions';
 import * as _ from 'lodash';
-import wdk from 'wikidata-sdk';
+import WBK from 'wikibase-sdk';
 import sharedConstants from '../../common/shared-constants';
 import { BoundingBox, Fountain } from '../../common/typealias';
 import { MediaWikiEntityCollection, MediaWikiEntity, MediaWikiSimplifiedEntity } from '../../common/wikimedia-types';
 import { City } from '../../../config/locations';
 import { LNG_LAT_STRING_PRECISION } from './locationCache';
+
+const wdk = WBK({
+  instance: 'https://www.wikidata.org',
+  sparqlEndpoint: 'https://query.wikidata.org/sparql'
+});
+
+const axiosConfig = () => ({
+  headers: {
+    "User-Agent": "datablue/water-fountains.org (contact: water-fountains@my-d.org)",
+    "Accept": "application/json",
+  },
+});
 
 // Set up caching of http requests
 const http = axios.create({
@@ -97,12 +109,14 @@ class WikidataService {
           }
           // create sparql url
           const url = wdk.getEntities({
+            //@ts-ignore
             ids: qidChunk,
             format: 'json',
             props: [],
           });
           // get data
-          httpPromises.push(http.get<MediaWikiEntityCollection>(url));
+          httpPromises.push(http.get<MediaWikiEntityCollection>(url, axiosConfig()));
+          l.info('pushed url ' + url);
         });
         // wait for http requests for all chunks to resolve
         Promise.all(httpPromises)
@@ -118,6 +132,7 @@ class WikidataService {
               const data: MediaWikiSimplifiedEntity[] = [];
               for (const key in r.data.entities) {
                 // simplify object structure of each wikidata entity and add it to 'data'
+                //@ts-ignore
                 const entity: MediaWikiSimplifiedEntity = wdk.simplify.entity(r.data.entities[key], {
                   // keep qualifiers when simplifying (qualifiers are needed for the operator id)
                   keepQualifiers: true,
@@ -254,6 +269,7 @@ class WikidataService {
                 idWd +
                 '"'
             );
+            //@ts-ignore
             const simplified: MediaWikiSimplifiedEntity = wdk.simplify.entity(eQid, { keepQualifiers: true });
             l.info(
               'wikidata.service.js fillArtistName: after wdk.simplify.entity eQid "' +
@@ -418,7 +434,7 @@ class WikidataService {
       // get data
       return (
         http
-          .get(url)
+          .get(url, axiosConfig())
           // parse into an easier to read format
           .then(r => {
             if (null == r || null == r.data || null == r.data.entities) {
@@ -449,6 +465,7 @@ class WikidataService {
               return fountain;
             }
             // Get label of operator in English
+            //@ts-ignore
             const langs = Object.keys(entity.labels);
             opNam.derived = {
               name: '',
@@ -456,9 +473,11 @@ class WikidataService {
               qid: qid,
             };
             if (langs.indexOf('en') >= 0) {
+              //@ts-ignore
               opNam.derived.name = entity.labels.en;
             } else {
               // Or get whatever language shows up first
+              //@ts-ignore
               opNam.derived.name = entity.labels[langs[0]];
             }
             // Try to find a useful link
@@ -466,6 +485,7 @@ class WikidataService {
             let url = null;
             for (const pid of ['P856', 'P973', 'P854', 'P2699']) {
               // get the url value if the path exists
+              //@ts-ignore
               url = _.get(entity.claims, [pid, 0, 'value'], false);
               if (url) {
                 break;
@@ -508,7 +528,7 @@ function doSparqlRequest(sparql: string, dbg: string): Promise<string[]> {
     // get data
     //TODO type with correct wikidata-sdk type
     axios
-      .get(url)
+      .get(url, axiosConfig())
       .then(res => {
         if (res.status !== 200) {
           const error = new Error(
@@ -522,6 +542,7 @@ function doSparqlRequest(sparql: string, dbg: string): Promise<string[]> {
         }
 
         try {
+          //@ts-ignore
           const simplifiedResults = wdk.simplify.sparqlResults(res.data, { minimize: true });
           l.info(
             'wikidata.service.js doSparqlRequest: ' +
@@ -530,6 +551,7 @@ function doSparqlRequest(sparql: string, dbg: string): Promise<string[]> {
               simplifiedResults.length +
               ' ids found'
           );
+          //@ts-ignore
           resolve(simplifiedResults);
         } catch (e: any) {
           l.error(

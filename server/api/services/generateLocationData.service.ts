@@ -214,18 +214,12 @@ function fetchFountainsByBoundingBox(boundingBox: BoundingBox, dbg: string, debu
       if ('getaddrinfo' == e.syscall) {
         l.info('Are you offline from the internet?');
       }
-      l.error(
-        `generateLocationDataService: Error collecting OSM data - generateLocationData: ${e.message}` +
-          ' latMin ' +
-          boundingBox.min.lat +
-          ', lngMim ' +
-          boundingBox.min.lng +
-          ', latMax ' +
-          boundingBox.max.lat +
-          ', lngMax ' +
-          boundingBox.max.lng
-      );
-      throw e;
+      const msg =
+          `generateLocationDataService: Error collecting OSM data. ` +
+          `Bounding Box: ${JSON.stringify(boundingBox)}. ` +
+          `Underlying error: ${e.message}).`;
+      l.error(msg);
+      throw new Error(msg);
     });
 
   // get data from Wikidata
