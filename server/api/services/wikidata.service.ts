@@ -18,13 +18,13 @@ import { LNG_LAT_STRING_PRECISION } from './locationCache';
 
 const wdk = WBK({
   instance: 'https://www.wikidata.org',
-  sparqlEndpoint: 'https://query.wikidata.org/sparql'
+  sparqlEndpoint: 'https://query.wikidata.org/sparql',
 });
 
 const axiosConfig = () => ({
   headers: {
-    "User-Agent": "datablue/water-fountains.org (contact: water-fountains@my-d.org)",
-    "Accept": "application/json",
+    'User-Agent': 'datablue/water-fountains.org (contact: water-fountains@my-d.org)',
+    Accept: 'application/json',
   },
 });
 
