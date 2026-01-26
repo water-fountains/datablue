@@ -48,6 +48,7 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'error',
         '@typescript-eslint/array-type': 'error',
         '@typescript-eslint/ban-tslint-comment': 'error',
+        '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/consistent-type-definitions': 'error',
         '@typescript-eslint/no-extraneous-class': 'error',
         '@typescript-eslint/no-implicit-any-catch': ['error', { allowExplicitAny: true }],

@@ -214,7 +214,7 @@ function fetchFountainsByBoundingBox(boundingBox: BoundingBox, dbg: string, debu
       if ('getaddrinfo' == e.syscall) {
         l.info('Are you offline from the internet?');
       }
-      var msg =
+      const msg =
           `generateLocationDataService: Error collecting OSM data. ` +
           `Bounding Box: ${JSON.stringify(boundingBox)}. ` +
           `Underlying error: ${e.message}).`;
