@@ -1,6 +1,6 @@
-name: Ubuntu
+name: build
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -10,21 +10,23 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: "9"
-      - uses: actions/cache@v2
+          node-version: '14'
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: npm install
-      - name: check
+      - run: npm ci
+      - name: lint
+        run: npm run lint
+      - name: check build
         run: |
           set -e
           cp .envTEMPLATE .env
           npm run dev &
           sleep 10
-          curl localhost:3000
+          curl localhost:3000 | (sleep 10 && curl localhost:3000)
           kill %1 # stop npm run dev
           npm run compile
 
@@ -51,12 +53,11 @@ jobs:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           BRANCH=$(if [ "${{ github.ref }}" == "refs/heads/stable" ]; then echo "stable"; else echo "develop"; fi)
-          ssh -tt deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
-            git pull origin "$BRANCH" &&
-            npm run compile &&
-            export PM2_HOME=/etc/pm2daemon &&
-            pm2 delete \"datablue_$BRANCH\" | echo &&
-            pm2 start build/main.js --name \"datablue_$BRANCH\""
+          ssh deploy@water-fountains.org "cd \"/var/www/datablue_$BRANCH\" &&
+            git checkout \"origin/$BRANCH\" -- server/common/build.info.ts &&
+            git fetch origin \"$BRANCH\" &&
+            git reset --hard \"origin/$BRANCH\" &&
+            ./deploy.sh \"$BRANCH\""
 
       - name: cleanup ssh
         if: ${{ steps.deployCheck.outputs.deployIt == 'yes' }}

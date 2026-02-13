@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   version: 1.0.0
   title: datablue
@@ -18,7 +18,6 @@ produces:
   - application/json
   - text/html
 
-
 definitions:
   ExampleBody:
     type: object
@@ -33,25 +32,25 @@ definitions:
 paths:
   /metadata/fountain_properties:
     get:
-      description: "Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information."
+      description: 'Fetch general metadata for fountain properties. For example: whether OpenStreetMap or Wikidata are preferred places to store the information.'
       responses:
         200:
           description: Returns property metadata.
 
   /metadata/locations:
     get:
-      description: "Fetch general metadata for locations, including bounds and official operator information."
+      description: 'Fetch general metadata for locations, including bounds and official operator information.'
       responses:
         200:
           description: Returns location metadata.
 
   /metadata/shared-constants:
     get:
-      description: "Fetch shared consants between Datablue and Proximap."
+      description: 'Fetch shared consants between Datablue and Proximap.'
       responses:
         200:
           description: Returns shared constants.
-          
+
   /fountain:
     get:
       description: Fetch detailed fountain information based on coordinates or identifier
@@ -59,45 +58,28 @@ paths:
         - name: queryType
           in: query
           type: string
-          enum: [byCoords, byId]
-          default: byCoords
-          description: how to query the fountains
+          enum: [byId]
           required: true
+          description: how to query the fountains
         - name: database
           in: query
           type: string
-          enum: [datablue, operator, wikidata, osm]
+          enum: [wikidata, osm]
           example: wikidata
+          required: true
           description: database for which the provided identifier is valid
-        - name: city
+        - name: loc
           in: query
           type: string
-          example: ch-zh
-          required: false
-          description: code of city for which fountains are to be served
+          example: 47.3646083,8.5380421
+          required: true
+          description: lat,lng of fountain, necessary in order that we can load
         - name: idval
           in: query
           type: string
           example: Q27229889
+          required: true
           description: identifier used for fountain
-        - name: lat
-          in: query
-          schema:
-            type: float
-          example: 47.364622
-          description: approximate latitude of requested fountain, only required if querying by coords
-        - name: lng
-          in: query
-          schema:
-            type: float
-          example: 8.537836
-          description: approximate longitude of requested fountain, only required if querying by coords
-        - name: radius
-          in: query
-          schema:
-            type: float
-          default: 50.0
-          description: radius in meters in which fountains should be searched
       responses:
         200:
           description: Returns a fountain with metadata collected from OSM
@@ -109,12 +91,20 @@ paths:
     get:
       description: Fetch fountains within bounding box
       parameters:
-        - name: city
+        - name: sw
           in: query
           type: string
-          example: ch-zh
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
+          example: 47.3229261255644,8.45960259979614
           required: true
-          description: code of location for which fountains are to be served
+          description: lat,lng of the south west location of the bounding box
+        - name: ne
+          in: query
+          type: string
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
+          example: 47.431119712250506,8.61940272745742
+          required: true
+          description: lat,lng of the north east location of the bounding box
         - name: refresh
           in: query
           type: boolean
@@ -136,17 +126,31 @@ paths:
     get:
       description: Fetch list of processing errors for given location
       parameters:
-        - name: city
+        - name: sw
           in: query
           type: string
-          example: ch-zh
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
+          example: 47.3229261255644,8.45960259979614
           required: true
-          description: name of location for which fountain processing errors are to be served
+          description: lat,lng of the south west location of the bounding box
+        - name: ne
+          in: query
+          type: string
+          pattern: -?\d+(.-?\d+)?,-?\d+(-?\.d+)?
+          example: 47.431119712250506,8.61940272745742
+          required: true
+          description: lat,lng of the north east location of the bounding box
       responses:
         200:
           description: Returns a collection of processing errors.
         500:
           description: internal server error.
+  /build-info:
+    get:
+      description: Fetch the build information.
+      responses:
+        200:
+          description: Returns  the build information.
 
   /spec:
     get:

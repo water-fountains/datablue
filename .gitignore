@@ -1,5 +1,6 @@
 node_modules
 build
+build.bak
 server/common/build.info.js
 .env
 .idea
@@ -7,8 +8,12 @@ server/common/build.info.js
 /.project
 /nbproject/private/
 .history
+.eslintcache
 
 .DS_Store
 nbproject/*
 server/.DS_Store
 server/api/.DS_Store
+/npm_db_2*.log
+.envrc
+shell.nix
